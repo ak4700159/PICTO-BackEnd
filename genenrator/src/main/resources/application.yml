@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: blog-project
+  datasource:
+    driver-class-name: org.h2.Driver
+    # 스프링부트 2.1 이후부턴 MODE = MYSQL 작성 필수
+    url: jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+
+  sql:
+    init:
+      mode: always
+
+  h2:
+    console:
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+
+    open-in-view: false
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+server:
+  servlet:
+    encoding:
+      force-response: true
+
+  port: 8083
