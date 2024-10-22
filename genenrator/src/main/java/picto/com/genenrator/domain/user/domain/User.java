@@ -2,6 +2,7 @@ package picto.com.genenrator.domain.user.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -10,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", updatable = false, columnDefinition = "int")
     int user_id;
 
@@ -24,7 +24,7 @@ public class User {
     String email;
 
     @Column(name = "profile_active", nullable = false, columnDefinition = "tinyint")
-    boolean profile_active;
+    int profile_active;
 
     @Column(name = "profile_photo_path", nullable = true, columnDefinition = "varchar(30)")
     String profile_photo_path;
@@ -35,5 +35,14 @@ public class User {
     @Column(name = "account_name", nullable = false, columnDefinition = "varchar(10)")
     String account_name;
 
-
+    @Builder
+    public User(int user_id, String name, String email, int profile_active, String profile_photo_path, String intro, String account_name) {
+        this.user_id = user_id;
+        this.name = name;
+        this.email = email;
+        this.profile_active = profile_active;
+        this.profile_photo_path = profile_photo_path;
+        this.intro = intro;
+        this.account_name = account_name;
+    }
 }

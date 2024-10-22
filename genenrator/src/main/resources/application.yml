@@ -2,15 +2,20 @@ spring:
   application:
     name: blog-project
   datasource:
-    driver-class-name: org.h2.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     # 스프링부트 2.1 이후부턴 MODE = MYSQL 작성 필수
-    url: jdbc:h2:mem:test;MODE=MYSQL;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
+    url: jdbc:mysql://picto-db-2.cj8eomgw4s4w.ap-northeast-2.rds.amazonaws.com:3036/photo_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: admin
+    password: rlatmdals456!
 
   sql:
     init:
       mode: always
+
+  security:
+    user:
+      name: user
+      password: 1234
 
   h2:
     console:
@@ -18,9 +23,9 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 
-    database-platform: org.hibernate.dialect.H2Dialect
+    #database-platform: org.hibernate.dialect.H2Dialect
     defer-datasource-initialization: true
     show-sql: true
 

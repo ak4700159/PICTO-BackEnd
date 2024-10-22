@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import picto.com.genenrator.domain.user.domain.User;
 
 // 여기서 사용자를 외래키롤 지정
@@ -40,10 +41,10 @@ public class Photo {
     private String location;
 
     @Column(name = "register_time", nullable = false)
-    private int registr_time;
+    private int registerTime;
 
     @Column(name = "upload_time", nullable = false)
-    private int upload_time;
+    private int uploadTime;
 
     // 액자 활성화 여부
     @Column(name = "acitve", nullable = false)
@@ -54,6 +55,21 @@ public class Photo {
 
     @Column(name = "views", nullable = false)
     private int views;
+
+    @Column(name = "title", length = 20)
+    private String title;
+
+    @ColumnDefault("0")
+    @Column(name = "`view s`", nullable = false)
+    private Integer viewS;
+
+    public void setViewS(Integer viewS) {
+        this.viewS = viewS;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     // 좀 더 간단 명료하게 생성자 생성할 수 있게됨
     // @Builder
