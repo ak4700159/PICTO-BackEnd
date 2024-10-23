@@ -1,0 +1,146 @@
+{
+  "resources": {
+    "includes": [
+      {
+        "pattern": "\\Q\/\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF\\E"
+      },
+      {
+        "pattern": "\\QMETA-INF\/spring.factories\\E"
+      },
+      {
+        "pattern": "\\Qapplication\\E.*\\Q.properties\\E"
+      },
+      {
+        "pattern": "\\Qapplication\\E.*\\Q.xml\\E"
+      },
+      {
+        "pattern": "\\Qapplication\\E.*\\Q.yaml\\E"
+      },
+      {
+        "pattern": "\\Qapplication\\E.*\\Q.yml\\E"
+      },
+      {
+        "pattern": "\\Qbanner.txt\\E"
+      },
+      {
+        "pattern": "\\Qdata-\\E.*\\Q.sql\\E"
+      },
+      {
+        "pattern": "\\Qdata.sql\\E"
+      },
+      {
+        "pattern": "\\Qorg\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/autoconfigure\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/autoconfigure\/security\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/autoconfigure\/security\/servlet\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/autoconfigure\/security\/servlet\/SpringBootWebSecurityConfiguration$WebSecurityEnablerConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/autoconfigure\/transaction\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/autoconfigure\/transaction\/TransactionAutoConfiguration$EnableTransactionManagementConfiguration$CglibAutoProxyConfiguration.class\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/logging\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/logging\/java\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/logging\/java\/logging-file.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/logging\/java\/logging.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/web\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/web\/server\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/boot\/web\/server\/mime-mappings.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/http\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/http\/codec\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/http\/codec\/CodecConfigurer.properties\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/http\/mime.types\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/security\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/security\/core\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/security\/core\/userdetails\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/security\/core\/userdetails\/jdbc\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/security\/core\/userdetails\/jdbc\/users.ddl\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/web\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/web\/util\\E"
+      },
+      {
+        "pattern": "\\Qorg\/springframework\/web\/util\/HtmlCharacterEntityReferences.properties\\E"
+      },
+      {
+        "pattern": "\\Qrest-default-messages.properties\\E"
+      },
+      {
+        "pattern": "\\Qrest-messages\\E.*\\Q.properties\\E"
+      },
+      {
+        "pattern": "\\Qschema-\\E.*\\Q.sql\\E"
+      },
+      {
+        "pattern": "\\Qschema.sql\\E"
+      },
+      {
+        "pattern": "\\Qspring.properties\\E"
+      },
+      {
+        "pattern": "\\Qstatic\\E"
+      },
+      {
+        "pattern": "\\Qstatic\/\\E.*"
+      }
+    ]
+  },
+  "bundles": [
+    {
+      "name": "org.springframework.security.messages"
+    }
+  ]
+}

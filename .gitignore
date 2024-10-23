@@ -32,5 +32,6 @@ replay_pid*
 
 # End of https://www.toptal.com/developers/gitignore/api/java
 
-
+# generator 설정
 /genenrator/gradle/*
+/genenrator/build/*
