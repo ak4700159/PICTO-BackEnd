@@ -42,4 +42,5 @@ out/
 /nbdist/
 /.nb-gradle/
 
+**/resources/application.yml
 
