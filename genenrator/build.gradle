@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'picto.com'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 java {
     toolchain {
@@ -26,35 +26,40 @@ repositories {
 }
 
 dependencies {
+    // implementation 'jakarta.persistence-api'
+    implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.springframework.boot:spring-boot-starter-data-rest'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+    // 보안
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-web-services'
-    implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    implementation 'org.springframework.session:spring-session-jdbc'
+
+    // 웹관련
+    //implementation 'org.springframework.boot:spring-boot-starter-web'
+    //implementation 'org.springframework.boot:spring-boot-starter-web-services'
+
+    // 웹소켓 열때 사용
+    // implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    // implementation 'org.springframework.session:spring-session-jdbc'
+
+
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
-    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+    // runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+    // mysql 연결
     runtimeOnly 'com.mysql:mysql-connector-j'
-    runtimeOnly 'io.asyncer:r2dbc-mysql'
-    runtimeOnly 'io.r2dbc:r2dbc-h2'
-    runtimeOnly 'io.r2dbc:r2dbc-mssql:1.0.0.RELEASE'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'io.projectreactor:reactor-test'
-    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
 
-hibernate {
-    enhancement {
-        enableAssociationManagement = true
-    }
+    // QueryDSL
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 }
 
 tasks.named('test') {
