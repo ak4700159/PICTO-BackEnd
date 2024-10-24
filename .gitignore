@@ -42,5 +42,6 @@ out/
 /nbdist/
 /.nb-gradle/
 
-**/resources/application.yml
+# 별도 생성 필요
+application.yml
 
