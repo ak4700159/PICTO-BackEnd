@@ -1,6 +1,7 @@
 package picto.com.generator.domain.user.application;
 
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class GeneratorUserService {
         return newUser;
     }
 
+    @Transactional
     public List<User> makeUser100(){
         List<User> users = new ArrayList<User>();
         for(int i = 2; i <= 100; i++){
