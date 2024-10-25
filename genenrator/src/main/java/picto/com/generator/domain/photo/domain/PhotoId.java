@@ -17,7 +17,4 @@ import java.io.Serializable;
 public class PhotoId implements Serializable {
     @Column(name = "photo_path")
     private String photoPath;
-
-    @Column(name = "tag")
-    private String tag;
 }

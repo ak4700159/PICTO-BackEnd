@@ -6,6 +6,7 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "User", schema = "photo_schema")
 public class User {
     @Id
     @Column(name = "user_id", updatable = false)

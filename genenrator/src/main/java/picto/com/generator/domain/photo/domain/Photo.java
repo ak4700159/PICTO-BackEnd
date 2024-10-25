@@ -17,16 +17,16 @@ public class Photo {
     // 태그를 외래키에서 PK로 포함시켜 복합키를 만들었다.
     // PhotoId 클래스를 만들어 Serializable 인터페이스를 구현한다.
     // 그리고나서 여기에 사용하면 된다.
-    @EmbeddedId
-    private PhotoId photoId;
+//    @EmbeddedId
+//    private PhotoId photoId;
+    @Id
+    @Column(name = "photo_path", length = 50)
+    private String photo_path;
 
     // 외래키 등록하기
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     User user;
-
-    @Column(name = "content", nullable = false)
-    private String content;
 
     // 위도
     @Column(name = "lat", nullable = false)
@@ -47,7 +47,7 @@ public class Photo {
     private int uploadTime;
 
     // 액자 활성화 여부
-    @Column(name = "acitve", nullable = false)
+    @Column(name = "active", nullable = false)
     private boolean active;
 
     @Column(name = "likes", nullable = false)
@@ -60,7 +60,7 @@ public class Photo {
     private String title;
 
     @ColumnDefault("0")
-    @Column(name = "`view s`", nullable = false)
+    @Column(name = "`views`", nullable = false)
     private Integer viewS;
 
     public void setViewS(Integer viewS) {
