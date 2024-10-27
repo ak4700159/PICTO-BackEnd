@@ -1,8 +1,7 @@
 package picto.com.generator.global.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -14,6 +13,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "Token", schema = "photo_schema")
 public class Token {
     @Id
@@ -21,7 +21,7 @@ public class Token {
     private Integer id;
 
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -34,4 +34,10 @@ public class Token {
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> accessToken;
 
+    @Builder
+    public Token(Integer id, Map<String, Object> refreshToken, Map<String, Object> accessToken) {
+        this.accessToken =  accessToken;
+        this.refreshToken = refreshToken;
+        this.id = id;
+    }
 }

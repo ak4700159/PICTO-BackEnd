@@ -11,7 +11,10 @@ import picto.com.generator.domain.user.domain.User;
 @Getter
 @Setter
 @Entity
-@Table(name = "PhotoRecord", schema = "photo_schema")
+@Table(name = "PhotoRecord", schema = "photo_schema", indexes = {
+        @Index(name = "owner_id", columnList = "owner_id"),
+        @Index(name = "photo_path", columnList = "photo_path")
+})
 public class PhotoRecord {
     @EmbeddedId
     private PhotoRecordId id;
@@ -39,5 +42,4 @@ public class PhotoRecord {
 
     @Column(name = "event_time", nullable = false)
     private Integer eventTime;
-
 }

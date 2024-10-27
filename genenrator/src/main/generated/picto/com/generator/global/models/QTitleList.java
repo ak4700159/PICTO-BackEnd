@@ -22,9 +22,9 @@ public class QTitleList extends EntityPathBase<TitleList> {
 
     public static final QTitleList titleList = new QTitleList("titleList");
 
-    public final QTitle name;
+    public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
-    public final NumberPath<Integer> title_list_id = createNumber("title_list_id", Integer.class);
+    public final QTitle name;
 
     public final picto.com.generator.domain.photo.domain.QPhoto user;
 

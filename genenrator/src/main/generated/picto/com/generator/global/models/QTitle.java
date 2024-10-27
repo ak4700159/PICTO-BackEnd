@@ -7,7 +7,6 @@ import com.querydsl.core.types.dsl.*;
 import com.querydsl.core.types.PathMetadata;
 import javax.annotation.processing.Generated;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
@@ -25,8 +24,6 @@ public class QTitle extends EntityPathBase<Title> {
     public final StringPath content = createString("content");
 
     public final StringPath name = createString("name");
-
-    public final SetPath<picto.com.generator.domain.photo.domain.Photo, picto.com.generator.domain.photo.domain.QPhoto> photos = this.<picto.com.generator.domain.photo.domain.Photo, picto.com.generator.domain.photo.domain.QPhoto>createSet("photos", picto.com.generator.domain.photo.domain.Photo.class, picto.com.generator.domain.photo.domain.QPhoto.class, PathInits.DIRECT2);
 
     public QTitle(String variable) {
         super(Title.class, forVariable(variable));

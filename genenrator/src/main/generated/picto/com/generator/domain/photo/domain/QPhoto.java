@@ -22,9 +22,7 @@ public class QPhoto extends EntityPathBase<Photo> {
 
     public static final QPhoto photo = new QPhoto("photo");
 
-    public final BooleanPath active = createBoolean("active");
-
-    public final StringPath content = createString("content");
+    public final BooleanPath frame_active = createBoolean("frame_active");
 
     public final NumberPath<Double> lat = createNumber("lat", Double.class);
 
@@ -34,17 +32,17 @@ public class QPhoto extends EntityPathBase<Photo> {
 
     public final StringPath location = createString("location");
 
-    public final QPhotoId photoId;
+    public final StringPath photo_path = createString("photo_path");
 
     public final NumberPath<Integer> registerTime = createNumber("registerTime", Integer.class);
+
+    public final BooleanPath shared_active = createBoolean("shared_active");
 
     public final StringPath title = createString("title");
 
     public final NumberPath<Integer> uploadTime = createNumber("uploadTime", Integer.class);
 
     public final picto.com.generator.domain.user.domain.QUser user;
-
-    public final NumberPath<Integer> viewS = createNumber("viewS", Integer.class);
 
     public final NumberPath<Integer> views = createNumber("views", Integer.class);
 
@@ -66,7 +64,6 @@ public class QPhoto extends EntityPathBase<Photo> {
 
     public QPhoto(Class<? extends Photo> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.photoId = inits.isInitialized("photoId") ? new QPhotoId(forProperty("photoId")) : null;
         this.user = inits.isInitialized("user") ? new picto.com.generator.domain.user.domain.QUser(forProperty("user")) : null;
     }
 

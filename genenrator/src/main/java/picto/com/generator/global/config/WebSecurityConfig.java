@@ -14,7 +14,7 @@ public class WebSecurityConfig {
     public WebSecurityCustomizer configure(){
         return (web ->
                 web.ignoring()
-                        .requestMatchers("/api/generator/"));
+                        .requestMatchers("/api/generator/user/**"));
     }
 
 }

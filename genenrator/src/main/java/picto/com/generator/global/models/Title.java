@@ -1,12 +1,11 @@
 package picto.com.generator.global.models;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import picto.com.generator.domain.photo.domain.Photo;
-
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -22,11 +21,5 @@ public class Title {
 
     @Column(name = "`condition`", nullable = false, length = 40)
     private String condition;
-
-    @ManyToMany
-    @JoinTable(name = "TitleList",
-            joinColumns = @JoinColumn(name = "name"),
-            inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<Photo> photos = new LinkedHashSet<>();
 
 }

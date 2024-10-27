@@ -1,8 +1,7 @@
 package picto.com.generator.global.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import picto.com.generator.domain.user.domain.User;
@@ -10,6 +9,7 @@ import picto.com.generator.domain.user.domain.User;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "Session", schema = "photo_schema")
 public class Session {
     @Id
@@ -17,7 +17,7 @@ public class Session {
     private Integer id;
 
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -33,5 +33,14 @@ public class Session {
 
     @Column(name = "active")
     private Boolean active;
+
+    @Builder
+    public Session(Integer id, Double currentLat, Double currentLng, String location, Boolean active) {
+        this.id = id;
+        this.currentLat = currentLat;
+        this.currentLng = currentLng;
+        this.location = location;
+        this.active = active;
+    }
 
 }

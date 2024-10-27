@@ -22,15 +22,15 @@ public class QUserSetting extends EntityPathBase<UserSetting> {
 
     public static final QUserSetting userSetting = new QUserSetting("userSetting");
 
-    public final NumberPath<Byte> arroundAlert = createNumber("arroundAlert", Byte.class);
+    public final BooleanPath aroundAlert = createBoolean("aroundAlert");
 
-    public final NumberPath<Byte> autoRotation = createNumber("autoRotation", Byte.class);
+    public final BooleanPath autoRotation = createBoolean("autoRotation");
 
     public final NumberPath<Integer> id = createNumber("id", Integer.class);
 
-    public final NumberPath<Byte> lightMode = createNumber("lightMode", Byte.class);
+    public final BooleanPath lightMode = createBoolean("lightMode");
 
-    public final NumberPath<Byte> popluarAlert = createNumber("popluarAlert", Byte.class);
+    public final BooleanPath popularAlert = createBoolean("popularAlert");
 
     public final picto.com.generator.domain.user.domain.QUser user;
 

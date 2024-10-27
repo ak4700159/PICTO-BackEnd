@@ -29,7 +29,7 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath password = createString("password");
 
-    public final NumberPath<Integer> profile_active = createNumber("profile_active", Integer.class);
+    public final BooleanPath profile_active = createBoolean("profile_active");
 
     public final StringPath profile_photo_path = createString("profile_photo_path");
 

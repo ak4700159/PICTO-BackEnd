@@ -1,7 +1,9 @@
 package picto.com.generator.global.models;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
@@ -11,14 +13,17 @@ import picto.com.generator.domain.user.domain.User;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor
 @Table(name = "Filter", schema = "photo_schema")
 public class Filter {
+    // user_id 는 생성자에 포함 X 왜냐하면 User 객체에서 식별하기 때문
     @Id
     @Column(name = "user_id", nullable = false)
     private Integer id;
 
+    // FK 해당 테이블의 PK 로 사용시 이를 명시하기 위해서 사용
     @MapsId
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -33,5 +38,14 @@ public class Filter {
 
     @Column(name = "start_date")
     private Integer startDate;
+
+    // 
+    @Builder
+    public Filter(String sort, String period, Integer startDate, User user) {
+        this.user = user;
+        this.sort = sort;
+        this.period = period;
+        this.startDate = startDate;
+    }
 
 }

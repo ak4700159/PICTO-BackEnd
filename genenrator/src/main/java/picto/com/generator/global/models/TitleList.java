@@ -10,11 +10,14 @@ import picto.com.generator.domain.photo.domain.Photo;
 @Getter
 @Setter
 @Entity
-@Table(name = "TitleList", schema = "photo_schema")
+@Table(name = "TitleList", schema = "photo_schema", indexes = {
+        @Index(name = "name", columnList = "name"),
+        @Index(name = "user_id", columnList = "user_id")
+})
 public class TitleList {
     @Id
     @Column(name = "title_list_id", nullable = false)
-    private Integer title_list_id;
+    private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
