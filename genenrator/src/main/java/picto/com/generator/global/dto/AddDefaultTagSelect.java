@@ -10,10 +10,10 @@ import picto.com.generator.global.models.TagSelectId;
 @Getter
 @NoArgsConstructor
 public class AddDefaultTagSelect {
-
     public TagSelect toEntity(User newUser, String tagName) {
         return TagSelect.builder()
-        .id(new TagSelectId(tagName, newUser.getUser_id()))
-        .build();
+                .user(newUser)
+                .id(new TagSelectId(tagName, newUser.getUser_id()))
+                .build();
     }
 }

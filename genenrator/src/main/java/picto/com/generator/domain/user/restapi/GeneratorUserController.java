@@ -19,6 +19,7 @@ import java.util.List;
 public class GeneratorUserController {
     private final GeneratorUserService generatorUserService;
 
+    // 생성된 모든 유저 조회
     @GetMapping("api/generator/user")
     public ResponseEntity<List<User>> findAllUser () {
         System.out.println("user found");
@@ -33,12 +34,18 @@ public class GeneratorUserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(users);
     }
 
-
-    // 특정 아이디로 검색
+    // 100명 유저 생성
     @PostMapping("api/generator/user/100")
     public ResponseEntity<List<User>> postIdUser () {
         System.out.println("User 100 created request");
-        List<User> users = generatorUserService.makeUser100();
+        // List<User> users = generatorUserService.makeUser100();
+        //generatorUserService.makeFilter100();
+        // 여기서부터 오류 발생
+        //generatorUserService.makeUserSetting100();
+        //generatorUserService.makeToken100();
+        generatorUserService.makeSession100();
+        //generatorUserService.makeTagSelect100();
+        List<User> users = generatorUserService.findAllUser();
         return ResponseEntity.status(HttpStatus.CREATED).body(users);
     }
 }

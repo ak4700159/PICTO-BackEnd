@@ -11,7 +11,7 @@ public class AddDefaultUserSetting {
     public UserSetting toEntity(User newUser){
         return UserSetting.
                 builder().
-                id(newUser.getUser_id()).
+                user(newUser).
                 lightMode(false).
                 autoRotation(false).
                 aroundAlert(true).

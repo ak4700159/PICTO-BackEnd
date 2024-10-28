@@ -34,10 +34,10 @@ public class Photo {
     private String location;
 
     @Column(name = "register_time", nullable = false)
-    private int registerTime;
+    private Long registerTime;
 
     @Column(name = "upload_time", nullable = false)
-    private int uploadTime;
+    private Long uploadTime;
 
     // 액자 활성화 여부
     @ColumnDefault("true")

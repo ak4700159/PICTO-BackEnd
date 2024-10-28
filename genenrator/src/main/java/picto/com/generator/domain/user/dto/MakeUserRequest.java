@@ -29,7 +29,6 @@ public class MakeUserRequest {
                 .limit(targetStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
-        System.out.printf("user creates : %s\n", generatedString);
 
         return User.builder().
                 name(Integer.toString(count)).

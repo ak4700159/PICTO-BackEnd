@@ -16,7 +16,7 @@ public class AddDefaultFilter {
                 user(newUser).
                 sort("좋아요순").
                 period("한 달").
-                startDate(Long.valueOf(new Date().getTime()).intValue()).
+                startTime(new Date().getTime()).
                 build();
     }
 }

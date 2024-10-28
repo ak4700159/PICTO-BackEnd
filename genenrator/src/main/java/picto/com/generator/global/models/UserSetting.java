@@ -18,7 +18,7 @@ public class UserSetting {
     private Integer id;
 
     @MapsId
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -36,8 +36,8 @@ public class UserSetting {
     private boolean popularAlert;
 
     @Builder
-    public UserSetting(int id, boolean lightMode, boolean autoRotation, boolean aroundAlert, boolean popularAlert) {
-        this.id = id;
+    public UserSetting(User user, boolean lightMode, boolean autoRotation, boolean aroundAlert, boolean popularAlert) {
+        this.user = user;
         this.lightMode = lightMode;
         this.autoRotation = autoRotation;
         this.aroundAlert = aroundAlert;

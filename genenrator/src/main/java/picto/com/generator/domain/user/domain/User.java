@@ -2,12 +2,13 @@ package picto.com.generator.domain.user.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "User", schema = "photo_schema")
-public class User {
+public class User implements Persistable<Integer> {
     @Id
     @Column(name = "user_id", updatable = false)
     int user_id;
@@ -43,5 +44,26 @@ public class User {
         this.intro = intro;
         this.password = password;
         this.account_name = account_name;
+    }
+
+
+    // insert 전 select 문 발생한느 것을 방지 한다. 즉 새로운 객체 엔티티임을 보장 / 실무에선 사용 X
+    @Transient
+    private boolean isNew = true;
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
+    }
+
+    @Override
+    public Integer getId() {
+        return this.user_id;
     }
 }

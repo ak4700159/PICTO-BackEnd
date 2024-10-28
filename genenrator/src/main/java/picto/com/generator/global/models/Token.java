@@ -21,7 +21,7 @@ public class Token {
     private Integer id;
 
     @MapsId
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -35,9 +35,9 @@ public class Token {
     private Map<String, Object> accessToken;
 
     @Builder
-    public Token(Integer id, Map<String, Object> refreshToken, Map<String, Object> accessToken) {
+    public Token(User user, Map<String, Object> refreshToken, Map<String, Object> accessToken) {
         this.accessToken =  accessToken;
         this.refreshToken = refreshToken;
-        this.id = id;
+        this.user = user;
     }
 }

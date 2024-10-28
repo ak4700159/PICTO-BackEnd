@@ -34,13 +34,13 @@ public class QPhoto extends EntityPathBase<Photo> {
 
     public final StringPath photo_path = createString("photo_path");
 
-    public final NumberPath<Integer> registerTime = createNumber("registerTime", Integer.class);
+    public final NumberPath<Long> registerTime = createNumber("registerTime", Long.class);
 
     public final BooleanPath shared_active = createBoolean("shared_active");
 
     public final StringPath title = createString("title");
 
-    public final NumberPath<Integer> uploadTime = createNumber("uploadTime", Integer.class);
+    public final NumberPath<Long> uploadTime = createNumber("uploadTime", Long.class);
 
     public final picto.com.generator.domain.user.domain.QUser user;
 

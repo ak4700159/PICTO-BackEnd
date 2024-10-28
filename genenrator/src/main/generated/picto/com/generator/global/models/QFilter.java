@@ -28,7 +28,7 @@ public class QFilter extends EntityPathBase<Filter> {
 
     public final StringPath sort = createString("sort");
 
-    public final NumberPath<Integer> startDate = createNumber("startDate", Integer.class);
+    public final NumberPath<Long> startTime = createNumber("startTime", Long.class);
 
     public final picto.com.generator.domain.user.domain.QUser user;
 

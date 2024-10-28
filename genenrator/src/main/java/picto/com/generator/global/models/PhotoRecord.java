@@ -41,5 +41,5 @@ public class PhotoRecord {
     private Byte type;
 
     @Column(name = "event_time", nullable = false)
-    private Integer eventTime;
+    private Long eventTime;
 }

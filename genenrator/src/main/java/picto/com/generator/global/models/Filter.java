@@ -10,6 +10,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import picto.com.generator.domain.user.domain.User;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @Entity
@@ -23,7 +25,7 @@ public class Filter {
 
     // FK 해당 테이블의 PK 로 사용시 이를 명시하기 위해서 사용
     @MapsId
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -36,16 +38,15 @@ public class Filter {
     @Column(name = "period", nullable = false, length = 10)
     private String period;
 
-    @Column(name = "start_date")
-    private Integer startDate;
+    @Column(name = "start_time")
+    private Long startTime;
 
     // 
     @Builder
-    public Filter(String sort, String period, Integer startDate, User user) {
+    public Filter(String sort, String period, Long startTime, User user) {
         this.user = user;
         this.sort = sort;
         this.period = period;
-        this.startDate = startDate;
+        this.startTime = startTime;
     }
-
 }

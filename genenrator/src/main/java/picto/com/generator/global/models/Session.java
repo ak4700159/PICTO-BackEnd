@@ -17,7 +17,7 @@ public class Session {
     private Integer id;
 
     @MapsId
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -35,8 +35,8 @@ public class Session {
     private Boolean active;
 
     @Builder
-    public Session(Integer id, Double currentLat, Double currentLng, String location, Boolean active) {
-        this.id = id;
+    public Session(User user, Double currentLat, Double currentLng, String location, Boolean active) {
+        this.user = user;
         this.currentLat = currentLat;
         this.currentLng = currentLng;
         this.location = location;
