@@ -38,14 +38,12 @@ public class GeneratorUserController {
     @PostMapping("api/generator/user/100")
     public ResponseEntity<List<User>> postIdUser () {
         System.out.println("User 100 created request");
-        // List<User> users = generatorUserService.makeUser100();
-        //generatorUserService.makeFilter100();
-        // 여기서부터 오류 발생
-        //generatorUserService.makeUserSetting100();
-        //generatorUserService.makeToken100();
+        List<User> users = generatorUserService.makeUser100();
+        generatorUserService.makeFilter100();
+        generatorUserService.makeUserSetting100();
+        generatorUserService.makeToken100();
         generatorUserService.makeSession100();
-        //generatorUserService.makeTagSelect100();
-        List<User> users = generatorUserService.findAllUser();
+        generatorUserService.makeTagSelect100();
         return ResponseEntity.status(HttpStatus.CREATED).body(users);
     }
 }
