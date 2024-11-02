@@ -1,4 +1,5 @@
-package picto.com.generator.global.models;
+package picto.com.photomanager.domain.photo.entity;
+
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -6,27 +7,27 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 
 import java.io.Serial;
-import java.util.Objects;
+import java.io.Serializable;
 
 @Getter
 @Setter
 @Embeddable
 @NoArgsConstructor
 @EqualsAndHashCode
-public class TagSelectId implements java.io.Serializable {
+public class PhotoId implements Serializable {
     @Serial
-    private static final long serialVersionUID = 1985514141084711612L;
-    @Column(name = "tag", nullable = false, length = 20)
-    private String tag;
+    private static final long serialVersionUID = 1L;
+
+    @Column(name = "photo_id")
+    private int photoID;
 
     @Column(name = "user_id", nullable = false)
     private int userId;
 
-    public TagSelectId(String tag, int userId) {
-        this.tag = tag;
+    public PhotoId(int photoID, int userId) {
+        this.photoID = photoID;
         this.userId = userId;
     }
 

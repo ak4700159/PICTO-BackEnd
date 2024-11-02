@@ -1,26 +1,28 @@
-package picto.com.generator.domain.photo.domain;
+package picto.com.photomanager.domain.photo.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import picto.com.generator.domain.user.domain.User;
-
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import picto.com.photomanager.global.user.entity.User;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(schema = "photo_schema", name = "Photo")
 public class Photo {
-    @Id
-    @Column(name = "photo_id")
-    private int photoID;
+    @EmbeddedId
+    private PhotoId id;
 
     // 외래키 등록하기
+    @MapsId("userId")
     @ManyToOne(cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    User user;
+    private User user;
 
     // 사진 저장 경로
     @Column(name = "photo_path", nullable = true, length = 50)

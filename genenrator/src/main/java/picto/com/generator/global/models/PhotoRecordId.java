@@ -27,13 +27,13 @@ public class PhotoRecordId implements Serializable {
     private Integer ownerId;
 
 
-    @Column(name = "photo_path", nullable = false, length = 50)
-    private String photoPath;
+    @Column(name = "photo_id", nullable = false, length = 50)
+    private int photoId;
 
-    public PhotoRecordId(Integer agentId, Integer ownerId, String photoPath) {
+    public PhotoRecordId(Integer agentId, Integer ownerId, Integer photoId) {
         this.agentId = agentId;
         this.ownerId = ownerId;
-        this.photoPath = photoPath;
+        this.photoId = photoId;
     }
 
 }

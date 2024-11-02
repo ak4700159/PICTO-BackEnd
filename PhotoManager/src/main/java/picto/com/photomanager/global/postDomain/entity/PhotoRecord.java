@@ -1,17 +1,17 @@
-package picto.com.generator.global.models;
+package picto.com.photomanager.global.postDomain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.generator.domain.photo.domain.Photo;
-import picto.com.generator.domain.user.domain.User;
+import picto.com.photomanager.domain.photo.entity.Photo;
+import picto.com.photomanager.global.user.entity.User;
 
 @Getter
 @Setter
 @Entity
-@Table(name = "PhotoRecord", schema = "photo_schema", indexes = {
+@Table(name = "PhotoRecord", indexes = {
         @Index(name = "owner_id", columnList = "owner_id"),
         @Index(name = "photo_id", columnList = "photo_id")
 })
@@ -35,11 +35,12 @@ public class PhotoRecord {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "photo_id", nullable = false, referencedColumnName = "photo_id")
-    private Photo photoId;
+    private Photo photo;
 
     @Column(name = "type", nullable = false)
     private Byte type;
 
     @Column(name = "event_time", nullable = false)
     private Long eventTime;
+
 }

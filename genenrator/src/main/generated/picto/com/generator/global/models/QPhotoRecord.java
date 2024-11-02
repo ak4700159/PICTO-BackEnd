@@ -30,7 +30,7 @@ public class QPhotoRecord extends EntityPathBase<PhotoRecord> {
 
     public final picto.com.generator.domain.user.domain.QUser owner;
 
-    public final picto.com.generator.domain.photo.domain.QPhoto photoPath;
+    public final picto.com.generator.domain.photo.domain.QPhoto photoId;
 
     public final NumberPath<Byte> type = createNumber("type", Byte.class);
 
@@ -55,7 +55,7 @@ public class QPhotoRecord extends EntityPathBase<PhotoRecord> {
         this.agent = inits.isInitialized("agent") ? new picto.com.generator.domain.user.domain.QUser(forProperty("agent")) : null;
         this.id = inits.isInitialized("id") ? new QPhotoRecordId(forProperty("id")) : null;
         this.owner = inits.isInitialized("owner") ? new picto.com.generator.domain.user.domain.QUser(forProperty("owner")) : null;
-        this.photoPath = inits.isInitialized("photoPath") ? new picto.com.generator.domain.photo.domain.QPhoto(forProperty("photoPath"), inits.get("photoPath")) : null;
+        this.photoId = inits.isInitialized("photoId") ? new picto.com.generator.domain.photo.domain.QPhoto(forProperty("photoId"), inits.get("photoId")) : null;
     }
 
 }

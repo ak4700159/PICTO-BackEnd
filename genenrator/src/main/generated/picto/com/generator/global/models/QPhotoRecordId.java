@@ -23,7 +23,7 @@ public class QPhotoRecordId extends BeanPath<PhotoRecordId> {
 
     public final NumberPath<Integer> ownerId = createNumber("ownerId", Integer.class);
 
-    public final StringPath photoPath = createString("photoPath");
+    public final NumberPath<Integer> photoId = createNumber("photoId", Integer.class);
 
     public QPhotoRecordId(String variable) {
         super(PhotoRecordId.class, forVariable(variable));

@@ -1,4 +1,4 @@
-package picto.com.generator.global.models;
+package picto.com.photomanager.global.getDomain.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -6,10 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.Hibernate;
 
 import java.io.Serial;
-import java.util.Objects;
 
 @Getter
 @Setter
