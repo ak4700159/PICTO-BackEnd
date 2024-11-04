@@ -16,25 +16,28 @@ import picto.com.photomanager.global.user.entity.User;
         @Index(name = "photo_id", columnList = "photo_id")
 })
 public class PhotoRecord {
+    // 복합키
     @EmbeddedId
     private PhotoRecordId id;
 
+    // 사용되는 외래키가 기본키로 사용되는 경우 이를 매핑해주는 역할
     @MapsId("agentId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "agent_id", nullable = false)
+    // 테이블 컬럼 명시
+    @JoinColumn(name = "agent_id", nullable = false, referencedColumnName = "user_id")
     private User agent;
 
-    @MapsId("ownerId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
-
+    // 복합키를 포함해서 새로운 복합키를 만들때 발생하는 오류
+    // ~ must have a '@JoinColumn' which references the foreign key column ~
+    // @JoinColumns 사용
     @MapsId("photoId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "photo_id", nullable = false, referencedColumnName = "photo_id")
+    @JoinColumns({
+            @JoinColumn(name = "photo_id", nullable = false, referencedColumnName = "photo_id"),
+            @JoinColumn(name = "owner_id", nullable = false, referencedColumnName = "user_id")
+    })
     private Photo photo;
 
     @Column(name = "type", nullable = false)
@@ -42,5 +45,4 @@ public class PhotoRecord {
 
     @Column(name = "event_time", nullable = false)
     private Long eventTime;
-
 }

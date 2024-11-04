@@ -18,7 +18,7 @@ public class Save {
     @EmbeddedId
     private SaveId id;
 
-    @MapsId("id")
+    @MapsId("photoId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumns({
             @JoinColumn(name = "photo_id", referencedColumnName = "photo_id", nullable = false),
@@ -27,8 +27,12 @@ public class Save {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Photo photo;
 
-    @MapsId("id")
+    @MapsId("folderId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumns({
+            @JoinColumn(name = "link", referencedColumnName = "link", nullable = false),
+            @JoinColumn(name = "sharing_folder_id", referencedColumnName = "sharing_folder_id", nullable = false)
+    })
     @OnDelete(action = OnDeleteAction.CASCADE)
     private SharingFolder sharingFolder;
 

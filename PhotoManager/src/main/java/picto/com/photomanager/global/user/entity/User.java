@@ -15,7 +15,7 @@ import org.springframework.data.domain.Persistable;
 public class User implements Persistable<Integer> {
     @Id
     @Column(name = "user_id", updatable = false)
-    int user_id;
+    Integer user_id;
 
     @Column(name = "password", nullable = false, length = 20)
     String password;

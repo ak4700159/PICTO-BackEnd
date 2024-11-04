@@ -3,9 +3,11 @@ package picto.com.photomanager.domain.photo.restapi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import picto.com.photomanager.domain.photo.application.PhotoManagerGetService;
+import picto.com.photomanager.domain.photo.application.PhotoManagerTestService;
 import picto.com.photomanager.domain.photo.entity.Photo;
 import picto.com.photomanager.domain.photo.dto.request.GetAroundPhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetRepresentativePhotoRequest;
@@ -18,6 +20,15 @@ import java.util.List;
 @RestController
 public class PhotoManagerController {
     final private PhotoManagerGetService photoManagerGetService;
+    final private PhotoManagerTestService photoManagerTestService;
+
+    // 5000개 이미지 생성
+    @PostMapping("/photo/test")
+    public ResponseEntity<List<Photo>> createTestPhoto(){
+        List<Photo> photos = photoManagerTestService.createTestPhotos();
+        return ResponseEntity.ok(photos);
+    }
+
 
     // 특정 사진 조회 + 유저 포함
     @GetMapping("/photo-manager/photos")

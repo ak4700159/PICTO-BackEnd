@@ -2,6 +2,7 @@ package picto.com.photomanager.domain.photo.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -17,7 +18,7 @@ public class Photo {
     @EmbeddedId
     private PhotoId id;
 
-    // 외래키 등록하기
+    // 복합키 안에 있는 외래키 명시
     @MapsId("userId")
     @ManyToOne(cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -25,7 +26,7 @@ public class Photo {
     private User user;
 
     // 사진 저장 경로
-    @Column(name = "photo_path", nullable = true, length = 50)
+    @Column(name = "photo_path", nullable = true, length = 100)
     private String photoPath;
 
     // 위도
@@ -66,4 +67,27 @@ public class Photo {
 
     @Column(name = "title", length = 20)
     private String title;
+
+    @Column(name = "tag", length = 20)
+    private String tag;
+
+    @Builder
+    public Photo(User user, PhotoId photoId, String photoPath, double lat, double lng,
+                 String location, Long registerTime, Long uploadTime, String tag,
+                 boolean frame_active, boolean shared_active, int likes, int views, String title) {
+        this.user = user;
+        this.photoPath = photoPath;
+        this.lat = lat;
+        this.lng = lng;
+        this.location = location;
+        this.registerTime = registerTime;
+        this.uploadTime = uploadTime;
+        this.frame_active = frame_active;
+        this.shared_active = shared_active;
+        this.likes = likes;
+        this.views = views;
+        this.title = title;
+        this.id = photoId;
+        this.tag = tag;
+    }
 }

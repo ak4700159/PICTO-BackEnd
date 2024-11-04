@@ -21,13 +21,13 @@ public class PhotoId implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "photo_id")
-    private int photoID;
+    private Integer photoId;
 
     @Column(name = "user_id", nullable = false)
-    private int userId;
+    private Integer userId;
 
-    public PhotoId(int photoID, int userId) {
-        this.photoID = photoID;
+    public PhotoId(int photoId, int userId) {
+        this.photoId = photoId;
         this.userId = userId;
     }
 
