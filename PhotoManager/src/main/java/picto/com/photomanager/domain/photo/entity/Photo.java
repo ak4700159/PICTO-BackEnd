@@ -41,11 +41,11 @@ public class Photo {
     @Column(name = "location", nullable = false, length = 20)
     private String location;
 
-    @Column(name = "register_time", nullable = false)
-    private Long registerTime;
+    @Column(name = "register_datetime", nullable = false)
+    private Long registerDatetime;
 
-    @Column(name = "upload_time", nullable = false)
-    private Long uploadTime;
+    @Column(name = "upload_datetime", nullable = false)
+    private Long uploadDatetime;
 
     // 액자 활성화 여부
     @ColumnDefault("true")
@@ -73,15 +73,15 @@ public class Photo {
 
     @Builder
     public Photo(User user, PhotoId photoId, String photoPath, double lat, double lng,
-                 String location, Long registerTime, Long uploadTime, String tag,
+                 String location, Long registerDatetime, Long uploadDatetime, String tag,
                  boolean frame_active, boolean shared_active, int likes, int views, String title) {
         this.user = user;
         this.photoPath = photoPath;
         this.lat = lat;
         this.lng = lng;
         this.location = location;
-        this.registerTime = registerTime;
-        this.uploadTime = uploadTime;
+        this.registerDatetime = registerDatetime;
+        this.uploadDatetime = uploadDatetime;
         this.frame_active = frame_active;
         this.shared_active = shared_active;
         this.likes = likes;

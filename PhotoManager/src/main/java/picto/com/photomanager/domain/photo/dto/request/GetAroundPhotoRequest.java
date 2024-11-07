@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetAroundPhotoRequest {
+    int sendId;
     String type;
-    String typeId;
+    int typeId;
     // 수 많은 이미지 스트림을 어떻게 처리할 것인지 나중에 고려
     //int count;
 }

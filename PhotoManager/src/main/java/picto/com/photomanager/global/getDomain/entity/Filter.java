@@ -37,15 +37,19 @@ public class Filter {
     @Column(name = "period", nullable = false, length = 10)
     private String period;
 
-    @Column(name = "start_time")
-    private Long startTime;
+    @Column(name = "start_datetime")
+    private Long startDateTime;
+
+    @Column(name = "end_datetime")
+    private Long endDateTime;
 
     //
     @Builder
-    public Filter(String sort, String period, Long startTime, User user) {
+    public Filter(String sort, String period, Long startDateTime, Long endDateTime ,User user) {
         this.user = user;
         this.sort = sort;
         this.period = period;
-        this.startTime = startTime;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
     }
 }

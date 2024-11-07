@@ -32,5 +32,4 @@ public class SharingFolderId implements java.io.Serializable {
     public int hashCode() {
         return Objects.hash(sharingFolderId, link);
     }
-
 }

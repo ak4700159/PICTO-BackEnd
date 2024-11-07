@@ -36,7 +36,7 @@ public class Save {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private SharingFolder sharingFolder;
 
-    @Column(name = "saved_time", nullable = false)
-    private Long savedTime;
+    @Column(name = "saved_datetime", nullable = false)
+    private Long savedDatetime;
 
 }

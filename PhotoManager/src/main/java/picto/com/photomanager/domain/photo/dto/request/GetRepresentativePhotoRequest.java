@@ -8,7 +8,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GetRepresentativePhotoRequest {
-    String type;
-    String target;
+    // random OR top
+    String eventType;
+    // large OR middle OR small
+    String locationType;
+    // 지역명
+    String locationName;
+    // 조회할 사진 개수
     int count;
 }
