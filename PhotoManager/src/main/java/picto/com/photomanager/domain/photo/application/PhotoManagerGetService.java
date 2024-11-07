@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import picto.com.photomanager.domain.photo.dto.request.GetAroundPhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetRepresentativePhotoRequest;
+import picto.com.photomanager.domain.photo.dto.response.GetPhotoResponse;
 import picto.com.photomanager.global.getDomain.dao.FilterRepository;
 import picto.com.photomanager.global.getDomain.dao.SessionRepository;
 import picto.com.photomanager.global.getDomain.dao.TagSelectRepository;
@@ -30,13 +31,14 @@ public class PhotoManagerGetService {
     private final TagSelectRepository tagSelectRepository;
     private final SessionRepository sessionRepository;
 
+    // 특정 아이디에 대한 사진 조회
     @Transactional
-    public List<Photo> findSpecifiedPhotos(GetSpecifiedPhotoRequest request) throws IllegalAccessException, Exception {
+    public List<GetPhotoResponse> findSpecifiedPhotos(GetSpecifiedPhotoRequest request) throws IllegalAccessException, Exception {
         String type = request.getType();
         int typeId= request.getTypeId();
         List<Photo> photos;
 
-        // 유저인지 포토인지
+        // Step01. 사용자인지 사진인지
         if(type.equals("user")){
             photos = photoRepository.findByUser(typeId);
         }
@@ -48,19 +50,16 @@ public class PhotoManagerGetService {
             throw new Exception("예상치 못한 type");
         }
 
+        // Step02. 공개 여부 확인
         // shared_active = true 인지 확인해야됨
+        photos = photos.stream().filter(Photo::isSharedActive).toList();
 
-
-        // 예외 처리
-        if(photos == null){
-            throw new IllegalAccessException();
-        }
-        return photos;
+        return photos.stream().map(GetPhotoResponse::new).toList();
     }
 
-
+    // 주변 사진 조회
     @Transactional
-    public List<Photo> findAroundPhotos(GetAroundPhotoRequest request) throws IllegalAccessException, Exception {
+    public List<GetPhotoResponse> findAroundPhotos(GetAroundPhotoRequest request) throws IllegalAccessException, Exception {
         if(!request.getType().equals("user")){
             throw new IllegalAccessException();
         }
@@ -85,10 +84,10 @@ public class PhotoManagerGetService {
 
         //02-2 start_time 으로부터 period = 하루/일주일/한 달/일 년/ 사용자지정/ ALL
         String period = userFilter.getPeriod();
-        long startDate = userFilter.getStartTime();
+        long startDate = userFilter.getStartDateTime();
         long endDate;
         if(period.equals("사용자지정")){
-            endDate = userFilter.getEndTime();
+            endDate = userFilter.getEndDateTime();
         }
         else{
             endDate = DateUtils.getTimeAgo(startDate, period);
@@ -96,7 +95,8 @@ public class PhotoManagerGetService {
 
         photos = photos
                 .stream()
-                .filter((photo)-> photo.getUploadTime() >= startDate && photo.getUploadTime() <= endDate)
+                .filter((photo)-> photo.getUploadDatetime() >= startDate
+                        && photo.getUploadDatetime() <= endDate)
                 .toList();
 
         // STEP 03. 유저 태그에 맞는 사진 조회
@@ -109,26 +109,33 @@ public class PhotoManagerGetService {
                 .filter((photo) -> tags.contains(photo.getTag()))
                 .toList();
 
-        return photos;
+        // STEP 04. 공개 여부 확인
+        photos = photos.stream().filter(Photo::isSharedActive).toList();
+
+        return photos.stream().map(GetPhotoResponse::new).toList();
     }
 
+    // 지역 대표 사진 조회
     @Transactional
-    public List<Photo> findRepresentativePhotos(GetRepresentativePhotoRequest request) throws IllegalAccessException, Exception {
+    public List<GetPhotoResponse> findRepresentativePhotos(GetRepresentativePhotoRequest request) throws IllegalAccessException, Exception {
         List<Photo> photos;
 
         String eventType = request.getEventType();
         String locationName = request.getLocationName();
         String locationType = request.getLocationType();
         int count = request.getCount();
-        // 특정 지역 조회
+        // 지역명에 값이 있는 경우 해당 지역명에 대해 조회
         photos = switch (eventType) {
-            case "random" -> photoRepository.findByRandomPhoto(locationName, count);
-            case "top" -> photoRepository.findByTopPhoto(locationName, count);
+            case "random" -> photoRepository.findByRandomPhoto(locationName != null ? locationName : locationType, count);
+            case "top" -> photoRepository.findByTopPhoto(locationName != null ? locationName : locationType, count);
             default -> throw new IllegalAccessException();
         };
+
+
         if(photos == null){
             throw new IllegalAccessException();
         }
-        return photos;
+
+        return photos.stream().map(GetPhotoResponse::new).toList();
     }
 }

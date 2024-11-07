@@ -8,9 +8,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 // 데이터베이스 autoConfiguration 제외
 @SpringBootApplication(exclude = {R2dbcAutoConfiguration.class})
 public class PhotoManagerApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(PhotoManagerApplication.class, args);
     }
-
 }
+
+// ====
+// photo_id / url -> photo_id : 이미지데이터

@@ -50,12 +50,12 @@ public class Photo {
     // 액자 활성화 여부
     @ColumnDefault("true")
     @Column(name = "frame_active", nullable = false, columnDefinition = "TINYINT(1)")
-    private boolean frame_active;
+    private boolean frameActive;
 
     // 사진 공유 여부
     @ColumnDefault("false")
     @Column(name = "shared_active", nullable = false, columnDefinition = "TINYINT(1)")
-    private boolean shared_active;
+    private boolean sharedActive;
 
     @ColumnDefault("0")
     @Column(name = "likes", nullable = false)
@@ -74,7 +74,7 @@ public class Photo {
     @Builder
     public Photo(User user, PhotoId photoId, String photoPath, double lat, double lng,
                  String location, Long registerDatetime, Long uploadDatetime, String tag,
-                 boolean frame_active, boolean shared_active, int likes, int views, String title) {
+                 boolean frameActive, boolean sharedActive, int likes, int views, String title) {
         this.user = user;
         this.photoPath = photoPath;
         this.lat = lat;
@@ -82,8 +82,8 @@ public class Photo {
         this.location = location;
         this.registerDatetime = registerDatetime;
         this.uploadDatetime = uploadDatetime;
-        this.frame_active = frame_active;
-        this.shared_active = shared_active;
+        this.frameActive = frameActive;
+        this.sharedActive = sharedActive;
         this.likes = likes;
         this.views = views;
         this.title = title;

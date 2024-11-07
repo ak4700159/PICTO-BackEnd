@@ -15,7 +15,7 @@ import org.springframework.data.domain.Persistable;
 public class User implements Persistable<Integer> {
     @Id
     @Column(name = "user_id", updatable = false)
-    Integer user_id;
+    Integer userId;
 
     @Column(name = "password", nullable = false, length = 20)
     String password;
@@ -27,31 +27,32 @@ public class User implements Persistable<Integer> {
     String email;
 
     @Column(name = "profile_active", nullable = false, columnDefinition = "TINYINT(1)")
-    boolean profile_active;
+    boolean profileActive;
 
     @Column(name = "profile_photo_path", nullable = true, length = 50)
-    String profile_photo_path;
+    String profilePhotoPath;
 
     @Column(name = "intro", nullable = false, length = 30)
     String intro;
 
     @Column(name = "account_name", nullable = false, length = 20)
-    String account_name;
+    String accountName;
 
     @Builder
-    public User(int user_id,String password, String name, String email, boolean profile_active, String profile_photo_path, String intro, String account_name) {
-        this.user_id = user_id;
+    public User(int userId, String password, String name, String email, boolean profileActive, String profilePhotoPath, String intro, String accountName) {
+        this.userId = userId;
         this.name = name;
         this.email = email;
-        this.profile_active = profile_active;
-        this.profile_photo_path = profile_photo_path;
+        this.profileActive = profileActive;
+        this.profilePhotoPath = profilePhotoPath;
         this.intro = intro;
         this.password = password;
-        this.account_name = account_name;
+        this.accountName = accountName;
     }
 
 
     // insert 전 select 문 발생한느 것을 방지 한다. 즉 새로운 객체 엔티티임을 보장 / 실무에선 사용 X
+    // 적용이 안되는 것으로 보임
     @Transient
     private boolean isNew = true;
 
@@ -68,6 +69,6 @@ public class User implements Persistable<Integer> {
 
     @Override
     public Integer getId() {
-        return this.user_id;
+        return this.userId;
     }
 }

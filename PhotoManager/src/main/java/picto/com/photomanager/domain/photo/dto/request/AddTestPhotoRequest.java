@@ -10,8 +10,6 @@ import picto.com.photomanager.global.user.entity.User;
 
 import java.util.Random;
 
-import static picto.com.photomanager.global.user.entity.QUser.user;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,8 +19,8 @@ public class AddTestPhotoRequest {
     private double lat;
     private double lng;
     private String location;
-    private Long registerTime;
-    private Long updateTime;
+    private Long registerDatetime;
+    private Long updateDatetime;
     private boolean frame_active;
     private boolean shared_active;
     private int likes;
@@ -45,8 +43,8 @@ public class AddTestPhotoRequest {
         shared_active = true;
 
         title = userIdNum + "'s photo title";
-        updateTime = System.currentTimeMillis();
-        registerTime = System.currentTimeMillis();
+        updateDatetime = System.currentTimeMillis();
+        registerDatetime = System.currentTimeMillis();
 
         photoId = new PhotoId(photoIdNum, userIdNum);
         tag = "TEST";
@@ -59,8 +57,8 @@ public class AddTestPhotoRequest {
                 .title(title)
                 .lat(lat)
                 .lng(lng)
-                .registerTime(registerTime)
-                .uploadTime(updateTime)
+                .registerDatetime(registerDatetime)
+                .uploadDatetime(updateDatetime)
                 .likes(likes)
                 .views(views)
                 .location(location)
