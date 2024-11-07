@@ -12,6 +12,3 @@ public class PhotoManagerApplication {
         SpringApplication.run(PhotoManagerApplication.class, args);
     }
 }
-
-// ====
-// photo_id / url -> photo_id : 이미지데이터
