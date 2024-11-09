@@ -3,11 +3,9 @@ package picto.com.generator.domain.user.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-import picto.com.generator.domain.user.domain.User;
+import picto.com.generator.domain.user.entity.User;
 
 import java.util.List;
-import java.util.Optional;
 
 //에러 방지를 위해 어노테이션 추가
 //beans.factory.NoSuchBeanDefinitionException: No qualifying bean of type .....

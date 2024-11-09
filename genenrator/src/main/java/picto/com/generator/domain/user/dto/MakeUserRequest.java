@@ -1,7 +1,7 @@
 package picto.com.generator.domain.user.dto;
 
 import lombok.*;
-import picto.com.generator.domain.user.domain.User;
+import picto.com.generator.domain.user.entity.User;
 
 import java.util.Random;
 
@@ -32,13 +32,13 @@ public class MakeUserRequest {
 
         return User.builder().
                 name(Integer.toString(count)).
-                account_name(Integer.toString(count)).
+                accountName(Integer.toString(count)).
                 intro("안녕하세요 저는 " + count + " 입니다.").
                 password(Integer.toString(count)).
                 email(generatedString + "@gmail.com").
-                profile_active(true).
-                user_id(count).
-                profile_photo_path(null).
+                profileActive(true).
+                userId(count).
+                profilePhotoPath(null).
                 build();
     }
 }
