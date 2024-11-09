@@ -1,4 +1,4 @@
-package picto.com.photomanager.domain.photo.dto.response.GetKakao;
+package picto.com.photomanager.domain.photo.dto.response.GetKakaoResponse;
 
 
 import lombok.Getter;

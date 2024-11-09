@@ -28,6 +28,11 @@ public class PhotoManagerTestService {
             User user = userRepository.getReferenceById(i);
             // 각 50장씩 추가
             for(int j = 1; j <= 50; j++){
+                try {
+                    Thread.sleep(300);
+                }catch (InterruptedException e){
+                    throw new RuntimeException(e);
+                }
                 Photo newPhoto = new AddTestPhotoRequest().toRandomPhoto(i, photoCount, user);
                 photoRepository.save(newPhoto);
                 if(photoCount < 100){

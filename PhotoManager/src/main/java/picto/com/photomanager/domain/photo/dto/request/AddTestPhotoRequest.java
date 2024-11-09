@@ -11,7 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import picto.com.photomanager.domain.photo.dto.response.GetKakao.GetKakaoLocationInfoResponse;
+import picto.com.photomanager.domain.photo.dto.response.GetKakaoResponse.GetKakaoLocationInfoResponse;
 import picto.com.photomanager.domain.photo.entity.Photo;
 import picto.com.photomanager.domain.photo.entity.PhotoId;
 import picto.com.photomanager.global.user.entity.User;
@@ -68,6 +68,7 @@ public class AddTestPhotoRequest {
         System.out.println(info);
         if(info == null) throw new NullPointerException();
         location = info.getDocuments().get(0).getAddress().getAddress_name();
+        System.out.println("lng : " + lng + " lat : " + lat );
         System.out.println("location: " + location);
 
         frame_active = false;

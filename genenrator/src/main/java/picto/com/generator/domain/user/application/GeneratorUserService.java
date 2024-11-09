@@ -40,7 +40,7 @@ public class GeneratorUserService {
     public void makeFilterN(){
         for(int i = 1; i <= MAX_USERS; i++){
             User user = userRepository.getReferenceById(i);
-            // 기본 필터 저장 [정렬 : 좋아요순] / [기간 : 한 달] / [start_date : 생성기준 UTC]
+            // 기본 필터 저장 [정렬 : 좋아요순] / [기간 : 한달] / [start_datetime : 생성기준 UTC]
             Filter filter = new AddDefaultFilter().toEntity(user);
             filterRepository.save(filter);
         }
