@@ -22,15 +22,17 @@ public class QFilter extends EntityPathBase<Filter> {
 
     public static final QFilter filter = new QFilter("filter");
 
-    public final NumberPath<Integer> id = createNumber("id", Integer.class);
+    public final NumberPath<Long> endDateTime = createNumber("endDateTime", Long.class);
 
     public final StringPath period = createString("period");
 
     public final StringPath sort = createString("sort");
 
-    public final NumberPath<Long> startTime = createNumber("startTime", Long.class);
+    public final NumberPath<Long> startDateTime = createNumber("startDateTime", Long.class);
 
     public final picto.com.photomanager.global.user.entity.QUser user;
+
+    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
 
     public QFilter(String variable) {
         this(Filter.class, forVariable(variable), INITS);

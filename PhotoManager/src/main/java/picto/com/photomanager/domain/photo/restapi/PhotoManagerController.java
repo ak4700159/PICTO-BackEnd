@@ -45,7 +45,7 @@ public class PhotoManagerController {
     public ResponseEntity<List<GetPhotoResponse>> getAroundPhotos(@RequestBody GetAroundPhotoRequest request) {
         List<GetPhotoResponse> photos = new ArrayList<>();
         try {
-
+            photos = photoManagerGetService.findAroundPhotos(request);
         }catch (Exception e){
             System.out.println("getAroundPhotos error");
         }
@@ -64,12 +64,5 @@ public class PhotoManagerController {
         }
 
         return ResponseEntity.ok().body(photos);
-    }
-
-
-    @PostMapping("/photo-manager/photos")
-    @ResponseStatus("ok")
-    public void postPhoto(@RequestBody PostPhotoRequest postPhotoRequest){
-
     }
 }

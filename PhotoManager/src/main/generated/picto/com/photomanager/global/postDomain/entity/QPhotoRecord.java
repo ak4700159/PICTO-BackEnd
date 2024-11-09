@@ -24,7 +24,7 @@ public class QPhotoRecord extends EntityPathBase<PhotoRecord> {
 
     public final picto.com.photomanager.global.user.entity.QUser agent;
 
-    public final NumberPath<Long> eventTime = createNumber("eventTime", Long.class);
+    public final NumberPath<Long> eventDatetime = createNumber("eventDatetime", Long.class);
 
     public final QPhotoRecordId id;
 

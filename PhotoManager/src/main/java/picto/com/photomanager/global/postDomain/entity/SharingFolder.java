@@ -16,7 +16,7 @@ public class SharingFolder {
     @Column(name = "name", nullable = false, length = 20)
     private String name;
 
-    @Column(name = "saved_datetime", nullable = false)
+    @Column(name = "created_datetime", nullable = false)
     private Long savedDatetime;
 
     @Column(name = "content", nullable = false, length = 50)

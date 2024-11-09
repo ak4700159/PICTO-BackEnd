@@ -1,5 +1,6 @@
 package picto.com.photomanager.domain.photo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -23,6 +24,8 @@ public class Photo {
     @ManyToOne(cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    // user 내용만 제외한 정보들만을 serialize하게 된다. -> json 오류 방지
+    @JsonIgnore
     private User user;
 
     // 사진 저장 경로
@@ -65,8 +68,6 @@ public class Photo {
     @Column(name = "views", nullable = false)
     private int views;
 
-    @Column(name = "title", length = 20)
-    private String title;
 
     @Column(name = "tag", length = 20)
     private String tag;
@@ -74,7 +75,7 @@ public class Photo {
     @Builder
     public Photo(User user, PhotoId photoId, String photoPath, double lat, double lng,
                  String location, Long registerDatetime, Long uploadDatetime, String tag,
-                 boolean frameActive, boolean sharedActive, int likes, int views, String title) {
+                 boolean frameActive, boolean sharedActive, int likes, int views) {
         this.user = user;
         this.photoPath = photoPath;
         this.lat = lat;
@@ -86,7 +87,6 @@ public class Photo {
         this.sharedActive = sharedActive;
         this.likes = likes;
         this.views = views;
-        this.title = title;
         this.id = photoId;
         this.tag = tag;
     }

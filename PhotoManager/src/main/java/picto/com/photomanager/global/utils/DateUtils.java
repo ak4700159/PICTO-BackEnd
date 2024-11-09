@@ -10,10 +10,10 @@ public class DateUtils {
      * 날짜 계산에 사용할 수 있는 기간 타입을 정의하는 enum
      */
     public enum PeriodType {
-        하루("하루"),
-        일주일("일주일"),
-        한달("한달"),
-        일년("일년");
+        day("하루"),
+        week("일주일"),
+        month("한달"),
+        year("일년");
 
         private final String value;
 
@@ -53,35 +53,25 @@ public class DateUtils {
      * 기간 타입에 따른 수량을 반환합니다.
      */
     private static long getPeriodAmount(PeriodType type) {
-        switch (type) {
-            case 하루:
-                return 1;
-            case 일주일:
-                return 7;
-            case 한달:
-                return 1;
-            case 일년:
-                return 1;
-            default:
-                throw new IllegalArgumentException("지원하지 않는 기간 타입입니다.");
-        }
+        return switch (type) {
+            case day -> 1;
+            case week -> 7;
+            case month -> 1;
+            case year -> 1;
+            default -> throw new IllegalArgumentException("지원하지 않는 기간 타입입니다.");
+        };
     }
 
     /**
      * 기간 타입에 따른 시간 단위를 반환합니다.
      */
     private static ChronoUnit getPeriodUnit(PeriodType type) {
-        switch (type) {
-            case 하루:
-                return ChronoUnit.DAYS;
-            case 일주일:
-                return ChronoUnit.DAYS;
-            case 한달:
-                return ChronoUnit.MONTHS;
-            case 일년:
-                return ChronoUnit.YEARS;
-            default:
-                throw new IllegalArgumentException("지원하지 않는 기간 타입입니다.");
-        }
+        return switch (type) {
+            case day -> ChronoUnit.DAYS;
+            case week -> ChronoUnit.DAYS;
+            case month -> ChronoUnit.MONTHS;
+            case year -> ChronoUnit.YEARS;
+            default -> throw new IllegalArgumentException("지원하지 않는 기간 타입입니다.");
+        };
     }
 }

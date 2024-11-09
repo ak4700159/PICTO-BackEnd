@@ -1,8 +1,8 @@
 package picto.com.generator.global.dto;
 
 import lombok.*;
-import picto.com.generator.domain.user.domain.User;
-import picto.com.generator.global.models.Filter;
+import picto.com.generator.domain.user.entity.User;
+import picto.com.generator.global.entity.Filter;
 
 import java.util.Date;
 
@@ -15,8 +15,9 @@ public class AddDefaultFilter {
         return Filter.builder().
                 user(newUser).
                 sort("좋아요순").
-                period("한 달").
-                startTime(new Date().getTime()).
+                period("한달").
+                startDateTime(new Date().getTime()).
+                endDateTime(new Date().getTime()).
                 build();
     }
 }

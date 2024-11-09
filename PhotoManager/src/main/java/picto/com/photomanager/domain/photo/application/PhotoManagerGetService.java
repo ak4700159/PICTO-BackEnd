@@ -72,6 +72,7 @@ public class PhotoManagerGetService {
 
         // STEP 01. 주변(10km) 사진 조회 (레파지토리에서)
         photos = photoRepository.findByLocationInfo(userSession.getCurrentLat(), userSession.getCurrentLng());
+        System.out.println("STEP 01 size : " + photos.size());
 
         // STEP 02. 유저 필터에 맞는 사진 조회
         String sort = userFilter.getSort();
@@ -84,31 +85,36 @@ public class PhotoManagerGetService {
 
         //02-2 start_time 으로부터 period = 하루/일주일/한 달/일 년/ 사용자지정/ ALL
         String period = userFilter.getPeriod();
-        long startDate = userFilter.getStartDateTime();
-        long endDate;
+        // long startDatetime = userFilter.getStartDateTime();
+        long startDatetime = System.currentTimeMillis();
+        long endDatetime;
         if(period.equals("사용자지정")){
-            endDate = userFilter.getEndDateTime();
+            endDatetime = userFilter.getEndDateTime();
         }
         else{
-            endDate = DateUtils.getTimeAgo(startDate, period);
+            endDatetime = DateUtils.getTimeAgo(startDatetime, period);
         }
-
+        System.out.println("startDatetime : " + startDatetime);
+        System.out.println("endDatetime : " + endDatetime);
         photos = photos
                 .stream()
-                .filter((photo)-> photo.getUploadDatetime() >= startDate
-                        && photo.getUploadDatetime() <= endDate)
+                .filter((photo)-> (photo.getUploadDatetime() <= startDatetime && photo.getUploadDatetime() >= endDatetime))
                 .toList();
+        System.out.println("STEP 02 size : " + photos.size());
 
         // STEP 03. 유저 태그에 맞는 사진 조회
         List<String> tags = new ArrayList<>();
         for (TagSelect userTagSelect : userTagSelects) {
             tags.add(userTagSelect.getId().getTag());
         }
+        tags.add("TEST");
+
         photos = photos
                 .stream()
                 .filter((photo) -> tags.contains(photo.getTag()))
                 .toList();
 
+        System.out.println("STEP 03 size :" + photos.size());
         // STEP 04. 공개 여부 확인
         photos = photos.stream().filter(Photo::isSharedActive).toList();
 
@@ -135,6 +141,8 @@ public class PhotoManagerGetService {
         if(photos == null){
             throw new IllegalAccessException();
         }
+
+        photos = photos.stream().filter(Photo::isSharedActive).toList();
 
         return photos.stream().map(GetPhotoResponse::new).toList();
     }

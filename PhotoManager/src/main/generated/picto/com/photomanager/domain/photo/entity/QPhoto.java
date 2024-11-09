@@ -22,7 +22,7 @@ public class QPhoto extends EntityPathBase<Photo> {
 
     public static final QPhoto photo = new QPhoto("photo");
 
-    public final BooleanPath frame_active = createBoolean("frame_active");
+    public final BooleanPath frameActive = createBoolean("frameActive");
 
     public final QPhotoId id;
 
@@ -36,15 +36,13 @@ public class QPhoto extends EntityPathBase<Photo> {
 
     public final StringPath photoPath = createString("photoPath");
 
-    public final NumberPath<Long> registerTime = createNumber("registerTime", Long.class);
+    public final NumberPath<Long> registerDatetime = createNumber("registerDatetime", Long.class);
 
-    public final BooleanPath shared_active = createBoolean("shared_active");
+    public final BooleanPath sharedActive = createBoolean("sharedActive");
 
     public final StringPath tag = createString("tag");
 
-    public final StringPath title = createString("title");
-
-    public final NumberPath<Long> uploadTime = createNumber("uploadTime", Long.class);
+    public final NumberPath<Long> uploadDatetime = createNumber("uploadDatetime", Long.class);
 
     public final picto.com.photomanager.global.user.entity.QUser user;
 

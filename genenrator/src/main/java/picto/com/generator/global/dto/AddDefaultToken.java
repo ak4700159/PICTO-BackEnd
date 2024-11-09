@@ -2,8 +2,8 @@ package picto.com.generator.global.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import picto.com.generator.domain.user.domain.User;
-import picto.com.generator.global.models.Token;
+import picto.com.generator.domain.user.entity.User;
+import picto.com.generator.global.entity.Token;
 
 import java.util.HashMap;
 import java.util.Map;

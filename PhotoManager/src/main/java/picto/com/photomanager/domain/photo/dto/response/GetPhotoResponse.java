@@ -18,7 +18,6 @@ public class GetPhotoResponse {
     private final boolean frame_active;
     private final int likes;
     private final int views;
-    private final String title;
     private final String tag;
 
     // 공유중인 사진에 대해선 유효하기 때문에 고려 X
@@ -36,7 +35,6 @@ public class GetPhotoResponse {
         this.frame_active = photo.isFrameActive();
         this.likes = photo.getLikes();
         this.views = photo.getViews();
-        this.title = photo.getTitle();
         this.tag = photo.getTag();
     }
 }

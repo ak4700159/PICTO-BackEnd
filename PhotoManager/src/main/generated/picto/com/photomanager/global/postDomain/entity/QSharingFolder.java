@@ -24,11 +24,11 @@ public class QSharingFolder extends EntityPathBase<SharingFolder> {
 
     public final StringPath content = createString("content");
 
-    public final NumberPath<Long> generatedTime = createNumber("generatedTime", Long.class);
-
     public final QSharingFolderId id;
 
     public final StringPath name = createString("name");
+
+    public final NumberPath<Long> savedDatetime = createNumber("savedDatetime", Long.class);
 
     public QSharingFolder(String variable) {
         this(SharingFolder.class, forVariable(variable), INITS);

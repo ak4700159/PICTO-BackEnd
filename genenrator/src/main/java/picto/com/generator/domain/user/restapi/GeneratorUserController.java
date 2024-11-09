@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import picto.com.generator.domain.user.application.GeneratorUserService;
-import picto.com.generator.domain.user.domain.User;
+import picto.com.generator.domain.user.entity.User;
 import picto.com.generator.domain.user.dto.FindUserEmail;
 
 import java.util.List;
@@ -35,15 +35,15 @@ public class GeneratorUserController {
     }
 
     // 100명 유저 생성
-    @PostMapping("api/generator/user/100")
+    @PostMapping("api/generator/user")
     public ResponseEntity<List<User>> postIdUser () {
-        System.out.println("User 100 created request");
-        List<User> users = generatorUserService.makeUser100();
-        generatorUserService.makeFilter100();
-        generatorUserService.makeUserSetting100();
-        generatorUserService.makeToken100();
-        generatorUserService.makeSession100();
-        generatorUserService.makeTagSelect100();
+        System.out.println("User created request");
+        List<User> users = generatorUserService.makeUserN();
+        generatorUserService.makeFilterN();
+        generatorUserService.makeUserSettingN();
+        generatorUserService.makeTokenN();
+        generatorUserService.makeSessionN();
+        generatorUserService.makeTagSelectN();
         return ResponseEntity.status(HttpStatus.CREATED).body(users);
     }
 }

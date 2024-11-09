@@ -16,23 +16,13 @@ public interface PhotoRepository extends JpaRepository<Photo, PhotoId> {
     @Query("select p from Photo p where p.id.userId = :userId")
     List<Photo> findByUser(@Param("userId") int photoId);
 
-    //    @Query(value =
-//            "SELECT p, " +
-//                    "(6371 * acos(cos(radians(:latitude)) * cos(radians(p.lat)) * " +
-//                    "cos(radians(p.lng) - radians(:longitude)) + " +
-//                    "sin(radians(:latitude)) * sin(radians(p.lat)))) AS distance " +
-//                    "FROM Photo p " +
-//                    "WHERE p.lat BETWEEN :latitude - (10/111.32) " +
-//                    "AND :latitude + (10/111.32) " +
-//                    "AND p.lng BETWEEN :longitude - (10/(111.32 * COS(RADIANS(:latitude)))) " +
-//                    "AND :longitude + (10/(111.32 * COS(RADIANS(:latitude)))) " +
-//                    "HAVING distance <= 10 ")
-    @Query("select p from Photo p where p.lat = :latitude and p.lng = :longitude ")
+    @Query(value = "SELECT p FROM Photo p " +
+            "WHERE (6371 * acos(cos(radians(:latitude)) * cos(radians(p.lat)) * " +
+            "cos(radians(:longitude) - radians(p.lng)) + " +
+            "sin(radians(:latitude)) * sin(radians(p.lat)))) <= 5")
     List<Photo> findByLocationInfo(@Param("latitude") double latitude, @Param("longitude") double longitude);
 
-
-
-    @Query("select p from Photo p where p.location like %:location order by p.likes limit :count")
+    @Query("select p from Photo p where p.location like %:location order by p.likes desc limit :count")
     List<Photo> findByTopPhoto(@Param("location") String location, @Param("count") int count);
 
     @Query("select p from Photo p where p.location like %:location order by RAND() limit :count ")

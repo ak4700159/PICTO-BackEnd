@@ -26,7 +26,7 @@ public class QSave extends EntityPathBase<Save> {
 
     public final picto.com.photomanager.domain.photo.entity.QPhoto photo;
 
-    public final NumberPath<Long> savedTime = createNumber("savedTime", Long.class);
+    public final NumberPath<Long> savedDatetime = createNumber("savedDatetime", Long.class);
 
     public final QSharingFolder sharingFolder;
 

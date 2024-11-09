@@ -19,7 +19,7 @@ public class QUser extends EntityPathBase<User> {
 
     public static final QUser user = new QUser("user");
 
-    public final StringPath account_name = createString("account_name");
+    public final StringPath accountName = createString("accountName");
 
     public final StringPath email = createString("email");
 
@@ -29,11 +29,11 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath password = createString("password");
 
-    public final BooleanPath profile_active = createBoolean("profile_active");
+    public final BooleanPath profileActive = createBoolean("profileActive");
 
-    public final StringPath profile_photo_path = createString("profile_photo_path");
+    public final StringPath profilePhotoPath = createString("profilePhotoPath");
 
-    public final NumberPath<Integer> user_id = createNumber("user_id", Integer.class);
+    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
 
     public QUser(String variable) {
         super(User.class, forVariable(variable));
