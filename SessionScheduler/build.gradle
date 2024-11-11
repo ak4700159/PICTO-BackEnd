@@ -33,6 +33,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-rest'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
+    // rabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
     // 보안
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
