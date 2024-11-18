@@ -12,7 +12,7 @@ import picto.com.photomanager.domain.photo.entity.Photo;
 @Entity
 @Table(name = "Save", indexes = {
         @Index(name = "photo_id", columnList = "photo_id, user_id"),
-        @Index(name = "sharing_folder_id", columnList = "sharing_folder_id, link")
+        @Index(name = "generator_id", columnList = "generator_id")
 })
 public class Save {
     @EmbeddedId
@@ -27,16 +27,12 @@ public class Save {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Photo photo;
 
-    @MapsId("folderId")
+    @MapsId("generatorId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumns({
-            @JoinColumn(name = "link", referencedColumnName = "link", nullable = false),
-            @JoinColumn(name = "sharing_folder_id", referencedColumnName = "sharing_folder_id", nullable = false)
-    })
+    @JoinColumn(name = "generator_id", referencedColumnName = "generator_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private SharingFolder sharingFolder;
+    private Folder folder;
 
     @Column(name = "saved_datetime", nullable = false)
     private Long savedDatetime;
-
 }

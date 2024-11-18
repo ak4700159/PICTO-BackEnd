@@ -3,6 +3,8 @@ package picto.com.photomanager.domain.photo.application;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import picto.com.photomanager.domain.photo.dto.PhotoDistanceDTO;
+import picto.com.photomanager.domain.photo.dto.PhotoLikeRankingDTO;
 import picto.com.photomanager.domain.photo.dto.request.GetAroundPhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetRepresentativePhotoRequest;
 import picto.com.photomanager.domain.photo.dto.response.GetPhotoResponse;
@@ -20,8 +22,11 @@ import picto.com.photomanager.global.utils.PhotoLikeComparator;
 import picto.com.photomanager.global.utils.PhotoViewComparator;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,12 +39,13 @@ public class PhotoManagerGetService {
     // 특정 아이디에 대한 사진 조회
     @Transactional
     public List<GetPhotoResponse> findSpecifiedPhotos(GetSpecifiedPhotoRequest request) throws IllegalAccessException, Exception {
-        String type = request.getType();
-        int typeId= request.getTypeId();
+        String type = request.getEventType();
+        int typeId= request.getEventTypeId();
+        int senderId = request.getSenderId();
         List<Photo> photos;
 
         // Step01. 사용자인지 사진인지
-        if(type.equals("user")){
+        if(type.equals("user") || type.equals("owner")) {
             photos = photoRepository.findByUser(typeId);
         }
         // type = "photo"
@@ -51,8 +57,8 @@ public class PhotoManagerGetService {
         }
 
         // Step02. 공개 여부 확인
-        // shared_active = true 인지 확인해야됨
-        photos = photos.stream().filter(Photo::isSharedActive).toList();
+        // 다른 사용자  shared_active = true 인지 확인해야됨
+        photos = type.equals("user") ? photos.stream().filter(Photo::isSharedActive).toList() : photos;
 
         return photos.stream().map(GetPhotoResponse::new).toList();
     }
@@ -60,15 +66,13 @@ public class PhotoManagerGetService {
     // 주변 사진 조회
     @Transactional
     public List<GetPhotoResponse> findAroundPhotos(GetAroundPhotoRequest request) throws IllegalAccessException, Exception {
-        if(!request.getType().equals("user")){
-            throw new IllegalAccessException();
-        }
-        int typeId= request.getTypeId();
+        int typeId= request.getSenderId();
         List<Photo> photos;
 
         Session userSession = sessionRepository.findById(typeId).orElseThrow();
         Filter userFilter = filterRepository.findById(typeId).orElseThrow();
         List<TagSelect> userTagSelects = tagSelectRepository.findByUserId(typeId);
+        System.out.println("기초 설정");
 
         // STEP 01. 주변(10km) 사진 조회 (레파지토리에서)
         photos = photoRepository.findByLocationInfo(userSession.getCurrentLat(), userSession.getCurrentLng());
@@ -83,9 +87,8 @@ public class PhotoManagerGetService {
             default: throw new Exception("식별할 수 없는 sort");
         }
 
-        //02-2 start_time 으로부터 period = 하루/일주일/한 달/일 년/ 사용자지정/ ALL
+        //02-2 start_time 으로부터 period = 하루/일주일/한달/일년/사용자지정/ALL
         String period = userFilter.getPeriod();
-        // long startDatetime = userFilter.getStartDateTime();
         long startDatetime = System.currentTimeMillis();
         long endDatetime;
         if(period.equals("사용자지정")){
@@ -107,43 +110,68 @@ public class PhotoManagerGetService {
         for (TagSelect userTagSelect : userTagSelects) {
             tags.add(userTagSelect.getId().getTag());
         }
-        tags.add("TEST");
-
         photos = photos
                 .stream()
                 .filter((photo) -> tags.contains(photo.getTag()))
                 .toList();
+        System.out.println("STEP 03 size : " + photos.size());
 
-        System.out.println("STEP 03 size :" + photos.size());
-        // STEP 04. 공개 여부 확인
+        // STEP 04. 공개 여부 확인 후 반환
         photos = photos.stream().filter(Photo::isSharedActive).toList();
+        System.out.println("STEP 04 size : " + photos.size());
 
-        return photos.stream().map(GetPhotoResponse::new).toList();
+        return photos.
+                stream().
+                map(GetPhotoResponse::new).
+                toList();
     }
 
     // 지역 대표 사진 조회
     @Transactional
     public List<GetPhotoResponse> findRepresentativePhotos(GetRepresentativePhotoRequest request) throws IllegalAccessException, Exception {
         List<Photo> photos;
+        List<GetPhotoResponse> result;
 
         String eventType = request.getEventType();
         String locationName = request.getLocationName();
         String locationType = request.getLocationType();
+
         int count = request.getCount();
-        // 지역명에 값이 있는 경우 해당 지역명에 대해 조회
-        photos = switch (eventType) {
-            case "random" -> photoRepository.findByRandomPhoto(locationName != null ? locationName : locationType, count);
-            case "top" -> photoRepository.findByTopPhoto(locationName != null ? locationName : locationType, count);
-            default -> throw new IllegalAccessException();
-        };
-
-
-        if(photos == null){
-            throw new IllegalAccessException();
+        // 지역 타입에 대해 명시되어 있으면 지역별 대표 사진 조회
+        if(locationName == null){
+            photos = switch (locationType){
+                case "large"  -> photoRepository.findByTypeTopLargePhoto(count);
+                case "middle" -> photoRepository.findByTypeTopMiddlePhoto(count);
+                case "small"  -> photoRepository.findByTypeTopSmallPhoto(count);
+                default -> throw new IllegalStateException("Unexpected value: " + locationType);
+            };
+            // 지역별 랜덤 사진 추출도 가능함
+        }
+        // 지역명에 대해 명시되어 있으면 해당 지역에 대해 random 또는 대표 사진을 조회
+        else{
+            if(eventType.equals("random")){
+                photos = photoRepository.findByRandomPhoto(locationName, count);
+            }
+            else if (eventType.equals("top")){
+                System.out.println("location name top");
+                photos = switch (locationType){
+                    case "large" -> photoRepository.findByNameLargePhoto(locationName, count);
+                    case "middle" -> photoRepository.findByNameMiddlePhoto(locationName, count);
+                    case "small" -> photoRepository.findByNameSmallPhoto(locationName, count);
+                    default -> throw new IllegalStateException("Unexpected value: " + locationType);
+                };
+            }
+            else{
+                throw new IllegalAccessException("not Invalid event type");
+            }
         }
 
-        photos = photos.stream().filter(Photo::isSharedActive).toList();
-
-        return photos.stream().map(GetPhotoResponse::new).toList();
+        // 공유하는 사진인지 확인하고 GetPhotoResponse
+        result = photos.
+                stream().
+                filter(Photo::isSharedActive).
+                map(GetPhotoResponse::new).
+                toList();
+        return result;
     }
 }

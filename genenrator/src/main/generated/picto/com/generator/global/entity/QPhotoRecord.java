@@ -26,7 +26,7 @@ public class QPhotoRecord extends EntityPathBase<PhotoRecord> {
 
     public final NumberPath<Long> eventDatetime = createNumber("eventDatetime", Long.class);
 
-    public final picto.com.generator.domain.photo.entity.QPhoto photo;
+    public final QPhoto photo;
 
     public final QPhotoRecordId photoRecordId;
 
@@ -51,7 +51,7 @@ public class QPhotoRecord extends EntityPathBase<PhotoRecord> {
     public QPhotoRecord(Class<? extends PhotoRecord> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.agent = inits.isInitialized("agent") ? new picto.com.generator.domain.user.entity.QUser(forProperty("agent")) : null;
-        this.photo = inits.isInitialized("photo") ? new picto.com.generator.domain.photo.entity.QPhoto(forProperty("photo"), inits.get("photo")) : null;
+        this.photo = inits.isInitialized("photo") ? new QPhoto(forProperty("photo"), inits.get("photo")) : null;
         this.photoRecordId = inits.isInitialized("photoRecordId") ? new QPhotoRecordId(forProperty("photoRecordId"), inits.get("photoRecordId")) : null;
     }
 

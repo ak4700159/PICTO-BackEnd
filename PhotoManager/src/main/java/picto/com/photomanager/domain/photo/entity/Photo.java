@@ -2,20 +2,21 @@ package picto.com.photomanager.domain.photo.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.photomanager.global.user.entity.User;
+import picto.com.photomanager.domain.photo.dto.PhotoDistanceDTO;
+import picto.com.photomanager.domain.user.entity.User;
+
+import java.io.Serializable;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(schema = "photo_schema", name = "Photo")
-public class Photo {
+public class Photo implements Serializable {
     @EmbeddedId
     private PhotoId id;
 
@@ -41,7 +42,7 @@ public class Photo {
     private double lng;
 
     // 지역명
-    @Column(name = "location", nullable = false, length = 20)
+    @Column(name = "location", nullable = false, length = 30)
     private String location;
 
     @Column(name = "register_datetime", nullable = false)
@@ -89,5 +90,10 @@ public class Photo {
         this.views = views;
         this.id = photoId;
         this.tag = tag;
+    }
+
+    @Override
+    public String toString(){
+        return "userId : " + user.getUserId();
     }
 }

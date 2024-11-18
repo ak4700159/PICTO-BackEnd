@@ -24,7 +24,7 @@ public class QPhotoRecordId extends BeanPath<PhotoRecordId> {
 
     public final NumberPath<Integer> agentId = createNumber("agentId", Integer.class);
 
-    public final picto.com.generator.domain.photo.entity.QPhotoId photoId;
+    public final QPhotoId photoId;
 
     public QPhotoRecordId(String variable) {
         this(PhotoRecordId.class, forVariable(variable), INITS);
@@ -44,7 +44,7 @@ public class QPhotoRecordId extends BeanPath<PhotoRecordId> {
 
     public QPhotoRecordId(Class<? extends PhotoRecordId> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.photoId = inits.isInitialized("photoId") ? new picto.com.generator.domain.photo.entity.QPhotoId(forProperty("photoId")) : null;
+        this.photoId = inits.isInitialized("photoId") ? new QPhotoId(forProperty("photoId")) : null;
     }
 
 }

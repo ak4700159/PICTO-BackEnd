@@ -55,7 +55,7 @@ public class GeneratorUserService {
             tagSelectRepositroy.save(tagSelect);
             TagSelect tagSelect2 = new AddDefaultTagSelect().toEntity(user, "강아지");
             tagSelectRepositroy.save(tagSelect2);
-            TagSelect tagSelect3 = new AddDefaultTagSelect().toEntity(user, "길고양이");
+            TagSelect tagSelect3 = new AddDefaultTagSelect().toEntity(user, "고양이");
             tagSelectRepositroy.save(tagSelect3);
         }
     }

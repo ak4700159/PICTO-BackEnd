@@ -12,7 +12,6 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Getter
-@Setter
 @Embeddable
 @NoArgsConstructor
 @EqualsAndHashCode

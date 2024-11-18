@@ -4,44 +4,40 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import picto.com.photomanager.domain.photo.dao.PhotoRepository;
+import picto.com.photomanager.domain.photo.dto.request.AddTestLocationInfoRequest;
 import picto.com.photomanager.domain.photo.dto.request.AddTestPhotoRequest;
+import picto.com.photomanager.domain.photo.dto.response.GetKakaoLocationInfoResponse;
+import picto.com.photomanager.domain.photo.entity.LocationInfo;
 import picto.com.photomanager.domain.photo.entity.Photo;
-import picto.com.photomanager.global.user.dao.UserRepository;
-import picto.com.photomanager.global.user.entity.User;
+import picto.com.photomanager.domain.photo.entity.PhotoId;
+import picto.com.photomanager.domain.user.dao.UserRepository;
+import picto.com.photomanager.domain.user.entity.User;
+import picto.com.photomanager.global.postDomain.dao.LocationInfoRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class PhotoManagerTestService {
     private final UserRepository userRepository;
     private final PhotoRepository photoRepository;
+    private final LocationInfoRepository locationInfoRepository;
 
     @Transactional
-    public List<Photo> createTestPhotos(){
-        List<Photo> photos = new ArrayList<>();
+    public Map<String, Object> createTestPhoto(int userId, int photoId){
+        Map<String, Object> result;
+        User user = userRepository.getReferenceById(userId);
+        // result = photo, kakaoResponse 키를 가지는 객체가 담긴다.
+        result = new AddTestPhotoRequest().toRandomPhoto(userId, photoId, user);
+        photoRepository.save((Photo)result.get("photo"));
+        return result;
+    }
 
-        int photoCount = 0;
-        // 유저 100명에 대해
-        for(int i = 1; i <= 100; i++){
-            User user = userRepository.getReferenceById(i);
-            // 각 50장씩 추가
-            for(int j = 1; j <= 50; j++){
-                try {
-                    Thread.sleep(300);
-                }catch (InterruptedException e){
-                    throw new RuntimeException(e);
-                }
-                Photo newPhoto = new AddTestPhotoRequest().toRandomPhoto(i, photoCount, user);
-                photoRepository.save(newPhoto);
-                if(photoCount < 100){
-                    photos.add(newPhoto);
-                }
-                photoCount++;
-            }
-            System.out.println("user" + i + " : 50 photos created");
-        }
-        return photos;
+    @Transactional
+    public void createTestLocationInfo(int userId, int photoId, GetKakaoLocationInfoResponse info){
+        System.out.println(info.toString());
+        Photo photo = photoRepository.getReferenceById(new PhotoId(photoId, userId));
+        LocationInfo locationInfo = new AddTestLocationInfoRequest().toEntity(userId, photoId, info, photo);
+        locationInfoRepository.save(locationInfo);
     }
 }

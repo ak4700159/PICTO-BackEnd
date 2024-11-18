@@ -20,14 +20,14 @@ public class GeneratorUserController {
     private final GeneratorUserService generatorUserService;
 
     // 생성된 모든 유저 조회
-    @GetMapping("api/generator/user")
+    @GetMapping("generator/user")
     public ResponseEntity<List<User>> findAllUser () {
         System.out.println("user found");
         List<User> users = generatorUserService.findAllUser();
         return ResponseEntity.status(HttpStatus.CREATED).body(users);
     }
 
-    @GetMapping("api/generator/user/email")
+    @GetMapping("generator/user/email")
     public ResponseEntity<List<User>> findEmailUser (@RequestBody FindUserEmail findUserEmail) {
         System.out.println("user found");
         List<User> users = generatorUserService.findEmailUsers(findUserEmail.getEmail());
@@ -35,7 +35,7 @@ public class GeneratorUserController {
     }
 
     // 100명 유저 생성
-    @PostMapping("api/generator/user")
+    @PostMapping("generator/user")
     public ResponseEntity<List<User>> postIdUser () {
         System.out.println("User created request");
         List<User> users = generatorUserService.makeUserN();

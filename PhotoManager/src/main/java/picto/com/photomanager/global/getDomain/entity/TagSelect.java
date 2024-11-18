@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.photomanager.global.user.entity.User;
+import picto.com.photomanager.domain.user.entity.User;
 
 @Getter
 @Entity

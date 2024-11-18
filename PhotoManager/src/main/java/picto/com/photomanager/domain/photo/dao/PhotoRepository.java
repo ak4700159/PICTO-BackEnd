@@ -3,11 +3,16 @@ package picto.com.photomanager.domain.photo.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Repository;
+import picto.com.photomanager.domain.photo.dto.PhotoDistanceDTO;
+import picto.com.photomanager.domain.photo.dto.PhotoLikeRankingDTO;
 import picto.com.photomanager.domain.photo.entity.Photo;
 import picto.com.photomanager.domain.photo.entity.PhotoId;
 
 import java.util.List;
+import java.util.Objects;
+
 @Repository
 public interface PhotoRepository extends JpaRepository<Photo, PhotoId> {
     @Query("select p from Photo p where p.id.photoId = :photoId")
@@ -16,15 +21,86 @@ public interface PhotoRepository extends JpaRepository<Photo, PhotoId> {
     @Query("select p from Photo p where p.id.userId = :userId")
     List<Photo> findByUser(@Param("userId") int photoId);
 
-    @Query(value = "SELECT p FROM Photo p " +
-            "WHERE (6371 * acos(cos(radians(:latitude)) * cos(radians(p.lat)) * " +
-            "cos(radians(:longitude) - radians(p.lng)) + " +
-            "sin(radians(:latitude)) * sin(radians(p.lat)))) <= 5")
-    List<Photo> findByLocationInfo(@Param("latitude") double latitude, @Param("longitude") double longitude);
-
-    @Query("select p from Photo p where p.location like %:location order by p.likes desc limit :count")
-    List<Photo> findByTopPhoto(@Param("location") String location, @Param("count") int count);
-
+    // 랜덤 사진 조회
     @Query("select p from Photo p where p.location like %:location order by RAND() limit :count ")
     List<Photo> findByRandomPhoto(@Param("location") String location, @Param("count") int count);
+
+    // 반경 3km 이내의 사진 조회
+    @Query(value = """
+    SELECT p.*
+    FROM Photo p
+    WHERE ST_Distance_Sphere(
+        point(p.lng, p.lat),
+        point(:longitude, :latitude)
+    ) <= 3000  -- 미터 단위
+""", nativeQuery = true)
+    List<Photo> findByLocationInfo(@Param("latitude") double latitude, @Param("longitude") double longitude);
+
+    // 지역별 대표 사진 조회
+    @Query(value = """
+    SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
+    FROM (
+        SELECT p.*,
+            RANK() OVER (
+                PARTITION BY info.large_name
+                ORDER BY p.likes, info.large_name DESC
+            ) as ranking
+        FROM Photo p
+        JOIN LocationInfo info ON p.photo_id = info.photo_id
+    ) sub
+    WHERE sub.ranking <= :count
+    """, nativeQuery = true)
+    List<Photo> findByTypeTopLargePhoto(@Param("count") int count);
+
+    @Query(value = """
+    SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
+    FROM (
+        SELECT p.*,
+            RANK() OVER (
+                PARTITION BY info.middle_name
+                ORDER BY p.likes, info.large_name DESC
+            ) as ranking
+        FROM Photo p
+        JOIN LocationInfo info ON p.photo_id = info.photo_id
+    ) sub
+    WHERE sub.ranking <= :count
+    """, nativeQuery = true)
+    List<Photo> findByTypeTopMiddlePhoto(@Param("count") int count);
+
+    @Query(value = """
+    SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
+    FROM (
+        SELECT p.*,
+            RANK() OVER (
+                PARTITION BY info.small_name
+                ORDER BY p.likes, info.large_name DESC
+            ) as ranking
+        FROM Photo p
+        JOIN LocationInfo info ON p.photo_id = info.photo_id
+    ) sub
+    WHERE sub.ranking <= :count
+    """, nativeQuery = true)
+    List<Photo> findByTypeTopSmallPhoto(@Param("count") int count);
+
+    // 특정 지역에 대한 대표사진들 조회
+    @Query("select p " +
+            "from Photo p join LocationInfo info on p.id.photoId = info.photo.id.photoId " +
+            "where info.smallName = :locationName and p.sharedActive = true " +
+            "order by p.likes desc " +
+            "limit :count")
+    List<Photo> findByNameSmallPhoto(@Param("locationName") String locationName, @Param("count") int count);
+
+    @Query("select p " +
+            "from Photo p join LocationInfo info on p.id.photoId = info.photo.id.photoId " +
+            "where info.middleName = :locationName and p.sharedActive = true " +
+            "order by p.likes desc " +
+            "limit :count")
+    List<Photo> findByNameMiddlePhoto(@Param("locationName") String locationName, @Param("count") int count);
+
+    @Query("select p " +
+            "from Photo p join LocationInfo info on p.id.photoId = info.photo.id.photoId " +
+            "where info.largeName = :locationName and p.sharedActive = true " +
+            "order by p.likes desc " +
+            "limit :count")
+    List<Photo> findByNameLargePhoto(@Param("locationName") String locationName, @Param("count") int count);
 }

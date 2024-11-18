@@ -5,14 +5,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import picto.com.photomanager.domain.photo.application.PhotoManagerGetService;
 import picto.com.photomanager.domain.photo.application.PhotoManagerTestService;
+import picto.com.photomanager.domain.photo.dto.response.GetKakaoLocationInfoResponse;
 import picto.com.photomanager.domain.photo.dto.response.GetPhotoResponse;
-import picto.com.photomanager.domain.photo.entity.Photo;
 import picto.com.photomanager.domain.photo.dto.request.GetAroundPhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetRepresentativePhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetSpecifiedPhotoRequest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -21,10 +22,20 @@ public class PhotoManagerController {
     final private PhotoManagerTestService photoManagerTestService;
 
     // 5000개 이미지 생성
-    @PostMapping("/photo/test")
-    public ResponseEntity<List<Photo>> createTestPhoto(){
-        List<Photo> photos = photoManagerTestService.createTestPhotos();
-        return ResponseEntity.ok(photos);
+    @PostMapping("/photo-manager/photos")
+    public ResponseEntity<String> createTestPhoto(){
+        final int MAX_USERS = 500;
+        final int MAX_PHOTOS = 10;
+        int photoCount = 1;
+        for(int i = 1; i <= MAX_USERS; i++){
+            for(int j = 1; j <= MAX_PHOTOS; j++){
+                Map<String, Object> result = photoManagerTestService.createTestPhoto(i, photoCount);
+                GetKakaoLocationInfoResponse info = (GetKakaoLocationInfoResponse)result.get("kakaoResponse");
+                photoManagerTestService.createTestLocationInfo(i, photoCount, info);
+                photoCount++;
+            }
+        }
+        return ResponseEntity.ok("good");
     }
 
 

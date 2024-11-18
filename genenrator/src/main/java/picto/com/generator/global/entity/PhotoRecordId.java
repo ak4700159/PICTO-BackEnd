@@ -4,7 +4,6 @@ import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import picto.com.generator.domain.photo.entity.PhotoId;
 
 @Getter
 @Setter

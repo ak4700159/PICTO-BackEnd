@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.generator.domain.photo.entity.Photo;
 import picto.com.generator.domain.user.entity.User;
 
 @Getter

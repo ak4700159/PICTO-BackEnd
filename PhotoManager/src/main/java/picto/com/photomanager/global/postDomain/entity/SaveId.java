@@ -16,18 +16,6 @@ public class SaveId implements java.io.Serializable {
     // 복합키 선언만 하면 된다.
     // Save Entity 에서 JoinColumn으로 사용하는 외래키 지정
     private PhotoId photoId;
-    private SharingFolderId folderId;
-
-//    @Column(name = "photo_id", nullable = false)
-//    private Integer photoId;
-//
-//    @Column(name = "sharing_folder_id", nullable = false)
-//    private Integer sharingFolderId;
-//
-//    @Column(name = "user_id", nullable = false)
-//    private Integer userId;
-//
-//    @Column(name = "link", nullable = false, length = 30)
-//    private String link;
+    private int generatorId;
 
 }

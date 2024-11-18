@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.photomanager.global.user.entity.User;
+import picto.com.photomanager.domain.user.entity.User;
 
 @Getter
 @Setter
