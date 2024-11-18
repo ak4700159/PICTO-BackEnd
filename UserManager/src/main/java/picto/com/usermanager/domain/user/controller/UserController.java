@@ -21,6 +21,7 @@ import picto.com.usermanager.domain.user.entity.User;
 public class UserController {
     private final UserService userService;
 
+    // 회원가입
     @PostMapping("/signup")
     public ResponseEntity<User> signUp(SignUpRequest signUpRequest) {
         User newUser;
@@ -33,6 +34,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
+    // 로그인
     @PostMapping("/login")
     public ResponseEntity<SignInResponse> signIn(SignInRequest signInRequest) {
         SignInResponse response;
@@ -47,6 +49,13 @@ public class UserController {
     // 비밀번호 찾기
     @GetMapping("/passwd")
     public String restorePasswd() {
+        return "";
+    }
+
+
+    // 이메일 인증
+    @GetMapping("/email")
+    public String restoreEmail() {
         return "";
     }
 }

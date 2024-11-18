@@ -5,9 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import picto.com.usermanager.domain.user.dao.*;
-import picto.com.usermanager.domain.user.entity.TagSelect;
-import picto.com.usermanager.domain.user.entity.User;
-import picto.com.usermanager.domain.user.entity.UserSetting;
+import picto.com.usermanager.domain.user.entity.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +15,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserManagerGetService {
     private final UserRepository userRepository;
+    private final PhotoRepository photoRepository;
     private final FilterRepository filterRepository;
     private final TagSelectRepositroy tagSelectRepository;
     private final UserSettingRepositroy userSettingRepository;
@@ -25,7 +24,14 @@ public class UserManagerGetService {
     // 사용자의 모든 정보를 조회
     // = 해당 사용자의 사진, 세팅, 필터, 선택한 태그, 칭호, 정보
     public void getUser(int userId) {
+        List<Photo> photos = photoRepository.findByUserId(userId);
+        Filter filter = filterRepository.getReferenceById(userId);
+        UserSetting setting = userSettingRepository.getReferenceById(userId);
+        List<TagSelect> tags = tagSelectRepository.findByUserId(userId);
+        List<TitleList> titles = titleListRepository.findByUserId(userId);
+        User user = userRepository.findById(userId).orElse(null);
 
+        // Response entity 반환
     }
 
     public void getUsersetting(int userId) {
