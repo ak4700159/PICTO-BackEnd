@@ -1,18 +1,26 @@
 package picto.com.usermanager.domain.user.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import picto.com.usermanager.domain.user.application.UserManagerGetService;
+import picto.com.usermanager.domain.user.dto.response.get.userInfo.GetUserInfoResponse;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 public class UserManagerGetController {
+    private final UserManagerGetService userManagerGetService;
+
     // GET METHOD
-    @GetMapping("/user-manager")
-    public ResponseEntity<Map<String, Object>> getUser() {
-        return ResponseEntity.ok(new HashMap<String, Object>() {});
+    @GetMapping("/user-manager/users/{userId}")
+    public ResponseEntity<GetUserInfoResponse> getUser(@PathVariable("userId") Integer userId) {
+        GetUserInfoResponse response = userManagerGetService.getUser(userId);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/user-manager/setting")

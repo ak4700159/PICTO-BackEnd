@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Persistable;
 
-import java.util.Random;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,7 +14,6 @@ import java.util.Random;
 public class User implements Persistable<Integer> {
     @Id
     @Column(name = "user_id", updatable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer userId;
 
     @Column(name = "password", nullable = false, length = 20)
@@ -63,6 +60,18 @@ public class User implements Persistable<Integer> {
                 userId(userId).
                 profilePhotoPath(null).
                 build();
+    }
+
+    @Override
+    public String toString(){
+        return String.format("name : %s\n" +
+                "accountName : %s\n" +
+                "intro : %s\n" +
+                "email : %s\n" +
+                "password : %s\n" +
+                "profileActive : %b\n" +
+                "userId : %d\n" +
+                "profilePath : %s\n", name, email, intro, email, password,profileActive, userId, profilePhotoPath);
     }
 
 

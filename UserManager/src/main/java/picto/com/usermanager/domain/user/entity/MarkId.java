@@ -1,0 +1,36 @@
+package picto.com.usermanager.domain.user.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.Hibernate;
+
+import java.util.Objects;
+
+@Getter
+@Setter
+@Embeddable
+public class MarkId implements java.io.Serializable {
+    private static final long serialVersionUID = -691557134142325189L;
+    @Column(name = "marking_id", nullable = false)
+    private Integer markingId;
+
+    @Column(name = "marked_id", nullable = false)
+    private Integer markedId;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        MarkId entity = (MarkId) o;
+        return Objects.equals(this.markingId, entity.markingId) &&
+                Objects.equals(this.markedId, entity.markedId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(markingId, markedId);
+    }
+
+}

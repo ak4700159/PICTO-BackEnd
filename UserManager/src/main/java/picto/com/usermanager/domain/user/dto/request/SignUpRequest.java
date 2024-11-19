@@ -20,8 +20,12 @@ public class SignUpRequest {
 
 
     @Builder
-    public SignUpRequest(String email, String password) {
+    public SignUpRequest(String email, String password, String name, int userId, double lat, double lng) {
         this.email = email;
         this.password = password;
+        this.name = name;
+        this.userId = userId;
+        this.lat = lat;
+        this.lng = lng;
     }
 }

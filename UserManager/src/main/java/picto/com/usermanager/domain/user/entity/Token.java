@@ -26,10 +26,10 @@ public class Token {
     @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "user_id")
     private User user;
 
-    @Column(name = "refresh_token", nullable = false, length = 64)
+    @Column(name = "refresh_token", nullable = false, length = 150)
     private String refreshToken;
 
-    @Column(name = "access_token", nullable = false, length = 64)
+    @Column(name = "access_token", nullable = false, length = 150)
     private String accessToken;
 
     @Builder

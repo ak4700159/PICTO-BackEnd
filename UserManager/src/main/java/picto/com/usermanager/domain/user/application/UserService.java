@@ -11,6 +11,7 @@ import picto.com.usermanager.domain.user.dto.request.SignUpRequest;
 import picto.com.usermanager.domain.user.dto.response.SignInResponse;
 import picto.com.usermanager.domain.user.entity.*;
 import picto.com.usermanager.global.utils.JwtUtil;
+import picto.com.usermanager.global.utils.JwtUtilImpl;
 
 import java.util.Objects;
 
@@ -19,7 +20,7 @@ import java.util.Objects;
 public class UserService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
-    private JwtUtil jwtUtil;
+    private final JwtUtilImpl jwtUtil;
 
     // 기본 세팅을 위한 레파지토리
     private final FilterRepository filterRepository;
@@ -30,12 +31,14 @@ public class UserService {
     // 사용자 디폴트값 설정
     @Transactional
     public void addDefault(User newUser, SignUpRequest signUpRequest) throws IllegalAccessException {
-        Filter defualFilter = Filter.toEntity(newUser);
-        UserSetting defaultSetting = UserSetting.toEntity(newUser);
-        TagSelect defaultTag = TagSelect.toEntity(newUser, "돼지");
-        Session defaultSession = Session.toEntity(newUser, signUpRequest.getLat(), signUpRequest.getLng());
+        User referUser = userRepository.getReferenceById(newUser.getId());
+        Filter defualFilter = Filter.toEntity(referUser);
+        UserSetting defaultSetting = UserSetting.toEntity(referUser);
+        TagSelect defaultTag = TagSelect.toEntity(referUser, "돼지");
+        Session defaultSession = Session.toEntity(referUser, signUpRequest.getLat(), signUpRequest.getLng());
 
-        String accessToken = jwtUtil.createToken();;
+        String accessToken = jwtUtil.createToken();
+        System.out.println(accessToken.length());
         try{
             filterRepository.save(defualFilter);
             userSettingRepository.save(defaultSetting);
@@ -44,9 +47,11 @@ public class UserService {
             tokenRepository.save(Token
                     .builder()
                     .accessToken(accessToken)
-                    .refreshToken(accessToken)
+                    .refreshToken("")
+                    .user(referUser)
                     .build());
         }catch (IllegalArgumentException e){
+            System.out.println("Default Setting Error");
             throw new IllegalAccessException();
         }
     }
@@ -67,9 +72,11 @@ public class UserService {
         // 법적으로 DB에 비밀번호를 저장할 때 무조건 암호화 후 저장되어야 한다.
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPwd = passwordEncoder.encode(signUpRequest.getPassword());
+        System.out.println(hashedPwd.length());
 
         // user 생성 후 저장
         User newUser = User.toEntity(signUpRequest.getName(), signUpRequest.getEmail(), hashedPwd, signUpRequest.getUserId());
+        System.out.println(newUser);
         userRepository.save(newUser);
 
         // Controller에서 나머지 사용자 디폴트값 설정
@@ -86,8 +93,7 @@ public class UserService {
         }
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPwd = passwordEncoder.encode(signInRequest.getPassword());
-        if (!findUser.getPassword().equals(hashedPwd)) {
+        if (!passwordEncoder.matches(signInRequest.getPassword(), findUser.getPassword())) {
             throw new IllegalAccessException("암호가 불일치");
         }
         userToken = tokenRepository.getReferenceById(Objects.requireNonNull(findUser.getId()));
@@ -98,6 +104,7 @@ public class UserService {
 
     private void verifyDuplicatedUser(String userEmail) throws IllegalAccessException {
         if(userRepository.findByEmail(userEmail) != null) {
+            System.out.println("중복된 유저");
             throw new IllegalAccessException("중복된 유저");
         }
     }

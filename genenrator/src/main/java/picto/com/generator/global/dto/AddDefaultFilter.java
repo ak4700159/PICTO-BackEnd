@@ -10,7 +10,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class AddDefaultFilter {
 
-    // 처음 생성시 "좋아요순" "한 달"
+    // 처음 생성시 "좋아요순" "한달"
     public Filter toEntity(User newUser){
         return Filter.builder().
                 user(newUser).

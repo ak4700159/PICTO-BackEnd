@@ -6,7 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.photomanager.domain.user.entity.User;
+import picto.com.usermanager.domain.user.entity.User;
 
 import java.io.Serializable;
 

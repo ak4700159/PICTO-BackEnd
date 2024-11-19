@@ -1,15 +1,13 @@
 package picto.com.usermanager.domain.user.application;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 import picto.com.usermanager.domain.user.dao.*;
+import picto.com.usermanager.domain.user.dto.response.get.userInfo.GetUserInfoResponse;
 import picto.com.usermanager.domain.user.entity.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,17 +19,38 @@ public class UserManagerGetService {
     private final UserSettingRepositroy userSettingRepository;
     private final TitleListRepository titleListRepository;
 
+    private final MarkRepository markRepository;
+    private final BlockRepository blockRepository;
+
     // 사용자의 모든 정보를 조회
     // = 해당 사용자의 사진, 세팅, 필터, 선택한 태그, 칭호, 정보
-    public void getUser(int userId) {
-        List<Photo> photos = photoRepository.findByUserId(userId);
-        Filter filter = filterRepository.getReferenceById(userId);
-        UserSetting setting = userSettingRepository.getReferenceById(userId);
-        List<TagSelect> tags = tagSelectRepository.findByUserId(userId);
-        List<TitleList> titles = titleListRepository.findByUserId(userId);
-        User user = userRepository.findById(userId).orElse(null);
+    @Transactional
+    public GetUserInfoResponse getUser(int userId) {
+        User user = userRepository.getReferenceById(userId);
+
+        List<Photo> photos = photoRepository.findByUserId(user.getUserId());
+        Filter filter = filterRepository.getReferenceById(user.getUserId());
+        UserSetting setting = userSettingRepository.getReferenceById(user.getUserId());
+        List<TagSelect> tags = tagSelectRepository.findByUserId(user.getUserId());
+        List<TitleList> titleList = titleListRepository.findByUserId(user.getUserId());
+        List<Title> titles = titleList.stream().map(TitleList::getTitle).toList();
+
+        List<Mark> marks = markRepository.findByUserId(user.getUserId());
+        List<Block> blocks = blockRepository.findByUserId(user.getUserId());
 
         // Response entity 반환
+        GetUserInfoResponse response = GetUserInfoResponse
+                .builder()
+                .user(user)
+                .setting(setting)
+                .filter(filter)
+                .tags(tags)
+                .titles(titles)
+                .photos(photos)
+                .marks(marks)
+                .blocks(blocks)
+                .build();
+        return response;
     }
 
     public void getUsersetting(int userId) {
