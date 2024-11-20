@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.usermanager.domain.user.entity.User;
 
 @Getter
 @Setter
@@ -14,7 +13,7 @@ import picto.com.usermanager.domain.user.entity.User;
 public class UserSetting {
     @Id
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private Long userId;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)

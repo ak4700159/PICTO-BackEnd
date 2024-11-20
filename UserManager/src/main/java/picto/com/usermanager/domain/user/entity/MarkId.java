@@ -14,10 +14,10 @@ import java.util.Objects;
 public class MarkId implements java.io.Serializable {
     private static final long serialVersionUID = -691557134142325189L;
     @Column(name = "marking_id", nullable = false)
-    private Integer markingId;
+    private Long markingId;
 
     @Column(name = "marked_id", nullable = false)
-    private Integer markedId;
+    private Long markedId;
 
     @Override
     public boolean equals(Object o) {

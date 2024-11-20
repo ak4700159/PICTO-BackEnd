@@ -11,10 +11,10 @@ import org.springframework.data.domain.Persistable;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "User", schema = "photo_schema")
-public class User implements Persistable<Integer> {
+public class User implements Persistable<Long> {
     @Id
     @Column(name = "user_id", updatable = false)
-    Integer userId;
+    Long userId;
 
     @Column(name = "password", nullable = false, length = 20)
     String password;
@@ -38,7 +38,7 @@ public class User implements Persistable<Integer> {
     String accountName;
 
     @Builder
-    public User(int userId, String password, String name, String email, boolean profileActive, String profilePhotoPath, String intro, String accountName) {
+    public User(Long userId, String password, String name, String email, boolean profileActive, String profilePhotoPath, String intro, String accountName) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -49,7 +49,7 @@ public class User implements Persistable<Integer> {
         this.accountName = accountName;
     }
 
-    static public User toEntity(String name, String email, String password, int userId) {
+    static public User toEntity(String name, String email, String password, Long userId) {
         return User.builder().
                 name(name).
                 accountName(email).
@@ -58,7 +58,7 @@ public class User implements Persistable<Integer> {
                 email(email).
                 profileActive(true).
                 userId(userId).
-                profilePhotoPath(null).
+                profilePhotoPath("/temp.jpg").
                 build();
     }
 
@@ -92,7 +92,7 @@ public class User implements Persistable<Integer> {
     }
 
     @Override
-    public Integer getId() {
+    public Long getId() {
         return this.userId;
     }
 }

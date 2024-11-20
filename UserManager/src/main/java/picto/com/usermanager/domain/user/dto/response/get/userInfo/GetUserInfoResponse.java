@@ -10,19 +10,19 @@ import java.util.List;
 @Getter
 public class GetUserInfoResponse {
     private GetUser user;
-    private GetSetting filter;
+    private GetFilter filter;
     private GetSetting userSetting;
     private List<GetTag> tags;
     private List<GetTitle> titles;
     private List<GetPhoto> photos;
-    private List<Integer> marks;
-    private List<Integer> blocks;
+    private List<Long> marks;
+    private List<Long> blocks;
 
     @Builder
     public GetUserInfoResponse(User user, UserSetting setting, Filter filter, List<Photo> photos, List<Title> titles,
                                List<TagSelect> tags, List<Mark> marks, List<Block> blocks) {
         this.user = new GetUser(user);
-        this.filter = new GetSetting(setting);
+        this.filter = new GetFilter(filter);
         this.userSetting = new GetSetting(setting);
 
         this.tags = new ArrayList<GetTag>();
@@ -45,6 +45,7 @@ public class GetUserInfoResponse {
             this.marks.add(mark.getMarked().getId());
         }
 
+        this.blocks = new ArrayList<>();
         for(Block block : blocks){
             this.blocks.add(block.getBlocked().getId());
         }

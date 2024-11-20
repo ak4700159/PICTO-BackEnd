@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface PhotoRepository extends JpaRepository<Photo, PhotoId> {
     @Query("select p from Photo p where p.id.userId = :userId")
-    public List<Photo> findByUserId(@Param("userId") Integer userId);
+    public List<Photo> findByUserId(@Param("userId") Long userId);
 }

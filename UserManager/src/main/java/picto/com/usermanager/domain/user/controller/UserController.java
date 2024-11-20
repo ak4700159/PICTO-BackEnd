@@ -3,10 +3,7 @@ package picto.com.usermanager.domain.user.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import picto.com.usermanager.domain.user.application.UserService;
 import picto.com.usermanager.domain.user.dto.request.SignInRequest;
 import picto.com.usermanager.domain.user.dto.request.SignUpRequest;
@@ -28,9 +25,9 @@ public class UserController {
             newUser = userService.signUp(signUpRequest);
             userService.addDefault(newUser, signUpRequest);
         }catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println(e);
             System.out.println(e.getLocalizedMessage());
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).build();
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).header("message", e.getMessage()).build();
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
@@ -45,9 +42,23 @@ public class UserController {
         }catch (Exception e){
             System.out.println(e.getMessage());
             System.out.println(e.getLocalizedMessage());
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().header("message", e.getMessage()).build();
         }
         return ResponseEntity.ok().body(response);
+    }
+
+    // 이메일 중복 여부
+    @GetMapping("/user-manager/email{email}")
+    public ResponseEntity<String> duplicatedEmail(@PathVariable String email) {
+        try {
+            userService.verifyDuplicatedUser(email);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println(e.getLocalizedMessage());
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).header("message", e.getMessage()).build();
+        }
+        String result = "true";
+        return ResponseEntity.ok(result);
     }
 
     // 비밀번호 찾기

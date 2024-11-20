@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface TagSelectRepositroy extends JpaRepository<TagSelect, TagSelectId> {
     @Query("select tag from TagSelect tag where tag.user.userId = :userId")
-    public List<TagSelect> findByUserId(@Param("userId") Integer userId);
+    public List<TagSelect> findByUserId(@Param("userId") Long userId);
 }

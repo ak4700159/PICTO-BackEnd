@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.usermanager.domain.user.entity.User;
 
 @Getter
 @Setter
@@ -17,7 +16,7 @@ import picto.com.usermanager.domain.user.entity.User;
 public class TitleList {
     @Id
     @Column(name = "title_list_id", nullable = false)
-    private Integer titleListId;
+    private Long titleListId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

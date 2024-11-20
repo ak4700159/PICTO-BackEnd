@@ -3,16 +3,12 @@ package picto.com.usermanager.global;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import picto.com.usermanager.domain.user.dao.SessionRepository;
 import picto.com.usermanager.domain.user.dao.TokenRepository;
 import picto.com.usermanager.domain.user.dao.UserRepository;
-import picto.com.usermanager.domain.user.entity.Session;
 import picto.com.usermanager.domain.user.entity.Token;
 import picto.com.usermanager.domain.user.entity.User;
-import picto.com.usermanager.global.utils.JwtUtil;
 import picto.com.usermanager.global.utils.JwtUtilImpl;
 
 @Component
@@ -25,7 +21,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        User user = userRepository.findById(Integer.parseInt(request.getHeader("User-Id")))
+        User user = userRepository.findById(Long.parseLong(request.getHeader("User-Id")))
                 .orElseThrow(()->new IllegalArgumentException("User Not Found"));
         Token findToken = tokenRepository.findById(user.getId())
                 .orElseThrow(()->new IllegalArgumentException("Token Not Found"));

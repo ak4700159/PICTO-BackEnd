@@ -14,10 +14,10 @@ import java.util.Objects;
 public class BlockId implements java.io.Serializable {
     private static final long serialVersionUID = 3256584913883115822L;
     @Column(name = "blocking_id", nullable = false)
-    private Integer blockingId;
+    private Long blockingId;
 
     @Column(name = "blocked_id", nullable = false)
-    private Integer blockedId;
+    private Long blockedId;
 
     @Override
     public boolean equals(Object o) {

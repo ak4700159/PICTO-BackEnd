@@ -8,6 +8,7 @@ import picto.com.photomanager.domain.photo.dto.PhotoLikeRankingDTO;
 import picto.com.photomanager.domain.photo.dto.request.GetAroundPhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetRepresentativePhotoRequest;
 import picto.com.photomanager.domain.photo.dto.response.GetPhotoResponse;
+import picto.com.photomanager.domain.user.dao.UserRepository;
 import picto.com.photomanager.global.getDomain.dao.FilterRepository;
 import picto.com.photomanager.global.getDomain.dao.SessionRepository;
 import picto.com.photomanager.global.getDomain.dao.TagSelectRepository;
@@ -35,6 +36,7 @@ public class PhotoManagerGetService {
     private final FilterRepository filterRepository;
     private final TagSelectRepository tagSelectRepository;
     private final SessionRepository sessionRepository;
+    private final UserRepository userRepository;
 
     // 특정 아이디에 대한 사진 조회
     @Transactional
@@ -45,7 +47,8 @@ public class PhotoManagerGetService {
         List<Photo> photos;
 
         // Step01. 사용자인지 사진인지
-        if(type.equals("user") || type.equals("owner")) {
+        // 다른 사용자인 경우 프로필 공개 여부에 따라 조회 가능
+        if((type.equals("user") && userRepository.getReferenceById(typeId).isProfileActive()) || type.equals("owner")) {
             photos = photoRepository.findByUser(typeId);
         }
         // type = "photo"
@@ -61,6 +64,12 @@ public class PhotoManagerGetService {
         photos = type.equals("user") ? photos.stream().filter(Photo::isSharedActive).toList() : photos;
 
         return photos.stream().map(GetPhotoResponse::new).toList();
+    }
+
+    // 전체 사진 조회
+    @Transactional
+    public List<GetPhotoResponse> findAllPhotos(){
+        return photoRepository.findAll().stream().map(GetPhotoResponse::new).toList();
     }
 
     // 주변 사진 조회

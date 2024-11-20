@@ -2,7 +2,6 @@ package picto.com.usermanager.domain.user.application;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import picto.com.usermanager.domain.user.dao.*;
@@ -10,7 +9,6 @@ import picto.com.usermanager.domain.user.dto.request.SignInRequest;
 import picto.com.usermanager.domain.user.dto.request.SignUpRequest;
 import picto.com.usermanager.domain.user.dto.response.SignInResponse;
 import picto.com.usermanager.domain.user.entity.*;
-import picto.com.usermanager.global.utils.JwtUtil;
 import picto.com.usermanager.global.utils.JwtUtilImpl;
 
 import java.util.Objects;
@@ -57,12 +55,12 @@ public class UserService {
     }
 
     @Transactional
-    public User signUp(SignUpRequest signUpRequest) {
+    public User signUp(SignUpRequest signUpRequest) throws Exception {
         try{
             verifyDuplicatedUser(signUpRequest.getEmail());
         }
-        catch (IllegalAccessException e){
-            System.out.println(e.getMessage());
+        catch (Exception e){
+            throw new Exception("DuplicatedEmail");
         }
 
         // DB 전체 수정 필요 -> UUID로 설정해야함
@@ -76,7 +74,12 @@ public class UserService {
         // user 생성 후 저장
         User newUser = User.toEntity(signUpRequest.getName(), signUpRequest.getEmail(), hashedPwd, signUpRequest.getUserId());
         System.out.println(newUser);
-        userRepository.save(newUser);
+        try{
+            userRepository.save(newUser);
+        }
+        catch (Exception e){
+            throw new Exception("DuplicatedId");
+        }
 
         // Controller에서 나머지 사용자 디폴트값 설정
         return newUser;
@@ -88,12 +91,12 @@ public class UserService {
         User findUser = userRepository.findByEmail(signInRequest.getEmail());
         Token userToken;
         if (findUser == null) {
-            throw new IllegalAccessException("존재하지 않는 사용자");
+            throw new IllegalAccessException("NotFoundUser");
         }
 
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(signInRequest.getPassword(), findUser.getPassword())) {
-            throw new IllegalAccessException("암호가 불일치");
+            throw new IllegalAccessException("NotMatchingPassword");
         }
         userToken = tokenRepository.getReferenceById(Objects.requireNonNull(findUser.getId()));
 
@@ -101,11 +104,13 @@ public class UserService {
         return new SignInResponse(userToken.getAccessToken());
     }
 
-    private void verifyDuplicatedUser(String userEmail) throws IllegalAccessException {
+    @Transactional
+    public boolean verifyDuplicatedUser(String userEmail) throws IllegalAccessException {
         if(userRepository.findByEmail(userEmail) != null) {
             System.out.println("중복된 유저");
-            throw new IllegalAccessException("중복된 유저");
+            throw new IllegalAccessException("Duplicated");
         }
+        return true;
     }
 
 

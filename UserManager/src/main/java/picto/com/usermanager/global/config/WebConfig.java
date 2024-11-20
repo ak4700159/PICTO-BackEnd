@@ -22,6 +22,6 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(jwtAuthInterceptor)
                 .order(1) // 첫번째로 실행될 인터셉터
                 .addPathPatterns() // 인터셉터할 경로 지정
-                .excludePathPatterns("/user-manager/signup", "/user-manager/signin"); // 그 중에서 제외하는 경로
+                .excludePathPatterns("/user-manager/signup", "/user-manager/signin", "/user-manager/email/**"); // 그 중에서 제외하는 경로
     }
 }

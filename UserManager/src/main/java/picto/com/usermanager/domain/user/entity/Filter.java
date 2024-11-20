@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.usermanager.domain.user.entity.User;
 
 import java.util.Date;
 
@@ -21,7 +20,7 @@ public class Filter {
     // user_id 는 생성자에 포함 X 왜냐하면 User 객체에서 식별하기 때문
     @Id
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private Long userId;
 
     // FK 해당 테이블의 PK 로 사용시 이를 명시하기 위해서 사용
     @MapsId
