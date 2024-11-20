@@ -5,27 +5,20 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import picto.com.photomanager.domain.photo.entity.Photo;
+import picto.com.photomanager.domain.user.entity.User;
 
 @Getter
-@Setter
 @Entity
-@Table(name = "Save", indexes = {
-        @Index(name = "photo_id", columnList = "photo_id, user_id"),
-        @Index(name = "folder_id", columnList = "folder_id, generator_id")
-})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Save {
+public class Share {
     @EmbeddedId
-    private SaveId id;
+    private ShareId id;
 
-    @MapsId("photoId")
+    @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumns({
-            @JoinColumn(name = "photo_id", referencedColumnName = "photo_id", nullable = false),
-            @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    })
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private Photo photo;
+    private User user;
 
     @MapsId("folderId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -36,14 +29,14 @@ public class Save {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Folder folder;
 
-    @Column(name = "saved_datetime", nullable = false)
-    private Long savedDatetime;
+    @Column(name = "shared_datetime", nullable = false)
+    private Long sharedDatetime;
 
     @Builder
-    public Save(SaveId id, Photo photo, Folder folder, Long savedDatetime) {
+    public Share(User user, Folder folder, Long sharedDatetime, ShareId id) {
         this.id = id;
-        this.photo = photo;
+        this.user = user;
         this.folder = folder;
-        this.savedDatetime = savedDatetime;
+        this.sharedDatetime = sharedDatetime;
     }
 }

@@ -17,7 +17,8 @@ import picto.com.generator.domain.user.entity.User;
 public class TitleList {
     @Id
     @Column(name = "title_list_id", nullable = false)
-    private Integer titleListId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long titleListId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)

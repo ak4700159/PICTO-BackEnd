@@ -72,7 +72,6 @@ public class UserService {
         // 법적으로 DB에 비밀번호를 저장할 때 무조건 암호화 후 저장되어야 한다.
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String hashedPwd = passwordEncoder.encode(signUpRequest.getPassword());
-        System.out.println(hashedPwd.length());
 
         // user 생성 후 저장
         User newUser = User.toEntity(signUpRequest.getName(), signUpRequest.getEmail(), hashedPwd, signUpRequest.getUserId());

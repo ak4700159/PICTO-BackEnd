@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetSpecifiedPhotoRequest {
     // 전송하는 사용자 아이이
-    int senderId;
+    Long senderId;
 
     // owner : user : photo
     String eventType;
 
     // 해당 타입의 식별자
-    int eventTypeId;
+    Long eventTypeId;
 }

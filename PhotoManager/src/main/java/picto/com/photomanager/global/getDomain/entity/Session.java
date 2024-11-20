@@ -14,7 +14,7 @@ import picto.com.photomanager.domain.user.entity.User;
 public class Session {
     @Id
     @Column(name = "user_id", nullable = false)
-    private Integer id;
+    private Long id;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)

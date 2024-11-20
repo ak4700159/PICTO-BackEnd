@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class GetAroundPhotoRequest {
     // 요청 사용자 아이디
-    int senderId;
+    Long senderId;
 }

@@ -22,13 +22,13 @@ public class QToken extends EntityPathBase<Token> {
 
     public static final QToken token = new QToken("token");
 
-    public final MapPath<String, Object, SimplePath<Object>> accessToken = this.<String, Object, SimplePath<Object>>createMap("accessToken", String.class, Object.class, SimplePath.class);
+    public final StringPath accessToken = createString("accessToken");
 
-    public final MapPath<String, Object, SimplePath<Object>> refreshToken = this.<String, Object, SimplePath<Object>>createMap("refreshToken", String.class, Object.class, SimplePath.class);
+    public final StringPath refreshToken = createString("refreshToken");
 
     public final picto.com.generator.domain.user.entity.QUser user;
 
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QToken(String variable) {
         this(Token.class, forVariable(variable), INITS);

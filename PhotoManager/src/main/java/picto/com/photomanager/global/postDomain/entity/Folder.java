@@ -1,8 +1,7 @@
 package picto.com.photomanager.global.postDomain.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import picto.com.photomanager.domain.user.entity.User;
@@ -10,12 +9,12 @@ import picto.com.photomanager.domain.user.entity.User;
 @Getter
 @Setter
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Folder {
-    @Id
-    @Column(name = "generator_id", nullable = false)
-    private int folderId;
+    @EmbeddedId
+    private FolderId id;
 
-    @MapsId
+    @MapsId("generatorId")
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "generator_id", nullable = false, referencedColumnName = "user_id")
@@ -25,11 +24,21 @@ public class Folder {
     private String name;
 
     @Column(name = "created_datetime", nullable = false)
-    private Long savedDatetime;
+    private Long createdDatetime;
 
     @Column(name = "content", nullable = false, length = 50)
     private String content;
 
     @Column(name = "link", nullable = false, length = 30)
     private String link;
+
+    @Builder
+    public Folder(FolderId id, String name, Long createdDatetime, String content, String link, User user) {
+        this.id = id;
+        this.user = user;
+        this.name = name;
+        this.createdDatetime = createdDatetime;
+        this.content = content;
+        this.link = link;
+    }
 }

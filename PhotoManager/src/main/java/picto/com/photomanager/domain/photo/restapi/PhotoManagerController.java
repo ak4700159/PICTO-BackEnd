@@ -10,6 +10,8 @@ import picto.com.photomanager.domain.photo.dto.response.GetPhotoResponse;
 import picto.com.photomanager.domain.photo.dto.request.GetAroundPhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetRepresentativePhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetSpecifiedPhotoRequest;
+import picto.com.photomanager.domain.photo.entity.Photo;
+import picto.com.photomanager.global.postDomain.entity.Folder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,12 +28,19 @@ public class PhotoManagerController {
     public ResponseEntity<String> createTestPhoto(){
         final int MAX_USERS = 500;
         final int MAX_PHOTOS = 10;
-        int photoCount = 1;
-        for(int i = 1; i <= MAX_USERS; i++){
-            for(int j = 1; j <= MAX_PHOTOS; j++){
+        long photoCount = 1;
+        for(long i = 1; i <= MAX_USERS; i++){
+            for(long j = 1; j <= MAX_PHOTOS; j++){
+                // 폴더를 생성하고 생성자를 공유한다.(매핑)
+                Folder newFolder = photoManagerTestService.createTestFolder(i, i);
+                photoManagerTestService.createTestShare(newFolder.getId());
+
+                // 사진을 생성하고 지역 정보 주입 후 저장한다.
                 Map<String, Object> result = photoManagerTestService.createTestPhoto(i, photoCount);
                 GetKakaoLocationInfoResponse info = (GetKakaoLocationInfoResponse)result.get("kakaoResponse");
                 photoManagerTestService.createTestLocationInfo(i, photoCount, info);
+                photoManagerTestService.createTestSave(i, newFolder.getId(), (Photo)result.get("photo"));
+
                 photoCount++;
             }
         }

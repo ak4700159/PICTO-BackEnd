@@ -20,7 +20,7 @@ public class AddTestLocationInfoRequest {
     private String middleName;
     private String smallName;
 
-    public LocationInfo toEntity(int userId, int photoId, GetKakaoLocationInfoResponse info, Photo photo) {
+    public LocationInfo toEntity(Long userId, Long photoId, GetKakaoLocationInfoResponse info, Photo photo) {
         if (Objects.requireNonNull(info).getDocuments().isEmpty()) {
             largeName = "카카오 api 오류";
             middleName = "카카오 api 오류";

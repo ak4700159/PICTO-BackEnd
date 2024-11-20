@@ -30,7 +30,7 @@ public class AddTestPhotoRequest {
     private String title;
     private String tag;
 
-    public Map<String, Object> toRandomPhoto(int userIdNum, int photoIdNum, User user){
+    public Map<String, Object> toRandomPhoto(Long userIdNum, Long photoIdNum, User user){
         Random random = new Random();
         Map<String, Object> result = new HashMap<>();
 

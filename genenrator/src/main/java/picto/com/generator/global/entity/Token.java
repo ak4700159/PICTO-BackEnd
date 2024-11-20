@@ -18,7 +18,7 @@ import java.util.Map;
 public class Token {
     @Id
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private Long userId;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -26,16 +26,14 @@ public class Token {
     @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "user_id")
     private User user;
 
-    @Column(name = "refresh_token", nullable = false)
-    @JdbcTypeCode(SqlTypes.JSON)
-    private Map<String, Object> refreshToken;
+    @Column(name = "refresh_token", nullable = false, length = 150)
+    private String refreshToken;
 
-    @Column(name = "access_token", nullable = false)
-    @JdbcTypeCode(SqlTypes.JSON)
-    private Map<String, Object> accessToken;
+    @Column(name = "access_token", nullable = false, length = 150)
+    private String accessToken;
 
     @Builder
-    public Token(User user, Map<String, Object> refreshToken, Map<String, Object> accessToken) {
+    public Token(User user, String refreshToken, String accessToken) {
         this.accessToken =  accessToken;
         this.refreshToken = refreshToken;
         this.user = user;

@@ -16,10 +16,10 @@ import java.util.Objects;
 @Repository
 public interface PhotoRepository extends JpaRepository<Photo, PhotoId> {
     @Query("select p from Photo p where p.id.photoId = :photoId")
-    List<Photo> findByPhoto(@Param("photoId") int photoId);
+    List<Photo> findByPhoto(@Param("photoId") Long photoId);
 
     @Query("select p from Photo p where p.id.userId = :userId")
-    List<Photo> findByUser(@Param("userId") int photoId);
+    List<Photo> findByUser(@Param("userId") Long photoId);
 
     // 랜덤 사진 조회
     @Query("select p from Photo p where p.location like %:location order by RAND() limit :count ")

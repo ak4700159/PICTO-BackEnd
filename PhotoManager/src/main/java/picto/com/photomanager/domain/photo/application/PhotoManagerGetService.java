@@ -40,8 +40,8 @@ public class PhotoManagerGetService {
     @Transactional
     public List<GetPhotoResponse> findSpecifiedPhotos(GetSpecifiedPhotoRequest request) throws IllegalAccessException, Exception {
         String type = request.getEventType();
-        int typeId= request.getEventTypeId();
-        int senderId = request.getSenderId();
+        Long typeId= request.getEventTypeId();
+        Long senderId = request.getSenderId();
         List<Photo> photos;
 
         // Step01. 사용자인지 사진인지
@@ -66,7 +66,7 @@ public class PhotoManagerGetService {
     // 주변 사진 조회
     @Transactional
     public List<GetPhotoResponse> findAroundPhotos(GetAroundPhotoRequest request) throws IllegalAccessException, Exception {
-        int typeId= request.getSenderId();
+        Long typeId= request.getSenderId();
         List<Photo> photos;
 
         Session userSession = sessionRepository.findById(typeId).orElseThrow();

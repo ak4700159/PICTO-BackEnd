@@ -8,10 +8,11 @@ import org.springframework.data.domain.Persistable;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "User", schema = "photo_schema")
-public class User implements Persistable<Integer> {
+public class User {
     @Id
     @Column(name = "user_id", updatable = false)
-    Integer userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long userId;
 
     @Column(name = "password", nullable = false, length = 20)
     String password;
@@ -35,7 +36,7 @@ public class User implements Persistable<Integer> {
     String accountName;
 
     @Builder
-    public User(int userId, String password, String name, String email, boolean profileActive, String profilePhotoPath, String intro, String accountName) {
+    public User(Long userId, String password, String name, String email, boolean profileActive, String profilePhotoPath, String intro, String accountName) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -44,27 +45,5 @@ public class User implements Persistable<Integer> {
         this.intro = intro;
         this.password = password;
         this.accountName = accountName;
-    }
-
-
-    // insert 전 select 문 발생한느 것을 방지 한다. 즉 새로운 객체 엔티티임을 보장 / 실무에선 사용 X
-    // 적용이 안되는 것으로 보임
-    @Transient
-    private boolean isNew = true;
-
-    @Override
-    public boolean isNew() {
-        return isNew;
-    }
-
-    @PrePersist
-    @PostLoad
-    void markNotNew() {
-        this.isNew = false;
-    }
-
-    @Override
-    public Integer getId() {
-        return this.userId;
     }
 }

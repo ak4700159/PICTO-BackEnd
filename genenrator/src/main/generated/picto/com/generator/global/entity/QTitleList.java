@@ -24,7 +24,7 @@ public class QTitleList extends EntityPathBase<TitleList> {
 
     public final QTitle title;
 
-    public final NumberPath<Integer> titleListId = createNumber("titleListId", Integer.class);
+    public final NumberPath<Long> titleListId = createNumber("titleListId", Long.class);
 
     public final picto.com.generator.domain.user.entity.QUser user;
 

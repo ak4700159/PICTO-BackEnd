@@ -32,7 +32,7 @@ public class QSession extends EntityPathBase<Session> {
 
     public final picto.com.generator.domain.user.entity.QUser user;
 
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QSession(String variable) {
         this(Session.class, forVariable(variable), INITS);

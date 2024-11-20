@@ -3,6 +3,8 @@ package picto.com.photomanager.domain.photo.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,12 +22,12 @@ public class PhotoId implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Column(name = "photo_id")
-    private Integer photoId;
+    private Long photoId;
 
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private Long userId;
 
-    public PhotoId(int photoId, int userId) {
+    public PhotoId(Long photoId, Long userId) {
         this.photoId = photoId;
         this.userId = userId;
     }

@@ -12,12 +12,13 @@ import org.springframework.data.domain.Persistable;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "User", schema = "photo_schema")
-public class User implements Persistable<Integer> {
+public class User implements Persistable<Long> {
     @Id
     @Column(name = "user_id", updatable = false)
-    Integer userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long userId;
 
-    @Column(name = "password", nullable = false, length = 20)
+    @Column(name = "password", nullable = false, length = 100)
     String password;
 
     @Column(name = "name", nullable = false, length = 20)
@@ -39,8 +40,7 @@ public class User implements Persistable<Integer> {
     String accountName;
 
     @Builder
-    public User(int userId, String password, String name, String email, boolean profileActive, String profilePhotoPath, String intro, String accountName) {
-        this.userId = userId;
+    public User(String password, String name, String email, boolean profileActive, String profilePhotoPath, String intro, String accountName) {
         this.name = name;
         this.email = email;
         this.profileActive = profileActive;
@@ -68,7 +68,7 @@ public class User implements Persistable<Integer> {
     }
 
     @Override
-    public Integer getId() {
+    public Long getId() {
         return this.userId;
     }
 }

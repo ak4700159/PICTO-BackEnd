@@ -32,7 +32,7 @@ public class QUserSetting extends EntityPathBase<UserSetting> {
 
     public final picto.com.generator.domain.user.entity.QUser user;
 
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QUserSetting(String variable) {
         this(UserSetting.class, forVariable(variable), INITS);

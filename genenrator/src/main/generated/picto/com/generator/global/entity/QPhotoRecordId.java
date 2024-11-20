@@ -22,7 +22,7 @@ public class QPhotoRecordId extends BeanPath<PhotoRecordId> {
 
     public static final QPhotoRecordId photoRecordId = new QPhotoRecordId("photoRecordId");
 
-    public final NumberPath<Integer> agentId = createNumber("agentId", Integer.class);
+    public final NumberPath<Long> agentId = createNumber("agentId", Long.class);
 
     public final QPhotoId photoId;
 

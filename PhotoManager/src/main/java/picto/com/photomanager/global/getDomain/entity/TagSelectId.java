@@ -21,9 +21,9 @@ public class TagSelectId implements java.io.Serializable {
     private String tag;
 
     @Column(name = "user_id", nullable = false)
-    private int userId;
+    private Long userId;
 
-    public TagSelectId(String tag, int userId) {
+    public TagSelectId(String tag, Long userId) {
         this.tag = tag;
         this.userId = userId;
     }

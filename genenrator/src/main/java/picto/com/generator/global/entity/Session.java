@@ -14,7 +14,7 @@ import picto.com.generator.domain.user.entity.User;
 public class Session {
     @Id
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private Long userId;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)

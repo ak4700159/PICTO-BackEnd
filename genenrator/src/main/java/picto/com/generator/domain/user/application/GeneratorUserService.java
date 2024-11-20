@@ -28,7 +28,7 @@ public class GeneratorUserService {
     @Transactional
     public List<User> makeUserN(){
         List<User> users = new ArrayList<User>();
-        for(int i = 1; i <= MAX_USERS; i++){
+        for(long i = 1; i <= MAX_USERS; i++){
             User newUser = new MakeUserRequest().toRandomEntity(i);
             userRepository.save(newUser);
         }
@@ -38,7 +38,7 @@ public class GeneratorUserService {
 
     @Transactional
     public void makeFilterN(){
-        for(int i = 1; i <= MAX_USERS; i++){
+        for(long i = 1; i <= MAX_USERS; i++){
             User user = userRepository.getReferenceById(i);
             // 기본 필터 저장 [정렬 : 좋아요순] / [기간 : 한달] / [start_datetime : 생성기준 UTC]
             Filter filter = new AddDefaultFilter().toEntity(user);
@@ -48,7 +48,7 @@ public class GeneratorUserService {
 
     @Transactional
     public void makeTagSelectN(){
-        for(int i = 1; i < MAX_USERS; i++){
+        for(long i = 1; i < MAX_USERS; i++){
             User user = userRepository.getReferenceById(i);
             // 초기 사용자 선택된 태그는 [돼지 고양이 강아지]
             TagSelect tagSelect = new AddDefaultTagSelect().toEntity(user, "돼지");
@@ -62,7 +62,7 @@ public class GeneratorUserService {
 
     @Transactional
     public void makeSessionN(){
-        for(int i = 1; i <= MAX_USERS; i++){
+        for(long i = 1; i <= MAX_USERS; i++){
             User user = userRepository.getReferenceById(i);
             // 대구광역시 위도(latitude) 경도(longitude) 로 기본 설정
             // 위도 : 35.77475029 ~ 35.88682728 , 경도 : 128.4313995 ~ 128.6355584
@@ -73,7 +73,7 @@ public class GeneratorUserService {
 
     @Transactional
     public void makeTokenN(){
-        for(int i = 1; i <= MAX_USERS; i++){
+        for(long i = 1; i <= MAX_USERS; i++){
             User user = userRepository.getReferenceById(i);
             Token token = new AddDefaultToken().toEntity(user);
             tokenRepository.save(token);
@@ -82,7 +82,7 @@ public class GeneratorUserService {
 
     @Transactional
     public void makeUserSettingN(){
-        for (int i = 1; i < MAX_USERS; i++) {
+        for (long i = 1; i < MAX_USERS; i++) {
             User user = userRepository.getReferenceById(i);
             UserSetting userSetting = new AddDefaultUserSetting().toEntity(user);
             userSettingRepositroy.save(userSetting);
