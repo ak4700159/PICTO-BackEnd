@@ -19,9 +19,9 @@ public class QBlockId extends BeanPath<BlockId> {
 
     public static final QBlockId blockId = new QBlockId("blockId");
 
-    public final NumberPath<Integer> blockedId = createNumber("blockedId", Integer.class);
+    public final NumberPath<Long> blockedId = createNumber("blockedId", Long.class);
 
-    public final NumberPath<Integer> blockingId = createNumber("blockingId", Integer.class);
+    public final NumberPath<Long> blockingId = createNumber("blockingId", Long.class);
 
     public QBlockId(String variable) {
         super(BlockId.class, forVariable(variable));

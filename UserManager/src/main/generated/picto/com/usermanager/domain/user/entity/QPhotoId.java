@@ -19,9 +19,9 @@ public class QPhotoId extends BeanPath<PhotoId> {
 
     public static final QPhotoId photoId1 = new QPhotoId("photoId1");
 
-    public final NumberPath<Integer> photoId = createNumber("photoId", Integer.class);
+    public final NumberPath<Long> photoId = createNumber("photoId", Long.class);
 
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QPhotoId(String variable) {
         super(PhotoId.class, forVariable(variable));

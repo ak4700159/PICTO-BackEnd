@@ -28,7 +28,7 @@ public class QToken extends EntityPathBase<Token> {
 
     public final QUser user;
 
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QToken(String variable) {
         this(Token.class, forVariable(variable), INITS);

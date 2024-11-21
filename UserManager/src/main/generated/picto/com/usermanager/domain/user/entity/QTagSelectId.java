@@ -21,7 +21,7 @@ public class QTagSelectId extends BeanPath<TagSelectId> {
 
     public final StringPath tag = createString("tag");
 
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QTagSelectId(String variable) {
         super(TagSelectId.class, forVariable(variable));

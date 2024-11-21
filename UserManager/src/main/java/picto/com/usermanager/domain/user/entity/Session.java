@@ -5,8 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.Random;
-
 @Getter
 @Setter
 @Entity
@@ -15,7 +13,7 @@ import java.util.Random;
 public class Session {
     @Id
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private Long userId;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)

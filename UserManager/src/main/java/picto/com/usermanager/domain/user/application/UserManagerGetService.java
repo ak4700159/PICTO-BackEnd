@@ -4,10 +4,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import picto.com.usermanager.domain.user.dao.*;
-import picto.com.usermanager.domain.user.dto.response.get.userInfo.GetUserInfoResponse;
+import picto.com.usermanager.domain.user.dto.response.get.userInfo.*;
 import picto.com.usermanager.domain.user.entity.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +28,7 @@ public class UserManagerGetService {
     // 사용자의 모든 정보를 조회
     // = 해당 사용자의 사진, 세팅, 필터, 선택한 태그, 칭호, 정보
     @Transactional
-    public GetUserInfoResponse getUser(int userId) {
+    public GetUserInfoResponse getUser(Long userId) {
         User user = userRepository.getReferenceById(userId);
 
         List<Photo> photos = photoRepository.findByUserId(user.getUserId());
@@ -39,7 +42,7 @@ public class UserManagerGetService {
         List<Block> blocks = blockRepository.findByUserId(user.getUserId());
 
         // Response entity 반환
-        GetUserInfoResponse response = GetUserInfoResponse
+        return GetUserInfoResponse
                 .builder()
                 .user(user)
                 .setting(setting)
@@ -50,34 +53,56 @@ public class UserManagerGetService {
                 .marks(marks)
                 .blocks(blocks)
                 .build();
-        return response;
     }
 
-    public void getUsersetting(int userId) {
-
+    public GetUser GetOtherUser(Long userId){
+        User user = userRepository.getReferenceById(userId);
+        return new GetUser(user);
     }
 
-    public void getFilter(int userId) {
-
+    public GetSetting getUserSetting(Long userId) {
+        UserSetting setting = userSettingRepository.getReferenceById(userId);
+        return new GetSetting(setting);
     }
 
-    public void getTags(int userId) {
-
+    public GetFilter getFilter(Long userId) {
+        Filter filter = filterRepository.getReferenceById(userId);
+        return new GetFilter(filter);
     }
 
-    public void getMark(int userId) {
-
+    public List<GetTag> getTags(Long userId) {
+        List<TagSelect> tags = tagSelectRepository.findByUserId(userId);
+        return tags.stream().map(GetTag::new).collect(Collectors.toList());
     }
 
-    public void getBlock(int userId) {
-
+    public Set<Long> getMark(Long userId) {
+        List<Mark> marks = markRepository.findByUserId(userId);
+        Set<Long> markIds = new HashSet<>();
+        for (Mark mark : marks) {
+            markIds.add(mark.getId().getMarkedId());
+        }
+        return markIds;
     }
 
-    public void getTitleList(int userId) {
-
+    public Set<Long> getBlock(Long userId) {
+        List<Block> blocks = blockRepository.findByUserId(userId);
+        Set<Long> blockIds = new HashSet<>();
+        for (Block block : blocks) {
+            blockIds.add(block.getBlocked().getId());
+        }
+        return blockIds;
     }
 
-    public void getTitle(int userId) {
+    public List<GetTitle> getTitleList(Long userId) {
+        List<TitleList> titles = titleListRepository.findByUserId(userId);
+        return titles
+                .stream()
+                .map(titleList -> new GetTitle(titleList.getTitle()))
+                .toList();
+    }
 
+    public GetTitle getTitle(Long userId) {
+        TitleList titleList = titleListRepository.getReferenceById(userId);
+        return new GetTitle(titleList.getTitle());
     }
 }

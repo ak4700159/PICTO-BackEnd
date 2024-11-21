@@ -2,13 +2,8 @@ package picto.com.usermanager.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.type.SqlTypes;
-import picto.com.usermanager.domain.user.entity.User;
-
-import java.util.Map;
 
 @Getter
 @Setter
@@ -18,7 +13,7 @@ import java.util.Map;
 public class Token {
     @Id
     @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    private Long userId;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)

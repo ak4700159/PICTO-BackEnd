@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface MarkRepository extends JpaRepository<Mark, MarkId> {
     @Query("select m from Mark m where m.marking.userId = :userId")
-    List<Mark> findByUserId(@Param("userId") Integer userId);
+    List<Mark> findByUserId(@Param("userId") Long userId);
 }

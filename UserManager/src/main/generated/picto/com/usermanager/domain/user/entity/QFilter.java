@@ -32,7 +32,7 @@ public class QFilter extends EntityPathBase<Filter> {
 
     public final QUser user;
 
-    public final NumberPath<Integer> userId = createNumber("userId", Integer.class);
+    public final NumberPath<Long> userId = createNumber("userId", Long.class);
 
     public QFilter(String variable) {
         this(Filter.class, forVariable(variable), INITS);

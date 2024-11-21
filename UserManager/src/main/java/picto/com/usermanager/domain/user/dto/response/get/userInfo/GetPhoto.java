@@ -5,8 +5,8 @@ import picto.com.usermanager.domain.user.entity.Photo;
 
 @Getter
 public class GetPhoto {
-    private final int photoId;
-    private final int userId;
+    private final Long photoId;
+    private final Long userId;
     private final String photoPath;
     private final double lat;
     private final double lng;

@@ -19,9 +19,9 @@ public class QMarkId extends BeanPath<MarkId> {
 
     public static final QMarkId markId = new QMarkId("markId");
 
-    public final NumberPath<Integer> markedId = createNumber("markedId", Integer.class);
+    public final NumberPath<Long> markedId = createNumber("markedId", Long.class);
 
-    public final NumberPath<Integer> markingId = createNumber("markingId", Integer.class);
+    public final NumberPath<Long> markingId = createNumber("markingId", Long.class);
 
     public QMarkId(String variable) {
         super(MarkId.class, forVariable(variable));
