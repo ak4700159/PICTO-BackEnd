@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import picto.com.photomanager.domain.photo.dto.response.GetKakaoLocationInfoResponse;
 import picto.com.photomanager.domain.photo.entity.LocationInfo;
-import picto.com.photomanager.domain.photo.entity.LocationInfoId;
 import picto.com.photomanager.domain.photo.entity.Photo;
-import picto.com.photomanager.domain.photo.entity.PhotoId;
 
 import java.util.Objects;
 
@@ -15,7 +13,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddTestLocationInfoRequest {
-    private LocationInfoId id;
+    private Long id;
     private String largeName;
     private String middleName;
     private String smallName;
@@ -36,7 +34,7 @@ public class AddTestLocationInfoRequest {
                 middleName(middleName).
                 smallName(smallName).
                 photo(photo).
-                id(new LocationInfoId(new PhotoId(photoId, userId))).
+                photoId(photoId).
                 build();
     }
 }

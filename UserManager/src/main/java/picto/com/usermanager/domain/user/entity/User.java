@@ -14,6 +14,7 @@ import org.springframework.data.domain.Persistable;
 public class User implements Persistable<Long> {
     @Id
     @Column(name = "user_id", updatable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long userId;
 
     @Column(name = "password", nullable = false, length = 20)
@@ -49,7 +50,7 @@ public class User implements Persistable<Long> {
         this.accountName = accountName;
     }
 
-    static public User toEntity(String name, String email, String password, Long userId) {
+    static public User toMakeEntity(String name, String email, String password) {
         return User.builder().
                 name(name).
                 accountName(email).
@@ -57,7 +58,6 @@ public class User implements Persistable<Long> {
                 password(password).
                 email(email).
                 profileActive(true).
-                userId(userId).
                 profilePhotoPath("/temp.jpg").
                 build();
     }

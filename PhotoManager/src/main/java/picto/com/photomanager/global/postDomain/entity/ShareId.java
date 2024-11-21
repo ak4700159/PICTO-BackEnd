@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ShareId {
     private Long userId;
-    private FolderId folderId;
+    private Long folderId;
 
-    public ShareId(Long userId, FolderId folderId) {
+    public ShareId(Long userId, Long folderId) {
         this.userId = userId;
         this.folderId = folderId;
     }

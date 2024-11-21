@@ -12,5 +12,5 @@ import lombok.Setter;
 public class PhotoRecordId implements java.io.Serializable {
     private static final long serialVersionUID = 4786054818538112941L;
     private Long agentId;
-    private PhotoId photoId;
+    private Long photoId;
 }

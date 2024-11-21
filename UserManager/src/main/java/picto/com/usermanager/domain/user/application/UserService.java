@@ -72,9 +72,10 @@ public class UserService {
         String hashedPwd = passwordEncoder.encode(signUpRequest.getPassword());
 
         // user 생성 후 저장
-        User newUser = User.toEntity(signUpRequest.getName(), signUpRequest.getEmail(), hashedPwd, signUpRequest.getUserId());
+        User newUser = User.toMakeEntity(signUpRequest.getName(), signUpRequest.getEmail(), hashedPwd);
         System.out.println(newUser);
         try{
+            System.out.println("newUserId : " + newUser.getUserId());
             userRepository.save(newUser);
         }
         catch (Exception e){

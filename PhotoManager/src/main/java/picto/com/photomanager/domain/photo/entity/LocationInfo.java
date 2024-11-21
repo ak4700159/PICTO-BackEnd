@@ -14,16 +14,14 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode
 public class LocationInfo implements Serializable {
-    @EmbeddedId
-    private LocationInfoId id;
+    @Id
+    @Column(name = "photo_id", nullable = false)
+    private Long photoId;
 
     @MapsId("photoId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumns({
-            @JoinColumn(name = "photo_id", nullable = false, referencedColumnName = "photo_id"),
-            @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "user_id")
-    })
+    @JoinColumn(name = "photo_id", nullable = false, referencedColumnName = "photo_id")
     Photo photo;
 
     @Column(name = "large_name", length = 30)
@@ -36,8 +34,8 @@ public class LocationInfo implements Serializable {
     String smallName;
 
     @Builder
-    public LocationInfo(LocationInfoId id, Photo photo, String largeName, String middleName, String smallName) {
-        this.id = id;
+    public LocationInfo(Long photoId, Photo photo, String largeName, String middleName, String smallName) {
+        this.photoId = photoId;
         this.photo = photo;
         this.largeName = largeName;
         this.middleName = middleName;

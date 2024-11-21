@@ -14,8 +14,13 @@ import picto.com.generator.domain.user.entity.User;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(schema = "photo_schema", name = "Photo")
 public class Photo {
-    @EmbeddedId
-    private PhotoId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "photo_id", nullable = false)
+    private Long photoId;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     // 복합키 안에 있는 외래키 명시
     @MapsId("userId")
@@ -27,8 +32,11 @@ public class Photo {
     private User user;
 
     // 사진 저장 경로
-    @Column(name = "photo_path", nullable = true, length = 100)
+    @Column(name = "photo_path", nullable = true, length = 255)
     private String photoPath;
+
+    @Column(name = "s3_file_name", nullable = true, length = 255)
+    private String s3FileName;
 
     // 위도
     @Column(name = "lat", nullable = false)
@@ -71,7 +79,7 @@ public class Photo {
     private String tag;
 
     @Builder
-    public Photo(User user, PhotoId photoId, String photoPath, double lat, double lng,
+    public Photo(User user, String photoPath, double lat, double lng,
                  String location, Long registerDatetime, Long uploadDatetime, String tag,
                  boolean frameActive, boolean sharedActive, int likes, int views) {
         this.user = user;
@@ -85,7 +93,6 @@ public class Photo {
         this.sharedActive = sharedActive;
         this.likes = likes;
         this.views = views;
-        this.id = photoId;
         this.tag = tag;
     }
 }

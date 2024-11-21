@@ -12,6 +12,7 @@ import picto.com.generator.domain.user.application.GeneratorUserService;
 import picto.com.generator.domain.user.entity.User;
 import picto.com.generator.domain.user.dto.FindUserEmail;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -38,12 +39,12 @@ public class GeneratorUserController {
     @PostMapping("generator/user")
     public ResponseEntity<List<User>> postIdUser () {
         System.out.println("User created request");
-        List<User> users = generatorUserService.makeUserN();
-        generatorUserService.makeFilterN();
-        generatorUserService.makeUserSettingN();
-        generatorUserService.makeTokenN();
-        generatorUserService.makeSessionN();
-        generatorUserService.makeTagSelectN();
+        ArrayList<User> users = generatorUserService.makeUserN();
+        generatorUserService.makeFilterN(users);
+        generatorUserService.makeUserSettingN(users);
+        generatorUserService.makeTokenN(users);
+        generatorUserService.makeSessionN(users);
+        generatorUserService.makeTagSelectN(users);
         return ResponseEntity.status(HttpStatus.CREATED).body(users);
     }
 }

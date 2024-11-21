@@ -38,6 +38,8 @@ public class QPhoto extends EntityPathBase<Photo> {
 
     public final NumberPath<Long> registerDatetime = createNumber("registerDatetime", Long.class);
 
+    public final StringPath s3FileName = createString("s3FileName");
+
     public final BooleanPath sharedActive = createBoolean("sharedActive");
 
     public final StringPath tag = createString("tag");

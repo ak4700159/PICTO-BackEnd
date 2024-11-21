@@ -20,19 +20,13 @@ public class Save {
 
     @MapsId("photoId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumns({
-            @JoinColumn(name = "photo_id", referencedColumnName = "photo_id", nullable = false),
-            @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    })
+    @JoinColumn(name = "photo_id", referencedColumnName = "photo_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Photo photo;
 
     @MapsId("folderId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumns({
-            @JoinColumn(name = "folder_id", referencedColumnName = "folder_id", nullable = false),
-            @JoinColumn(name = "generator_id", referencedColumnName = "generator_id", nullable = false)
-    })
+    @JoinColumn(name = "folder_id", referencedColumnName = "folder_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Folder folder;
 

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import picto.com.photomanager.domain.photo.application.LocationService;
 import picto.com.photomanager.domain.photo.dto.response.GetKakaoLocationInfoResponse;
 import picto.com.photomanager.domain.photo.entity.Photo;
-import picto.com.photomanager.domain.photo.entity.PhotoId;
 import picto.com.photomanager.domain.user.entity.User;
 
 import java.util.*;
@@ -16,8 +15,9 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AddTestPhotoRequest {
-    private PhotoId photoId;
+    private Long photoId;
     private String photoPath;
+    private String s3FileName;
     private double lat;
     private double lng;
     private String location;
@@ -35,6 +35,7 @@ public class AddTestPhotoRequest {
         Map<String, Object> result = new HashMap<>();
 
         photoPath = "s3://picto-test-bucket/picto-photos/20210115_104549.jpg";
+        s3FileName = "s3 file name" + random.nextLong(5000) + ".jpg";
 
         likes = random.nextInt(5000);
         if(likes > 0){
@@ -58,17 +59,16 @@ public class AddTestPhotoRequest {
         // 프레임 여부는 비활성화
         // 공유 여부는 photoId가 3의 배수일때 true
         frame_active = false;
-        shared_active = (photoIdNum % 2 == 0);
+        shared_active = (new Random().nextInt(10) % 2 == 0);
 
         title = userIdNum + "'s photo title";
         updateDatetime = System.currentTimeMillis();
         registerDatetime = System.currentTimeMillis();
 
         // 카테고리 3분할
-        photoId = new PhotoId(photoIdNum, userIdNum);
-        if(photoIdNum % 3 == 0)
+        if(new Random().nextInt(10)  % 3 == 0)
             tag = "돼지";
-        else if(photoIdNum % 3 == 1)
+        else if(new Random().nextInt(10)  % 3 == 1)
             tag = "강아지";
         else{
             tag = "길고양이";
@@ -78,7 +78,6 @@ public class AddTestPhotoRequest {
                 .builder()
                 .tag(tag)
                 .user(user)
-                .photoId(photoId)
                 .lat(lat)
                 .lng(lng)
                 .registerDatetime(registerDatetime)
@@ -89,6 +88,7 @@ public class AddTestPhotoRequest {
                 .photoPath(photoPath)
                 .frameActive(frame_active)
                 .sharedActive(shared_active)
+                .s3FileName(s3FileName)
                 .build();
         result.put("photo", newPhoto);
         return result;

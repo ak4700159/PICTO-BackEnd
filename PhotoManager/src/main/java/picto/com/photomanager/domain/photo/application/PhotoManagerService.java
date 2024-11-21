@@ -3,12 +3,11 @@ package picto.com.photomanager.domain.photo.application;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import picto.com.photomanager.domain.photo.dto.PhotoDistanceDTO;
-import picto.com.photomanager.domain.photo.dto.PhotoLikeRankingDTO;
 import picto.com.photomanager.domain.photo.dto.request.GetAroundPhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetRepresentativePhotoRequest;
 import picto.com.photomanager.domain.photo.dto.response.GetPhotoResponse;
 import picto.com.photomanager.domain.user.dao.UserRepository;
+import picto.com.photomanager.domain.user.entity.User;
 import picto.com.photomanager.global.getDomain.dao.FilterRepository;
 import picto.com.photomanager.global.getDomain.dao.SessionRepository;
 import picto.com.photomanager.global.getDomain.dao.TagSelectRepository;
@@ -18,25 +17,26 @@ import picto.com.photomanager.domain.photo.dto.request.GetSpecifiedPhotoRequest;
 import picto.com.photomanager.global.getDomain.entity.Filter;
 import picto.com.photomanager.global.getDomain.entity.Session;
 import picto.com.photomanager.global.getDomain.entity.TagSelect;
+import picto.com.photomanager.global.postDomain.dao.PhotoRecordRepository;
+import picto.com.photomanager.global.postDomain.entity.PhotoRecord;
+import picto.com.photomanager.global.postDomain.entity.PhotoRecordId;
 import picto.com.photomanager.global.utils.DateUtils;
 import picto.com.photomanager.global.utils.PhotoLikeComparator;
 import picto.com.photomanager.global.utils.PhotoViewComparator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
-public class PhotoManagerGetService {
+public class PhotoManagerService {
     private final PhotoRepository photoRepository;
     private final FilterRepository filterRepository;
     private final TagSelectRepository tagSelectRepository;
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
+    private final PhotoRecordRepository photoRecordRepository;
 
     // 특정 아이디에 대한 사진 조회
     @Transactional
@@ -182,5 +182,54 @@ public class PhotoManagerGetService {
                 map(GetPhotoResponse::new).
                 toList();
         return result;
+    }
+
+
+    // 사용자가 사진에 좋아요를 누른 경우
+    @Transactional
+    public void ClickLike(Long photoId, Long userId){
+        User user = userRepository.findById(userId).orElseThrow();
+        Photo photo = photoRepository.findById(photoId).orElseThrow();
+        photo.setLikes(photo.getLikes() + 1);
+        photoRepository.save(photo);
+
+        PhotoRecord record = PhotoRecord
+                .builder()
+                .eventDatetime(System.currentTimeMillis())
+                .agent(user)
+                .photo(photo)
+                .type("like")
+                .id(new PhotoRecordId(userId, photoId))
+                .build();
+        photoRecordRepository.save(record);
+    }
+
+    // 사용자가 사진에 좋아요를 해제한 경우
+    @Transactional
+    public void UnClickLike(Long photoId, Long userId){
+        Photo photo = photoRepository.findById(photoId).orElseThrow();
+        photo.setLikes(photo.getLikes() - 1);
+        photoRepository.save(photo);
+
+        PhotoRecord record = photoRecordRepository.getReferenceById(new PhotoRecordId(userId, photoId));
+        photoRecordRepository.delete(record);
+    }
+
+    @Transactional
+    public void viewPhoto(Long photoId, Long userId){
+        User user = userRepository.findById(userId).orElseThrow();
+        Photo photo = photoRepository.findById(photoId).orElseThrow();
+        photo.setViews(photo.getViews() + 1);
+        photoRepository.save(photo);
+
+        PhotoRecord record = PhotoRecord
+                .builder()
+                .eventDatetime(System.currentTimeMillis())
+                .agent(user)
+                .photo(photo)
+                .type("view")
+                .id(new PhotoRecordId(userId, photoId))
+                .build();
+        photoRecordRepository.save(record);
     }
 }

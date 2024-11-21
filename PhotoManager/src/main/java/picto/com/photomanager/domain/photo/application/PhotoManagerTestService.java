@@ -9,7 +9,6 @@ import picto.com.photomanager.domain.photo.dto.request.AddTestPhotoRequest;
 import picto.com.photomanager.domain.photo.dto.response.GetKakaoLocationInfoResponse;
 import picto.com.photomanager.domain.photo.entity.LocationInfo;
 import picto.com.photomanager.domain.photo.entity.Photo;
-import picto.com.photomanager.domain.photo.entity.PhotoId;
 import picto.com.photomanager.domain.user.dao.UserRepository;
 import picto.com.photomanager.domain.user.entity.User;
 import picto.com.photomanager.domain.photo.dao.LocationInfoRepository;
@@ -18,6 +17,7 @@ import picto.com.photomanager.global.postDomain.dao.SaveRepsitory;
 import picto.com.photomanager.global.postDomain.dao.ShareRepository;
 import picto.com.photomanager.global.postDomain.entity.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -41,14 +41,14 @@ public class PhotoManagerTestService {
     }
 
     @Transactional
-    public void createTestSave(Long userId, FolderId folderId, Photo newPhoto){
+    public void createTestSave(Long userId, Long folderId, Photo newPhoto){
         User user = userRepository.getReferenceById(userId);
         Folder folder = folderRepository.getReferenceById(folderId);
         Save save = Save
                 .builder()
                 .folder(folder)
                 .photo(newPhoto)
-                .id(new SaveId(newPhoto.getId(), folder.getId()))
+                .id(new SaveId(newPhoto.getPhotoId(), folderId))
                 .savedDatetime(System.currentTimeMillis())
                 .build();
         saveRepsitory.save(save);
@@ -57,21 +57,21 @@ public class PhotoManagerTestService {
     @Transactional
     public void createTestLocationInfo(Long userId, Long photoId, GetKakaoLocationInfoResponse info){
         System.out.println(info.toString());
-        Photo photo = photoRepository.getReferenceById(new PhotoId(photoId, userId));
+        Photo photo = photoRepository.getReferenceById(photoId);
         LocationInfo locationInfo = new AddTestLocationInfoRequest().toEntity(userId, photoId, info, photo);
         locationInfoRepository.save(locationInfo);
     }
 
     @Transactional
-    public Folder createTestFolder(Long generatorId, Long folderId){
+    public Folder createTestFolder(Long generatorId){
         // 생성자 폴더
         User generator = userRepository.getReferenceById(generatorId);
         Folder folder = Folder
                 .builder()
+                .generatorId(generatorId)
                 .user(generator)
                 .link("미구현")
                 .content("EMP")
-                .id(new FolderId(generatorId, folderId))
                 .createdDatetime(System.currentTimeMillis())
                 .name(generatorId + "의 폴더")
                 .build();
@@ -80,14 +80,14 @@ public class PhotoManagerTestService {
     }
 
     @Transactional
-    public void createTestShare(FolderId folderId){
-        User generator = userRepository.getReferenceById(folderId.getGeneratorId());
-        Folder folder = folderRepository.getReferenceById(folderId);
+    public void createTestShare(Long userId){
+        User generator = userRepository.getReferenceById(userId);
+        List<Folder> folder = folderRepository.findByUserId(userId);
 
         Share share = Share
                 .builder()
-                .id(new ShareId(generator.getUserId(), folder.getId()))
-                .folder(folder)
+                .id(new ShareId(generator.getUserId(), folder.get(0).getFolderId()))
+                .folder(folder.get(0))
                 .user(generator)
                 .sharedDatetime(System.currentTimeMillis())
                 .build();

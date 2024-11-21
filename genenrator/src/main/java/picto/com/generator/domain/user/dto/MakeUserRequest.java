@@ -10,7 +10,6 @@ import java.util.Random;
 @Getter
 @NoArgsConstructor // 일부로 접근 권한을 public으로 허용한다. 왜냐하면 외부에서 생성되는 dto이기 때문이다.
 public class MakeUserRequest {
-    private Long user_id;
     private String password;
     private String name;
     private String email;
@@ -31,13 +30,12 @@ public class MakeUserRequest {
                 .toString();
 
         return User.builder().
-                name(Long.toString(count)).
-                accountName(Long.toString(count)).
-                intro("안녕하세요 저는 " + count + " 입니다.").
+                name(generatedString).
+                accountName(generatedString).
+                intro("안녕하세요 저는 " + generatedString + " 입니다.").
                 password(Long.toString(count)).
                 email(generatedString + "@gmail.com").
                 profileActive(true).
-                //userId(count).
                 profilePhotoPath(null).
                 build();
     }

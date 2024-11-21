@@ -26,20 +26,22 @@ public class GeneratorUserService {
     private final int MAX_USERS = 500;
 
     @Transactional
-    public List<User> makeUserN(){
-        List<User> users = new ArrayList<User>();
-        for(long i = 1; i <= MAX_USERS; i++){
+    public ArrayList<User> makeUserN(){
+        ArrayList<User> users = new ArrayList<User>();
+        for(long i = 0; i < MAX_USERS; i++){
             User newUser = new MakeUserRequest().toRandomEntity(i);
             userRepository.save(newUser);
+            users.add(newUser);
         }
         System.out.println("User created");
         return users;
     }
 
     @Transactional
-    public void makeFilterN(){
-        for(long i = 1; i <= MAX_USERS; i++){
-            User user = userRepository.getReferenceById(i);
+    public void makeFilterN(ArrayList<User> users){
+        System.out.println(users.get(0).getName());
+        for(int i = 0; i < users.toArray().length; i++){
+            User user = userRepository.getReferenceById(users.get(i).getUserId());
             // 기본 필터 저장 [정렬 : 좋아요순] / [기간 : 한달] / [start_datetime : 생성기준 UTC]
             Filter filter = new AddDefaultFilter().toEntity(user);
             filterRepository.save(filter);
@@ -47,9 +49,9 @@ public class GeneratorUserService {
     }
 
     @Transactional
-    public void makeTagSelectN(){
-        for(long i = 1; i < MAX_USERS; i++){
-            User user = userRepository.getReferenceById(i);
+    public void makeTagSelectN(ArrayList<User> users){
+        for(int i = 0; i < users.size(); i++){
+            User user = userRepository.getReferenceById(users.get(i).getUserId());
             // 초기 사용자 선택된 태그는 [돼지 고양이 강아지]
             TagSelect tagSelect = new AddDefaultTagSelect().toEntity(user, "돼지");
             tagSelectRepositroy.save(tagSelect);
@@ -61,9 +63,9 @@ public class GeneratorUserService {
     }
 
     @Transactional
-    public void makeSessionN(){
-        for(long i = 1; i <= MAX_USERS; i++){
-            User user = userRepository.getReferenceById(i);
+    public void makeSessionN(ArrayList<User> users){
+        for(int i = 0; i < users.size(); i++){
+            User user = userRepository.getReferenceById(users.get(i).getUserId());
             // 대구광역시 위도(latitude) 경도(longitude) 로 기본 설정
             // 위도 : 35.77475029 ~ 35.88682728 , 경도 : 128.4313995 ~ 128.6355584
             Session session = new AddDefaultSession().toEntity(user);
@@ -72,18 +74,18 @@ public class GeneratorUserService {
     }
 
     @Transactional
-    public void makeTokenN(){
-        for(long i = 1; i <= MAX_USERS; i++){
-            User user = userRepository.getReferenceById(i);
+    public void makeTokenN(ArrayList<User> users){
+        for(int i = 0; i < users.size(); i++){
+            User user = userRepository.getReferenceById(users.get(i).getUserId());
             Token token = new AddDefaultToken().toEntity(user);
             tokenRepository.save(token);
         }
     }
 
     @Transactional
-    public void makeUserSettingN(){
-        for (long i = 1; i < MAX_USERS; i++) {
-            User user = userRepository.getReferenceById(i);
+    public void makeUserSettingN(ArrayList<User> users){
+        for(int i = 0; i < users.size(); i++){
+            User user = userRepository.getReferenceById(users.get(i).getUserId());
             UserSetting userSetting = new AddDefaultUserSetting().toEntity(user);
             userSettingRepositroy.save(userSetting);
         }

@@ -11,8 +11,13 @@ import picto.com.photomanager.domain.user.entity.User;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Folder {
-    @EmbeddedId
-    private FolderId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "folder_id", nullable = false)
+    private Long folderId;
+
+    @Column(name = "generator_id", nullable = false)
+    private Long generatorId;
 
     @MapsId("generatorId")
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -33,8 +38,9 @@ public class Folder {
     private String link;
 
     @Builder
-    public Folder(FolderId id, String name, Long createdDatetime, String content, String link, User user) {
-        this.id = id;
+    public Folder(Long folderId, Long generatorId, String name, Long createdDatetime, String content, String link, User user) {
+        this.folderId = folderId;
+        this.generatorId = generatorId;
         this.user = user;
         this.name = name;
         this.createdDatetime = createdDatetime;

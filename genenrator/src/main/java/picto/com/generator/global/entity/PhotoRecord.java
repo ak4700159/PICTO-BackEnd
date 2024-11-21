@@ -32,10 +32,7 @@ public class PhotoRecord {
     @MapsId("photoId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumns({
-            @JoinColumn(name = "photo_id", nullable = false, referencedColumnName = "photo_id"),
-            @JoinColumn(name = "owner_id", nullable = false, referencedColumnName = "user_id")
-    })
+    @JoinColumn(name = "photo_id", nullable = false, referencedColumnName = "photo_id")
     private Photo photo;
 
     @Column(name = "type", nullable = false)
