@@ -35,7 +35,10 @@ public class Message {
     }
 
     static public Message errorMessage(MessageType type){
-        return Message.builder().build();
+        return Message
+                .builder()
+                .messageType(type)
+                .build();
     }
 
     @Override

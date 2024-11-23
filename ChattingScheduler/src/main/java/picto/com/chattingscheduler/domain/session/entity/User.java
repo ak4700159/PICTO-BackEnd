@@ -1,23 +1,25 @@
 package picto.com.chattingscheduler.domain.session.entity;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Persistable;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "User", schema = "photo_schema")
-public class User implements Persistable<Long> {
+public class User {
     @Id
     @Column(name = "user_id", updatable = false)
     Long userId;
 
-    @Column(name = "password", nullable = false, length = 20)
+    @Column(name = "password", nullable = false, length = 100)
     String password;
 
     @Column(name = "name", nullable = false, length = 20)
@@ -48,27 +50,5 @@ public class User implements Persistable<Long> {
         this.intro = intro;
         this.password = password;
         this.accountName = accountName;
-    }
-
-
-    // insert 전 select 문 발생한느 것을 방지 한다. 즉 새로운 객체 엔티티임을 보장 / 실무에선 사용 X
-    // 적용이 안되는 것으로 보임
-    @Transient
-    private boolean isNew = true;
-
-    @Override
-    public boolean isNew() {
-        return isNew;
-    }
-
-    @PrePersist
-    @PostLoad
-    void markNotNew() {
-        this.isNew = false;
-    }
-
-    @Override
-    public Long getId() {
-        return this.userId;
     }
 }

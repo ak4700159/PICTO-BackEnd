@@ -17,8 +17,8 @@ public class GetChattingMsgResponse {
 
     public GetChattingMsgResponse(ChattingMsg chattingMsg) {
         this.content = chattingMsg.getContent();
-        this.folderId = chattingMsg.getChattingMsgId().getFolderId().getFolderId();
-        this.senderId = chattingMsg.getChattingMsgId().getSenderId();
+        this.folderId = chattingMsg.getFolderId();
+        this.senderId = chattingMsg.getSenderId();
         this.sendDatetime = chattingMsg.getSendDatetime();
     }
 }

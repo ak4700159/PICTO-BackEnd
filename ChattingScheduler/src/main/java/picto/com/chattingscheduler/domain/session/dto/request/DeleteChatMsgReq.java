@@ -8,8 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeleteChatMsgReq {
-    private Long chatId;
     private Long senderId;
     private Long folderId;
-    private Long generatorId;
+    private Long chatMsgId;
 }

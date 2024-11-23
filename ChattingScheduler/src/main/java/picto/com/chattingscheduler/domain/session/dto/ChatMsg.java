@@ -9,18 +9,22 @@ import picto.com.chattingscheduler.domain.session.entity.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChatMsg {
-    // 메시지  타입 : 입장, 채팅, 퇴장
+    // 메시지 타입 : 입장, 채팅, 퇴장, 웹소켓 중복, 존재하지 않는 사용자, 존재하지 않는 폴더, 채팅을 허용할 수 없는 사용자
     public enum MessageType{
         ENTER, TALK, EXIT
+        ,DUPLICATED_SESSION
+        ,ALREADY_EXIST_SESSION
+        ,NOT_EXIST_SESSION
+        ,NOT_FOUND_USER
+        ,NOT_ALLOWED_USER
+        ,NOT_FOUND_FOLDER
     }
 
-    // folderChatting 상황에서는 사용되지 않지만
-    // Session 연결에서 중요하게 사용될 것으로 예상
-    private MessageType messageType; // 메시지 타입
-    private Long senderId;
-    private Long folderId; // 폴더 식별키
-    private String content; // 메시지
-    private Long sendDatetime;
+    private MessageType messageType;    // 채팅의 상태
+    private Long senderId;              // 전송자 식별키
+    private Long folderId;              // 폴더 식별키
+    private String content;             // 채팅 내용
+    private Long sendDatetime;          // 채팅 보낸 시점
 
     @Override
     public String toString() {
@@ -34,10 +38,8 @@ public class ChatMsg {
     public ChattingMsg toEntity(User sender, Folder folder){
         return ChattingMsg
                 .builder()
+                .sendDatetime(sendDatetime)
                 .content(content)
-                // FolderId (폴더 식별키, 폴더 생성자 식별키)
-                // 수정 필요
-                .chattingMsgId(new ChattingMsgId(Long.parseLong("1"), sender.getId(), folder.getId()))
                 .user(sender)
                 .folder(folder)
                 .build();

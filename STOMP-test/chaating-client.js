@@ -21,7 +21,7 @@ function askQuestion(query) {
 }
 
 async function inputMsg(){
-    content = await askQuestion(`[SI$:{senderId}|FI:${folderId}] `)
+    content = await askQuestion(`[SI$:${senderId}|FI:${folderId}] `)
     if(content === "q"){
         chatClient.disconnect()
         exit(1)
@@ -69,8 +69,9 @@ class ChatClient {
     // 채팅방 구독
     subscribeToChatRoom() {
         this.stompClient.subscribe(`/folder/${folderId}`, (message) => {
-            if(+message.body["senderId"] != senderId)
-                console.log('Received message : ', JSON.parse(message.body));
+            content = JSON.parse(message.body)
+            if(content["senderId"] != senderId)
+                console.log('Received message : ', content);
         });
     }
 
@@ -104,7 +105,8 @@ class ChatClient {
                     messageType: 'EXIT',
                     sendDatetime: +(new Date().toUTCString())
                 })
-            );            this.stompClient.disconnect();
+            );            
+            this.stompClient.disconnect();
             console.log('Disconnected');
         }
     }
