@@ -1,6 +1,5 @@
 package picto.com.sessionscheduler.domain.session.entity;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
@@ -9,25 +8,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serial;
-import java.io.Serializable;
 
 @Getter
 @Setter
 @Embeddable
 @NoArgsConstructor
 @EqualsAndHashCode
-public class PhotoId implements Serializable {
+public class TagSelectId implements java.io.Serializable {
     @Serial
-    private static final long serialVersionUID = 1L;
-
-    @Column(name = "photo_id")
-    private Long photoId;
+    private static final long serialVersionUID = 1985514141084711612L;
+    @Column(name = "tag", nullable = false, length = 20)
+    private String tag;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    public PhotoId(Long photoId, Long userId) {
-        this.photoId = photoId;
+    public TagSelectId(String tag, Long userId) {
+        this.tag = tag;
         this.userId = userId;
     }
 

@@ -1,10 +1,11 @@
-package picto.com.photomanager.global.getDomain.dao;
+package picto.com.sessionscheduler.domain.session.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import picto.com.photomanager.global.getDomain.entity.TagSelect;
-import picto.com.photomanager.global.getDomain.entity.TagSelectId;
+import picto.com.sessionscheduler.domain.session.entity.TagSelect;
+import picto.com.sessionscheduler.domain.session.entity.TagSelectId;
+
 
 import java.util.List;
 

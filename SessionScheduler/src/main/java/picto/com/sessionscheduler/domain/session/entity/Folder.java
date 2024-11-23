@@ -5,34 +5,45 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Folder {
-    @EmbeddedId
-    private FolderId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "folder_id", nullable = false)
+    private Long folderId;
+
+    @Column(name = "generator_id", nullable = false)
+    private Long generatorId;
 
     @MapsId("generatorId")
-    @JoinColumn(name = "generator_id", nullable = false, referencedColumnName = "user_id")
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "generator_id", nullable = false, referencedColumnName = "user_id")
     private User user;
 
     @Column(name = "name", nullable = false, length = 20)
     private String name;
 
     @Column(name = "created_datetime", nullable = false)
-    private Long savedDatetime;
+    private Long createdDatetime;
 
     @Column(name = "content", nullable = false, length = 50)
     private String content;
 
+    @Column(name = "link", nullable = false, length = 30)
+    private String link;
+
     @Builder
-    public Folder(FolderId id, String name, String content, Long savedDatetime) {
-        this.id = id;
+    public Folder(Long generatorId, String name, Long createdDatetime, String content, String link, User user) {
+        this.generatorId = generatorId;
+        this.user = user;
         this.name = name;
+        this.createdDatetime = createdDatetime;
         this.content = content;
-        this.savedDatetime = savedDatetime;
+        this.link = link;
     }
 }

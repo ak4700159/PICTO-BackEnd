@@ -15,8 +15,10 @@ import java.util.Date;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "ChattingMsg", schema = "photo_schema")
 public class ChattingMsg {
-    @EmbeddedId
-    private ChattingMsgId chattingMsgId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "chatting_id")
+    private Long chattingId;
 
     @Column(name = "content", length = 100)
     private String content;
@@ -24,13 +26,16 @@ public class ChattingMsg {
     @Column(name = "send_datetime")
     private Long sendDatetime;
 
+    @Column(name = "folder_id", nullable = false)
+    private Long folderId;
+
+    @Column(name = "sender_id", nullable = false)
+    private Long senderId;
+
     @MapsId("folderId")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumns({
-            @JoinColumn(name = "generator_id", nullable = false, referencedColumnName = "generator_id"),
-            @JoinColumn(name = "folder_id", nullable = false, referencedColumnName = "folder_id")
-    })
+    @JoinColumn(name = "folder_id", nullable = false, referencedColumnName = "folder_id")
     private Folder folder;
 
     @MapsId("senderId")
@@ -40,20 +45,22 @@ public class ChattingMsg {
     private User user;
 
     @Builder
-    public ChattingMsg(String content, Folder folder, User user, ChattingMsgId chattingMsgId) {
+    public ChattingMsg(Long folderId, Long senderId, String content, Folder folder, User user) {
+        this.folderId = folderId;
+        this.senderId = senderId;
         this.content = content;
         this.sendDatetime =  new Date().getTime();
         this.user = user;
         this.folder = folder;
-        this.chattingMsgId = chattingMsgId;
     }
 
-    public static ChattingMsg create(String content, Folder folder, User user, ChattingMsgId chattingMsgId) {
+    public static ChattingMsg create(String content, Folder folder, User user) {
         return ChattingMsg.builder()
+                .folderId(folder.getFolderId())
+                .senderId(user.getUserId())
                 .content(content)
                 .folder(folder)
                 .user(user)
-                .chattingMsgId(chattingMsgId)
                 .build();
     }
 }

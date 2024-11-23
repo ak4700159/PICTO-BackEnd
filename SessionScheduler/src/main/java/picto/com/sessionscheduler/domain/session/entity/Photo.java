@@ -2,21 +2,26 @@ package picto.com.sessionscheduler.domain.session.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import java.io.Serializable;
+
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(schema = "photo_schema", name = "Photo")
-public class Photo {
-    @EmbeddedId
-    private PhotoId id;
+public class Photo implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "photo_id", nullable = false)
+    private Long photoId;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     // 복합키 안에 있는 외래키 명시
     @MapsId("userId")
@@ -24,12 +29,14 @@ public class Photo {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     // user 내용만 제외한 정보들만을 serialize하게 된다. -> json 오류 방지
-    @JsonIgnore
     private User user;
 
     // 사진 저장 경로
-    @Column(name = "photo_path", nullable = true, length = 100)
+    @Column(name = "photo_path", nullable = true, length = 255)
     private String photoPath;
+
+    @Column(name = "s3_file_name", nullable = true, length = 255)
+    private String s3FileName;
 
     // 위도
     @Column(name = "lat", nullable = false)
@@ -40,7 +47,7 @@ public class Photo {
     private double lng;
 
     // 지역명
-    @Column(name = "location", nullable = false, length = 20)
+    @Column(name = "location", nullable = false, length = 30)
     private String location;
 
     @Column(name = "register_datetime", nullable = false)
@@ -72,9 +79,11 @@ public class Photo {
     private String tag;
 
     @Builder
-    public Photo(User user, PhotoId photoId, String photoPath, double lat, double lng,
+    public Photo(Long photoId,User user, String photoPath, double lat, double lng,
                  String location, Long registerDatetime, Long uploadDatetime, String tag,
-                 boolean frameActive, boolean sharedActive, int likes, int views) {
+                 boolean frameActive, boolean sharedActive, int likes, int views, String s3FileName) {
+        this.photoId = photoId;
+        this.userId = user.getUserId();
         this.user = user;
         this.photoPath = photoPath;
         this.lat = lat;
@@ -86,7 +95,7 @@ public class Photo {
         this.sharedActive = sharedActive;
         this.likes = likes;
         this.views = views;
-        this.id = photoId;
         this.tag = tag;
+        this.s3FileName = s3FileName;
     }
 }

@@ -25,7 +25,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.enableSimpleBroker("/session");
     }
 
-    // 주소 : ws://localhost:8083/ws-stomp 로 소켓 연결을 한다.
+    // 주소 : ws://localhost:8083/session-scheduler 로 소켓 연결을 한다.
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/session-scheduler")   //SockJS 연결 주소
