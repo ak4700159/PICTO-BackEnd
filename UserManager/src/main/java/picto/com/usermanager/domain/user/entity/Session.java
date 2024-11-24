@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import picto.com.usermanager.domain.user.application.LocationService;
+import picto.com.usermanager.domain.user.dto.response.GetKakaoLocationInfoResponse;
 
 @Getter
 @Setter
@@ -43,11 +45,13 @@ public class Session {
     }
 
     static public Session toEntity(User newUser, double lat, double lng) {
+        final String response = LocationService.searchLocation(lat, lng);
+
         return Session.builder().
                 user(newUser).
                 currentLat(lat).
                 currentLng(lng).
-                location("대구광역시 달성군 옥포읍").
+                location(response).
                 active(false).
                 build();
     }

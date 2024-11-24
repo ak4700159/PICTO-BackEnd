@@ -7,6 +7,7 @@ import picto.com.usermanager.domain.user.dao.*;
 import picto.com.usermanager.domain.user.dto.response.get.userInfo.*;
 import picto.com.usermanager.domain.user.entity.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,10 +18,14 @@ import java.util.stream.Collectors;
 public class UserManagerGetService {
     private final UserRepository userRepository;
     private final PhotoRepository photoRepository;
+
     private final FilterRepository filterRepository;
     private final TagSelectRepositroy tagSelectRepository;
     private final UserSettingRepositroy userSettingRepository;
     private final TitleListRepository titleListRepository;
+
+    private final ShareRepository shareRepository;
+    private final FolderRepository folderRepository;
 
     private final MarkRepository markRepository;
     private final BlockRepository blockRepository;
@@ -41,9 +46,16 @@ public class UserManagerGetService {
         List<Mark> marks = markRepository.findByUserId(user.getUserId());
         List<Block> blocks = blockRepository.findByUserId(user.getUserId());
 
+        // 해당 유저가 속해있는 폴더 조회
+        List<Folder> folders = folderRepository.findByUserId(user.getUserId());
+        // 폴더별 사용자 조회
+        List<Share> shares = shareRepository.findByUserId(userId);
+
         // Response entity 반환
         return GetUserInfoResponse
                 .builder()
+                .folders(folders)
+                .shares(shares)
                 .user(user)
                 .setting(setting)
                 .filter(filter)
@@ -55,6 +67,7 @@ public class UserManagerGetService {
                 .build();
     }
 
+    @Transactional
     public GetUser GetOtherUser(Long userId){
         User user = userRepository.getReferenceById(userId);
         return new GetUser(user);

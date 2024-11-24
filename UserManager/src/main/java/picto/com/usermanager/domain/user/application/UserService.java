@@ -29,6 +29,7 @@ public class UserService {
     // 사용자 디폴트값 설정
     @Transactional
     public void addDefault(User newUser, SignUpRequest signUpRequest) throws IllegalAccessException {
+        assert newUser.getId() != null;
         User referUser = userRepository.getReferenceById(newUser.getId());
         Filter defualFilter = Filter.toEntity(referUser);
         UserSetting defaultSetting = UserSetting.toEntity(referUser);
@@ -75,7 +76,7 @@ public class UserService {
         User newUser = User.toMakeEntity(signUpRequest.getName(), signUpRequest.getEmail(), hashedPwd);
         System.out.println(newUser);
         try{
-            System.out.println("newUserId : " + newUser.getUserId());
+            System.out.println("newUserId : " + newUser.getEmail());
             userRepository.save(newUser);
         }
         catch (Exception e){
@@ -113,6 +114,4 @@ public class UserService {
         }
         return true;
     }
-
-
 }

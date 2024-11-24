@@ -48,7 +48,7 @@ public class UserController {
     }
 
     // 이메일 중복 여부
-    @GetMapping("/user-manager/email{email}")
+    @GetMapping("/user-manager/email/{email}")
     public ResponseEntity<String> duplicatedEmail(@PathVariable String email) {
         try {
             userService.verifyDuplicatedUser(email);

@@ -36,9 +36,10 @@ public class UserManagerGetController {
         GetUser user;
         try{
             user = userManagerGetService.GetOtherUser(userId);
+            if(!user.isProfileActive()){
+                return ResponseEntity.notFound().header("message", "isProfiledFalse").build();
+            }
         } catch (Exception e){
-            e.printStackTrace();
-            e.getMessage();
             return ResponseEntity.badRequest().header("message", e.getMessage()).build();
         }
         return ResponseEntity.ok().body(user);

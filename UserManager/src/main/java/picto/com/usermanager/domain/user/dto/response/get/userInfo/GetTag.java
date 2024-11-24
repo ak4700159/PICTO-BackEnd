@@ -8,6 +8,6 @@ public class GetTag {
     String tagName;
 
     public GetTag(TagSelect tagSelect) {
-        this.tagName = getTagName();
+        this.tagName = tagSelect.getTagSelectedId().getTag();
     }
 }

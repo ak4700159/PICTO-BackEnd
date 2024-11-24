@@ -9,6 +9,6 @@ import picto.com.usermanager.domain.user.entity.TagSelectId;
 import java.util.List;
 
 public interface TagSelectRepositroy extends JpaRepository<TagSelect, TagSelectId> {
-    @Query("select tag from TagSelect tag where tag.user.userId = :userId")
+    @Query("select tag from TagSelect tag where tag.tagSelectedId.userId = :userId")
     public List<TagSelect> findByUserId(@Param("userId") Long userId);
 }
