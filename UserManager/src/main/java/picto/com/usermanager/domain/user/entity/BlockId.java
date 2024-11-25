@@ -2,7 +2,9 @@ package picto.com.usermanager.domain.user.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 
@@ -11,6 +13,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BlockId implements java.io.Serializable {
     private static final long serialVersionUID = 3256584913883115822L;
     @Column(name = "blocking_id", nullable = false)
@@ -18,6 +21,11 @@ public class BlockId implements java.io.Serializable {
 
     @Column(name = "blocked_id", nullable = false)
     private Long blockedId;
+
+    public BlockId(Long sourceId, Long targetId) {
+        this.blockingId = sourceId;
+        this.blockedId = targetId;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -74,7 +74,7 @@ public class PhotoManagerService {
 
     // 주변 사진 조회
     @Transactional
-    public List<GetPhotoResponse> findAroundPhotos(GetAroundPhotoRequest request) throws IllegalAccessException, Exception {
+    public List<GetPhotoResponse> findAroundPhotos(GetAroundPhotoRequest request) throws Exception {
         Long typeId= request.getSenderId();
         List<Photo> photos;
 

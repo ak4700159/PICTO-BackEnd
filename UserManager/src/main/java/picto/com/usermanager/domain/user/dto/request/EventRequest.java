@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class EventRequest {
     // MAKR(즐겨찾기) OR BLOCK(차단)
-    String type;
-    Long sourceID;
-    Long targetID;
+    // String type;
+    Long sourceId;
+    Long targetId;
 }

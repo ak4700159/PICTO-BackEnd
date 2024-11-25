@@ -2,7 +2,9 @@ package picto.com.usermanager.domain.user.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
 
@@ -11,6 +13,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Embeddable
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MarkId implements java.io.Serializable {
     private static final long serialVersionUID = -691557134142325189L;
     @Column(name = "marking_id", nullable = false)
@@ -18,6 +21,11 @@ public class MarkId implements java.io.Serializable {
 
     @Column(name = "marked_id", nullable = false)
     private Long markedId;
+
+    public MarkId(Long sourceId, Long targetId) {
+        this.markingId = sourceId;
+        this.markedId = targetId;
+    }
 
     @Override
     public boolean equals(Object o) {

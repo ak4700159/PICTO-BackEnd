@@ -56,7 +56,7 @@ public class User implements Persistable<Long> {
                 password(password).
                 email(email).
                 profileActive(true).
-                profilePhotoPath("/temp.jpg").
+                profilePhotoPath(null).
                 build();
     }
 
