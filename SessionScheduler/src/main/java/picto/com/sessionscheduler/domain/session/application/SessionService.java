@@ -107,7 +107,7 @@ public class SessionService {
     // 해당 사진 중심으로 반경 5km 이내의 접속 중인 사용자들을 탐색.
     @Transactional
     public void sharedPhoto(Message message) {
-        Long photoId = message.getSenderId();
+        Long photoId = message.getPhotoId();
         Photo photo = photoRepository.getReferenceById(photoId);
         double photoLng = message.getLng();
         double photoLat = message.getLat();
