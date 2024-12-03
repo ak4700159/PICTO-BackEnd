@@ -40,11 +40,7 @@ class ChatClient {
 
     // 연결 설정
     connect() {
-<<<<<<< HEAD
         const socket = new SockJS('http://3.35.153.213:8085/session-scheduler');
-=======
-        const socket = new SockJS('http://52.79.109.62:8085/session-scheduler');
->>>>>>> origin/main
         this.stompClient = Stomp.over(socket);
 
         // 디버그 메시지 비활성화
