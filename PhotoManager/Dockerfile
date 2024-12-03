@@ -1,4 +1,4 @@
-FROM bellsoft/liberica-openjdk-alpine:18
+FROM amazoncorretto:17-alpine
 # or
 # FROM openjdk:8-jdk-alpine
 # FROM openjdk:11-jdk-alpine
