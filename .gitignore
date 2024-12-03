@@ -44,4 +44,5 @@ out/
 
 # 별도 생성 필요
 application.yml
+application-private.yml
 

@@ -6,8 +6,10 @@ import lombok.Getter;
 @Getter
 public class SignInResponse {
     String accessToken;
+    Long userId;
 
-    public SignInResponse(String accessToken) {
+    public SignInResponse(String accessToken, Long userId) {
+        this.userId = userId;
         this.accessToken = accessToken;
     }
 }

@@ -101,9 +101,17 @@ public class UserService {
             throw new IllegalAccessException("NotMatchingPassword");
         }
         userToken = tokenRepository.getReferenceById(Objects.requireNonNull(findUser.getId()));
+        try {
+            jwtUtil.verifyToken(userToken.getAccessToken());
+        } catch (Exception e) {
+            System.out.println("InvalidToken");
+            String newToken = jwtUtil.createToken();
+           userToken.setAccessToken(newToken);
+           tokenRepository.save(userToken);
+        }
 
         // 토큰 발행
-        return new SignInResponse(userToken.getAccessToken());
+        return new SignInResponse(userToken.getAccessToken(), userToken.getUserId());
     }
 
     @Transactional

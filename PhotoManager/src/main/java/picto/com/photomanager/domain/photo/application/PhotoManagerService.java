@@ -9,12 +9,14 @@ import picto.com.photomanager.domain.photo.dto.response.GetPhotoResponse;
 import picto.com.photomanager.domain.user.dao.UserRepository;
 import picto.com.photomanager.domain.user.entity.User;
 import picto.com.photomanager.global.getDomain.dao.FilterRepository;
+import picto.com.photomanager.global.getDomain.dao.MarkRepository;
 import picto.com.photomanager.global.getDomain.dao.SessionRepository;
 import picto.com.photomanager.global.getDomain.dao.TagSelectRepository;
 import picto.com.photomanager.domain.photo.dao.PhotoRepository;
 import picto.com.photomanager.domain.photo.entity.Photo;
 import picto.com.photomanager.domain.photo.dto.request.GetSpecifiedPhotoRequest;
 import picto.com.photomanager.global.getDomain.entity.Filter;
+import picto.com.photomanager.global.getDomain.entity.Mark;
 import picto.com.photomanager.global.getDomain.entity.Session;
 import picto.com.photomanager.global.getDomain.entity.TagSelect;
 import picto.com.photomanager.global.postDomain.dao.PhotoRecordRepository;
@@ -26,6 +28,7 @@ import picto.com.photomanager.global.utils.PhotoViewComparator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -37,6 +40,7 @@ public class PhotoManagerService {
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
     private final PhotoRecordRepository photoRecordRepository;
+    private final MarkRepository markRepository;
 
     // 특정 아이디에 대한 사진 조회
     @Transactional
@@ -129,6 +133,18 @@ public class PhotoManagerService {
         photos = photos.stream().filter(Photo::isSharedActive).toList();
         System.out.println("STEP 04 size : " + photos.size());
 
+        // STEP 05. 사용자가 차단한 사용자 필터링
+        List<Mark> markList = markRepository.findByUserId(typeId);
+        List<Long> marks = markList
+                .stream()
+                .map((mark -> mark.getMarked().getId()))
+                .toList();
+        photos = photos
+                .stream()
+                .filter(photo -> marks.contains(photo.getPhotoId()))
+                .toList();
+
+        // STEP 06. RESPONSE 객체로 반환
         return photos.
                 stream().
                 map(GetPhotoResponse::new).
@@ -174,6 +190,18 @@ public class PhotoManagerService {
                 throw new IllegalAccessException("not Invalid event type");
             }
         }
+
+                /* STEP 05. 사용자가 차단한 사용자 필터링
+                List<Mark> markList = markRepository.findByUserId(typeId);
+                List<Long> marks = markList
+                        .stream()
+                        .map((mark -> mark.getMarked().getId()))
+                        .toList();
+                photos = photos
+                        .stream()
+                        .filter(photo -> marks.contains(photo.getPhotoId()))
+                        .toList();
+                 */
 
         // 공유하는 사진인지 확인하고 GetPhotoResponse
         result = photos.
