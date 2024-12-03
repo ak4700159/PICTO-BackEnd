@@ -33,7 +33,7 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
     // 지역별 대표 사진 조회
     @Query(value = """
-    SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
+    SELECT sub.s3_file_name ,sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
     FROM (
         SELECT p.*,
             RANK() OVER (
@@ -48,7 +48,7 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findByTypeTopLargePhoto(@Param("count") int count);
 
     @Query(value = """
-    SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
+    SELECT sub.s3_file_name, sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
     FROM (
         SELECT p.*,
             RANK() OVER (
@@ -63,7 +63,7 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findByTypeTopMiddlePhoto(@Param("count") int count);
 
     @Query(value = """
-    SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
+    SELECT sub.s3_file_name, sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
     FROM (
         SELECT p.*,
             RANK() OVER (

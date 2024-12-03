@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "os": "^0.1.2",
+    "process": "^0.11.10",
+    "readline": "^1.3.0",
     "sockjs-client": "^1.6.1",
     "stompjs": "^2.3.3"
   }
