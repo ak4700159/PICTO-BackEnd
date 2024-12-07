@@ -14,6 +14,8 @@ public class GetRepresentativePhotoRequest {
     String locationType;
     // 지역명
     String locationName;
+    // 전송자 식별키
+    Long senderId;
     // 조회할 사진 개수
     int count;
 }

@@ -2,9 +2,7 @@ package picto.com.usermanager.domain.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import picto.com.usermanager.domain.user.application.UserManagerGetService;
 import picto.com.usermanager.domain.user.dto.response.get.userInfo.GetUser;
 import picto.com.usermanager.domain.user.dto.response.get.userInfo.GetUserInfoResponse;
@@ -35,10 +33,24 @@ public class UserManagerGetController {
     public ResponseEntity<GetUser> getOtherUser(@PathVariable("userId") Long userId){
         GetUser user;
         try{
-            user = userManagerGetService.GetOtherUser(userId);
+            user = userManagerGetService.GetOtherUserById(userId);
             if(!user.isProfileActive()){
                 return ResponseEntity.notFound().header("message", "isProfiledFalse").build();
             }
+        } catch (Exception e){
+            return ResponseEntity.badRequest().header("message", e.getMessage()).build();
+        }
+        return ResponseEntity.ok().body(user);
+    }
+
+    @GetMapping("/user-manager/users")
+    public ResponseEntity<GetUser> getOtherUser(@RequestBody Map<String, Object> result){
+        GetUser user;
+        try{
+            user = userManagerGetService.GetOtherUserByEmail(result.get("email").toString());
+//            if(!user.isProfileActive()){
+//                return ResponseEntity.notFound().header("message", "isProfiledFalse").build();
+//            }
         } catch (Exception e){
             return ResponseEntity.badRequest().header("message", e.getMessage()).build();
         }

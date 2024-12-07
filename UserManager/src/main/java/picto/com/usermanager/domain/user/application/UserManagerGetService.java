@@ -7,7 +7,6 @@ import picto.com.usermanager.domain.user.dao.*;
 import picto.com.usermanager.domain.user.dto.response.get.userInfo.*;
 import picto.com.usermanager.domain.user.entity.*;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,8 +67,15 @@ public class UserManagerGetService {
     }
 
     @Transactional
-    public GetUser GetOtherUser(Long userId){
+    public GetUser GetOtherUserById(Long userId){
         User user = userRepository.getReferenceById(userId);
+        return new GetUser(user);
+    }
+
+    @Transactional
+    public GetUser GetOtherUserByEmail(String email){
+        User user = userRepository.getUserByEmail(email);
+        System.out.println(user.toString());
         return new GetUser(user);
     }
 

@@ -26,8 +26,11 @@ import picto.com.photomanager.global.utils.DateUtils;
 import picto.com.photomanager.global.utils.PhotoLikeComparator;
 import picto.com.photomanager.global.utils.PhotoViewComparator;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 
@@ -63,6 +66,7 @@ public class PhotoManagerService {
             throw new Exception("예상치 못한 type");
         }
 
+
         // Step02. 공개 여부 확인
         // 다른 사용자  shared_active = true 인지 확인해야됨
         photos = type.equals("user") ? photos.stream().filter(Photo::isSharedActive).toList() : photos;
@@ -87,9 +91,9 @@ public class PhotoManagerService {
         List<TagSelect> userTagSelects = tagSelectRepository.findByUserId(typeId);
         System.out.println("기초 설정");
 
-        // STEP 01. 주변(10km) 사진 조회 (레파지토리에서)
+        // STEP 01. 주변(3km) 사진 조회 (레파지토리에서)
         photos = photoRepository.findByLocationInfo(userSession.getCurrentLat(), userSession.getCurrentLng());
-        System.out.println("STEP 01 size : " + photos.size());
+        System.out.println("STEP 01[주변(3km) 사진 조회] size : " + photos.size());
 
         // STEP 02. 유저 필터에 맞는 사진 조회
         String sort = userFilter.getSort();
@@ -102,6 +106,7 @@ public class PhotoManagerService {
 
         //02-2 start_time 으로부터 period = 하루/일주일/한달/일년/사용자지정/ALL
         String period = userFilter.getPeriod();
+        System.out.println("period : " + period);
         long startDatetime = System.currentTimeMillis();
         long endDatetime;
         if(period.equals("사용자지정")){
@@ -110,13 +115,20 @@ public class PhotoManagerService {
         else{
             endDatetime = DateUtils.getTimeAgo(startDatetime, period);
         }
-        System.out.println("startDatetime : " + startDatetime);
-        System.out.println("endDatetime : " + endDatetime);
+
+        Date startDate = new Date(startDatetime);
+        Date endDate = new Date(endDatetime);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대 설정
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // UTC 기준
+
+        System.out.println("startDatetime : " + sdf.format(startDate));
+        System.out.println("endDatetime : " + sdf.format(endDate));
         photos = photos
                 .stream()
                 .filter((photo)-> (photo.getUploadDatetime() <= startDatetime && photo.getUploadDatetime() >= endDatetime))
                 .toList();
-        System.out.println("STEP 02 size : " + photos.size());
+        System.out.println("STEP 02 size[유저 설정 시간, 정렬에 맞는 사진 조회] : " + photos.size());
 
         // STEP 03. 유저 태그에 맞는 사진 조회
         List<String> tags = new ArrayList<>();
@@ -127,11 +139,11 @@ public class PhotoManagerService {
                 .stream()
                 .filter((photo) -> tags.contains(photo.getTag()))
                 .toList();
-        System.out.println("STEP 03 size : " + photos.size());
+        System.out.println("STEP 03 size[유저 태그에 맞는 사진 조회] : " + photos.size());
 
         // STEP 04. 공개 여부 확인 후 반환
         photos = photos.stream().filter(Photo::isSharedActive).toList();
-        System.out.println("STEP 04 size : " + photos.size());
+        System.out.println("STEP 04 size[공개 여부 확인 후 반환] : " + photos.size());
 
         // STEP 05. 사용자가 차단한 사용자 필터링
         List<Mark> markList = markRepository.findByUserId(typeId);
@@ -141,8 +153,9 @@ public class PhotoManagerService {
                 .toList();
         photos = photos
                 .stream()
-                .filter(photo -> marks.contains(photo.getPhotoId()))
+                .filter(photo -> !marks.contains(photo.getUserId()))
                 .toList();
+        System.out.println("STEP 05 size[사용자가 차단한 사용자 필터링] : " + photos.size());
 
         // STEP 06. RESPONSE 객체로 반환
         return photos.
@@ -163,6 +176,7 @@ public class PhotoManagerService {
 
         int count = request.getCount();
         // 지역 타입에 대해 명시되어 있으면 지역별 대표 사진 조회
+        // STEP 01. 지역별 대표사진 조회
         if(locationName == null){
             photos = switch (locationType){
                 case "large"  -> photoRepository.findByTypeTopLargePhoto(count);
@@ -191,19 +205,22 @@ public class PhotoManagerService {
             }
         }
 
-                /* STEP 05. 사용자가 차단한 사용자 필터링
-                List<Mark> markList = markRepository.findByUserId(typeId);
-                List<Long> marks = markList
-                        .stream()
-                        .map((mark -> mark.getMarked().getId()))
-                        .toList();
-                photos = photos
-                        .stream()
-                        .filter(photo -> marks.contains(photo.getPhotoId()))
-                        .toList();
-                 */
+        // STEP 02. 사용자가 차단한 사용자 필터링
+//        List<Mark> markList = markRepository.findByUserId(request.getSenderId());
+//        List<Long> marks = markList
+//                .stream()
+//                .map((mark -> mark.getMarked().getId()))
+//                .toList();
+//        photos = photos
+//                .stream()
+//                .filter(photo -> !marks.contains(photo.getUserId()))
+//                .toList();
+//        System.out.println("STEP 05 size[사용자가 차단한 사용자 필터링] : " + photos.size());
 
-        // 공유하는 사진인지 확인하고 GetPhotoResponse
+
+        // STEP 03. 사용자 필터, 태그에 맞게 구현
+
+        // STEP 04. 공유하는 사진인지 확인하고 GetPhotoResponse
         result = photos.
                 stream().
                 filter(Photo::isSharedActive).

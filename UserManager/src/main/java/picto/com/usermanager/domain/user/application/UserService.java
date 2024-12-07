@@ -90,7 +90,7 @@ public class UserService {
 
     @Transactional
     public SignInResponse signIn(SignInRequest signInRequest) throws IllegalAccessException {
-        User findUser = userRepository.findByEmail(signInRequest.getEmail());
+        User findUser = userRepository.getUserByEmail(signInRequest.getEmail());
         Token userToken;
         if (findUser == null) {
             throw new IllegalAccessException("NotFoundUser");
@@ -116,7 +116,7 @@ public class UserService {
 
     @Transactional
     public boolean verifyDuplicatedUser(String userEmail) throws IllegalAccessException {
-        if(userRepository.findByEmail(userEmail) != null) {
+        if(userRepository.getUserByEmail(userEmail) != null) {
             System.out.println("중복된 유저");
             throw new IllegalAccessException("Duplicated");
         }
