@@ -80,7 +80,6 @@ public class Photo {
     public void updateLocation(String location) {
         this.location = location;
     }
-
     public void updateRegisterDatetime(Long registerDatetime) {
         this.registerDatetime = registerDatetime;
     }
@@ -95,5 +94,6 @@ public class Photo {
         this.s3FileName = s3FileName;
         this.frameActive = frameActive;
         this.sharedActive = sharedActive;
+        this.uploadDatetime = System.currentTimeMillis();
     }
 }

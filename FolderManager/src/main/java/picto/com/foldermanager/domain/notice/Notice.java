@@ -36,7 +36,6 @@ public class Notice {
     @Column(name = "created_datetime", nullable = false)
     private Long createdDatetime;
 
-
     @Builder
     public Notice(NoticeType type, User sender, User receiver, Folder folder) {
         this.type = type;
