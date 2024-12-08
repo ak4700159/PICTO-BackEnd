@@ -84,9 +84,10 @@ public class PhotoManagerController {
     public ResponseEntity<List<GetPhotoResponse>> getRepresentativePhotos(@RequestBody GetRepresentativePhotoRequest request) {
         List<GetPhotoResponse> photos = new ArrayList<>();
         try {
+            System.out.println(request.toString());
             photos = photoManagerService.findRepresentativePhotos(request);
         }catch (Exception e){
-            System.out.println("getRepresentativePhotos error");
+            System.out.println(e.getMessage());
             return ResponseEntity.badRequest().body(photos);
         }
 
@@ -119,7 +120,6 @@ public class PhotoManagerController {
             photoManagerService.viewPhoto(eventDTO.getPhotoId(), eventDTO.getUserId());
         } catch (Exception e){
             System.out.println("viewPhoto error");
-            e.printStackTrace();
             return ResponseEntity.badRequest().body(e.getMessage());
         }
         return ResponseEntity.ok().build();

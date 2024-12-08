@@ -18,4 +18,9 @@ public class GetRepresentativePhotoRequest {
     Long senderId;
     // 조회할 사진 개수
     int count;
+
+    @Override
+    public String toString() {
+        return "GetRepresentativePhotoRequest [eventType=" + eventType + ", locationType=" + locationType + ", locationName=" + locationName + ", senderId=" + senderId + ", count=" + count + "]";
+    }
 }

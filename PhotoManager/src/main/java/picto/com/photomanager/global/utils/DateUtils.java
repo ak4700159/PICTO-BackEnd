@@ -10,6 +10,7 @@ public class DateUtils {
      * 날짜 계산에 사용할 수 있는 기간 타입을 정의하는 enum
      */
     public enum PeriodType {
+        all("전체"),
         day("하루"),
         week("일주일"),
         month("한달"),
@@ -33,15 +34,20 @@ public class DateUtils {
 
     /**
      * 주어진 UTC timestamp에서 지정된 기간만큼 이전의 UTC timestamp를 반환합니다.
+     * "전체" 타입인 경우 1970년 1월 1일의 timestamp를 반환합니다.
      *
      * @param utcTimestamp UTC timestamp (밀리초)
-     * @param periodType 계산할 기간 타입 ("하루", "일주일", "한달", "일년")
+     * @param periodType 계산할 기간 타입 ("전체", "하루", "일주일", "한달", "일년")
      * @return 지정된 기간만큼 이전의 UTC timestamp
      */
     public static long getTimeAgo(long utcTimestamp, String periodType) {
-        Instant instant = Instant.ofEpochMilli(utcTimestamp);
         PeriodType type = PeriodType.fromString(periodType);
 
+        if (type == PeriodType.all) {
+            return 0L; // 1970년 1월 1일의 UTC timestamp
+        }
+
+        Instant instant = Instant.ofEpochMilli(utcTimestamp);
         Instant resultTime = instant.atZone(ZoneOffset.UTC)
                 .minus(getPeriodAmount(type), getPeriodUnit(type))
                 .toInstant();
@@ -58,6 +64,7 @@ public class DateUtils {
             case week -> 7;
             case month -> 1;
             case year -> 1;
+            case all -> 0;
             default -> throw new IllegalArgumentException("지원하지 않는 기간 타입입니다.");
         };
     }
@@ -71,6 +78,7 @@ public class DateUtils {
             case week -> ChronoUnit.DAYS;
             case month -> ChronoUnit.MONTHS;
             case year -> ChronoUnit.YEARS;
+            case all -> ChronoUnit.FOREVER;
             default -> throw new IllegalArgumentException("지원하지 않는 기간 타입입니다.");
         };
     }

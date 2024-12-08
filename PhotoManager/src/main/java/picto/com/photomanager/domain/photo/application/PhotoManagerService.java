@@ -169,6 +169,8 @@ public class PhotoManagerService {
     public List<GetPhotoResponse> findRepresentativePhotos(GetRepresentativePhotoRequest request) throws IllegalAccessException, Exception {
         List<Photo> photos;
         List<GetPhotoResponse> result;
+        List<TagSelect> userTagSelects = tagSelectRepository.findByUserId(request.getSenderId());
+        Filter userFilter = filterRepository.findById(request.getSenderId()).orElseThrow();
 
         String eventType = request.getEventType();
         String locationName = request.getLocationName();
@@ -206,21 +208,57 @@ public class PhotoManagerService {
         }
 
         // STEP 02. 사용자가 차단한 사용자 필터링
-//        List<Mark> markList = markRepository.findByUserId(request.getSenderId());
-//        List<Long> marks = markList
-//                .stream()
-//                .map((mark -> mark.getMarked().getId()))
-//                .toList();
-//        photos = photos
-//                .stream()
-//                .filter(photo -> !marks.contains(photo.getUserId()))
-//                .toList();
-//        System.out.println("STEP 05 size[사용자가 차단한 사용자 필터링] : " + photos.size());
+        List<Mark> markList = markRepository.findByUserId(request.getSenderId());
+        List<Long> marks = markList
+                .stream()
+                .map((mark -> mark.getMarked().getId()))
+                .toList();
+        photos = photos
+                .stream()
+                .filter(photo -> !marks.contains(photo.getUserId()))
+                .toList();
+        System.out.println("STEP 02 size[사용자가 차단한 사용자 필터링] : " + photos.size());
 
 
-        // STEP 03. 사용자 필터, 태그에 맞게 구현
+        // STEP 03. 태그에 맞게 조회
+        List<String> tags = new ArrayList<>();
+        for (TagSelect userTagSelect : userTagSelects) {
+            tags.add(userTagSelect.getId().getTag());
+        }
+        photos = photos
+                .stream()
+                .filter((photo) -> tags.contains(photo.getTag()))
+                .toList();
+        System.out.println("STEP 03 size[사용자 태그에 맞는 사진 조회] : " + photos.size());
 
-        // STEP 04. 공유하는 사진인지 확인하고 GetPhotoResponse
+
+        // STEP 04. 필터에 맞게 조회
+        String period = userFilter.getPeriod();
+        System.out.println("period : " + period);
+        long startDatetime = System.currentTimeMillis();
+        long endDatetime;
+        if(period.equals("사용자지정")){
+            endDatetime = userFilter.getEndDateTime();
+        }
+        else{
+            endDatetime = DateUtils.getTimeAgo(startDatetime, period);
+        }
+
+        Date startDate = new Date(startDatetime);
+        Date endDate = new Date(endDatetime);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대 설정
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // UTC 기준
+
+        System.out.println("startDatetime : " + sdf.format(startDate));
+        System.out.println("endDatetime : " + sdf.format(endDate));
+        photos = photos
+                .stream()
+                .filter((photo)-> (photo.getUploadDatetime() <= startDatetime && photo.getUploadDatetime() >= endDatetime))
+                .toList();
+        System.out.println("STEP 04 size[사용자 설정 시간에 맞게 조회] : " + photos.size());
+
+        // STEP 05. 공유하는 사진인지 확인하고 GetPhotoResponse
         result = photos.
                 stream().
                 filter(Photo::isSharedActive).
@@ -276,5 +314,10 @@ public class PhotoManagerService {
                 .id(new PhotoRecordId(userId, photoId))
                 .build();
         photoRecordRepository.save(record);
+    }
+
+    // 묶을 수 있느 기능 묶기
+    public void filterPhotos(List<Photo> photos, Long userId){
+
     }
 }
