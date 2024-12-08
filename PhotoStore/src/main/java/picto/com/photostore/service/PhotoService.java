@@ -33,81 +33,32 @@ public class PhotoService {
     private final UserRepository userRepository;
     private final LocationInfoRepository locationInfoRepository;
     private final SessionSchedulerClient sessionSchedulerClient;
+
+    // 액자 개수 5개로 제한
     private static final int MAX_FRAME_PHOTOS_PER_USER = 5;
 
     // 사진 업로드
+    @Transactional
     public PhotoResponse uploadPhoto(MultipartFile file, PhotoUploadRequest request) {
         try {
-            validateFile(file);
             validatePhotoUploadRequest(request);
 
+            // 액자 사진인 경우에만 파일 검증
+            if (!request.isFrameActive()) {
+                validateFile(file);
+            }
+
+            // 사용자 조회
             User user = userRepository.findById(request.getUserId())
                     .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없습니다."));
 
             // 위치 정보 조회
-            String location = null;
-            if (request.getLat() != 0 && request.getLng() != 0) {
-                try {
-                    GetKakaoLocationInfoResponse locationResponse =
-                            LocationService.searchLocation(request.getLng(), request.getLat());
-                    if (locationResponse.getDocuments() != null &&
-                            !locationResponse.getDocuments().isEmpty()) {
-                        location = createLocationString(locationResponse.getDocuments().get(0));
-                    }
-                } catch (Exception e) {
-                    log.error("위치 정보 처리 실패", e);
-                }
-            }
+            String location = getLocationInfo(request.getLng(), request.getLat());
 
-            if (request.isFrameActive()) {
-                // 프레임 사진 개수 체크
-                long frameCount = photoRepository.countByUserAndFrameActiveTrue(user);
-                if (frameCount >= MAX_FRAME_PHOTOS_PER_USER) {
-                    throw new InvalidOperationException("프레임 사진은 최대 " + MAX_FRAME_PHOTOS_PER_USER + "개까지만 생성할 수 있습니다.");
-                }
-
-                Photo photo = Photo.builder()
-                        .user(user)
-                        .photoPath("temp_path")
-                        .s3FileName("temp_file")
-                        .lat(request.getLat())
-                        .lng(request.getLng())
-                        .location(location)
-                        .tag(request.getTag())
-                        .likes(0)
-                        .views(0)
-                        .registerDatetime(request.getRegisterTime())
-                        .frameActive(true)
-                        .sharedActive(false)
-                        .build();
-
-                return PhotoResponse.fromWithContentType(photoRepository.save(photo), file.getContentType());
-            }
-
-            // 일반 사진 업로드 처리
-            String fileName = s3Service.uploadFile(file);
-            String photoPath = s3Service.getFileUrl(fileName);
-
-            Photo photo = Photo.builder()
-                    .user(user)
-                    .photoPath(photoPath)
-                    .s3FileName(fileName)
-                    .lat(request.getLat())
-                    .lng(request.getLng())
-                    .location(location)
-                    .tag(request.getTag())
-                    .likes(0)
-                    .views(0)
-                    .registerDatetime(request.getRegisterTime())
-                    .frameActive(false)
-                    .sharedActive(request.isSharedActive())
-                    .build();
-
-            Photo savedPhoto = photoRepository.save(photo);
-
-            if (request.isSharedActive()) {
-                scheduleSession(savedPhoto);
-            }
+            // 일반 사진 or 액자 사진 저장
+            Photo savedPhoto = request.isFrameActive() ?
+                    saveFramePhoto(user, location, request) :
+                    saveRegularPhoto(file, user, location, request);
 
             return PhotoResponse.from(savedPhoto);
         } catch (Exception e) {
@@ -116,51 +67,83 @@ public class PhotoService {
         }
     }
 
-    // 액자로 둔 사진 업로드
-    @Transactional
-    public PhotoResponse updateFramePhoto(Long photoId, MultipartFile file,
-                                          FramePhotoUpdateRequest request) {
-        validateFramePhotoUpdateRequest(request);
+    // 액자 사진 저장 처리
+    private Photo saveFramePhoto(User user, String location, PhotoUploadRequest request) {
+        // 사용자별 액자 개수 제한 검사
+        validateFramePhotoCount(user);
 
-        Photo photo = photoRepository.findById(photoId)
-                .orElseThrow(() -> new PhotoNotFoundException("프레임 사진을 찾을 수 없습니다."));
+        Photo framePhoto = Photo.builder()
+                .user(user)
+                .photoPath("temp_path")
+                .s3FileName("temp_file")
+                .lat(request.getLat())
+                .lng(request.getLng())
+                .location(location)
+                .tag("temp_tag")
+                .likes(0)
+                .views(0)
+                .registerDatetime(request.getRegisterTime())
+                .frameActive(true)
+                .sharedActive(false)
+                .build();
 
-        if (!photo.isFrameActive()) {
-            throw new InvalidOperationException("액자 사진이 아닙니다.");
+        return photoRepository.save(framePhoto);
+    }
+
+    // 일반 사진 저장 처리
+    private Photo saveRegularPhoto(MultipartFile file, User user, String location, PhotoUploadRequest request) {
+        // default 폴더 저장
+        String s3FileName = s3Service.uploadFile(file, user.getId(), null);
+        String photoPath = s3Service.getFileUrl(s3FileName);
+
+        Photo regularPhoto = Photo.builder()
+                .user(user)
+                .photoPath(photoPath)
+                .s3FileName(s3FileName)
+                .lat(request.getLat())
+                .lng(request.getLng())
+                .location(location)
+                .tag(request.getTag())
+                .likes(0)
+                .views(0)
+                .registerDatetime(request.getRegisterTime())
+                .frameActive(false)
+                .sharedActive(request.isSharedActive())
+                .build();
+
+        Photo savedPhoto = photoRepository.saveAndFlush(regularPhoto);
+
+        if (request.isSharedActive()) {
+            scheduleSessionAfterCommit(savedPhoto);
         }
 
+        return savedPhoto;
+    }
+
+    // 사진이 DB에 정상적으로 저장된 후 스케줄링 수행
+    private void scheduleSessionAfterCommit(final Photo photo) {
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        try {
+                            scheduleSession(photo);
+                        } catch (Exception e) {
+                            log.error("Session scheduling failed after photo upload", e);
+                        }
+                    }
+                });
+    }
+
+    // 액자로 둔 사진 업로드
+    @Transactional
+    public PhotoResponse updateFramePhoto(Long photoId, MultipartFile file, FramePhotoUpdateRequest request) {
+        validateFramePhotoUpdateRequest(request);
+        Photo photo = findAndValidateFramePhoto(photoId);
         validateFile(file);
 
         try {
-            // S3에 파일 업로드
-            String fileName = s3Service.uploadFile(file);
-            String photoPath = s3Service.getFileUrl(fileName);
-
-            // 위치 정보 업데이트
-            String location = null;
-            if (photo.getLat() != 0 && photo.getLng() != 0) {
-                GetKakaoLocationInfoResponse locationResponse =
-                        LocationService.searchLocation(photo.getLng(), photo.getLat());
-                if (locationResponse.getDocuments() != null &&
-                        !locationResponse.getDocuments().isEmpty()) {
-                    location = createLocationString(locationResponse.getDocuments().get(0));
-                }
-            }
-
-            photo.updatePhoto(
-                    photo.getLat(),
-                    photo.getLng(),
-                    request.getTag(),
-                    photoPath,
-                    fileName,
-                    false,
-                    request.isSharedActive()
-            );
-
-            photo.updateLocation(location);
-            photo.updateRegisterDatetime(request.getRegisterTime());
-
-            Photo updatedPhoto = photoRepository.save(photo);
+            Photo updatedPhoto = updatePhotoWithNewImage(photo, file, request);
 
             if (request.isSharedActive()) {
                 scheduleSession(updatedPhoto);
@@ -171,6 +154,27 @@ public class PhotoService {
             log.error("프레임 사진 업데이트 실패", e);
             throw new PhotoUploadException("프레임 사진 업데이트 중 문제가 발생했습니다.", e);
         }
+    }
+
+    // 액자 사진 새 데이터로 업데이트
+    private Photo updatePhotoWithNewImage(Photo photo, MultipartFile file, FramePhotoUpdateRequest request) {
+        // default 폴더 저장
+        String s3FileName = s3Service.uploadFile(file, photo.getUser().getId(), null);
+        String photoPath = s3Service.getFileUrl(s3FileName);
+
+        photo.updatePhoto(
+                photo.getLat(),
+                photo.getLng(),
+                request.getTag(),
+                photoPath,
+                s3FileName,
+                false,
+                request.isSharedActive()
+        );
+
+        photo.updateRegisterDatetime(request.getRegisterTime());
+
+        return photoRepository.save(photo);
     }
 
     // 액자 목록 조회
@@ -244,6 +248,22 @@ public class PhotoService {
         }
     }
 
+    // 위치 정보 조회
+    private String getLocationInfo(double lng, double lat) {
+        if (lat == 0 && lng == 0) return null;
+
+        try {
+            GetKakaoLocationInfoResponse locationResponse = LocationService.searchLocation(lng, lat);
+            if (locationResponse.getDocuments() != null && !locationResponse.getDocuments().isEmpty()) {
+                return createLocationString(locationResponse.getDocuments().get(0));
+            }
+        } catch (Exception e) {
+            log.error("위치 정보 처리 실패", e);
+        }
+        return null;
+    }
+
+    // 위치 정보 문자열 반환
     private String createLocationString(GetKakaoLocationInfoResponse.Document document) {
         if (document == null) return null;
 
@@ -289,6 +309,7 @@ public class PhotoService {
         }
     }
 
+    // 파일 유효성 검사
     private void validateFile(MultipartFile file) {
         if (file.isEmpty()) {
             throw new InvalidFileException("파일이 비어있습니다.");
@@ -304,15 +325,37 @@ public class PhotoService {
         }
     }
 
+    // 파일 업로드 요청 유효성 검사
     private void validatePhotoUploadRequest(PhotoUploadRequest request) {
         if (request.isFrameActive() && request.isSharedActive()) {
             throw new InvalidOperationException("프레임 사진인 경우 공유 상태를 활성화할 수 없습니다.");
         }
     }
 
+    // 액자 개수 제한 검사
+    private void validateFramePhotoCount(User user) {
+        long frameCount = photoRepository.countByUserAndFrameActiveTrue(user);
+        if (frameCount >= MAX_FRAME_PHOTOS_PER_USER) {
+            throw new InvalidOperationException("프레임 사진은 최대 " +
+                    MAX_FRAME_PHOTOS_PER_USER + "개까지만 생성할 수 있습니다.");
+        }
+    }
+
+    // 액자 사진 업데이트 요청 유효성 검사
     private void validateFramePhotoUpdateRequest(FramePhotoUpdateRequest request) {
         if (request.isFrameActive()) {
             throw new InvalidOperationException("프레임 사진 업로드 시에는 frameActive를 false로 설정해야 합니다.");
         }
+    }
+
+    // 액자 사진 조회 및 검사
+    private Photo findAndValidateFramePhoto(Long photoId) {
+        Photo photo = photoRepository.findById(photoId)
+                .orElseThrow(() -> new PhotoNotFoundException("프레임 사진을 찾을 수 없습니다."));
+
+        if (!photo.isFrameActive()) {
+            throw new InvalidOperationException("액자 사진이 아닙니다.");
+        }
+        return photo;
     }
 }

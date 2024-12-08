@@ -8,11 +8,11 @@ WORKDIR /app
 COPY build/libs/*.jar app.jar
 
 # 환경변수 설정
-ENV SERVER_PORT=8084
+ENV SERVER_PORT=8081
 ENV SPRING_PROFILES_ACTIVE=prod
 
 # 컨테이너 포트 설정
-EXPOSE 8084
+EXPOSE 8081
 
 # 실행 명령어
 ENTRYPOINT ["java", "-jar", "app.jar"]

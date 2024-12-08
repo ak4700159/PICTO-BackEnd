@@ -12,9 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = "picto.com.foldermanager.repository")
 @EntityScan(basePackages = "picto.com.foldermanager.domain")
 public class FolderManagerApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(FolderManagerApplication.class, args);
 	}
-
 }

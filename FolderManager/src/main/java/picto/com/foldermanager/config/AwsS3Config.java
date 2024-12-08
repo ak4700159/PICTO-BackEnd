@@ -1,4 +1,4 @@
-package picto.com.photostore.config;
+package picto.com.foldermanager.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
