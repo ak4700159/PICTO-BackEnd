@@ -15,9 +15,6 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.AmazonServiceException;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -35,76 +32,7 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-      // 기존 코드
-//    // 사진 업로드
-//    public String uploadFile(MultipartFile file) {
-//        try {
-//            log.info("Starting S3 file upload");
-//            log.info("Original filename: {}", file.getOriginalFilename());
-//            log.info("File content type: {}", file.getContentType());
-//            log.info("File size: {} bytes", file.getSize());
-//
-//            validateFile(file);
-//            String fileName = createFileName(file.getOriginalFilename());
-//
-//            log.info("Generated S3 filename: {}", fileName);
-//
-//            ObjectMetadata objectMetadata = new ObjectMetadata();
-//            objectMetadata.setContentLength(file.getSize());
-//            objectMetadata.setContentType(file.getContentType());
-//            log.info("Set metadata - Content Length: {}, Content Type: {}",
-//                    file.getSize(), file.getContentType());
-//
-//            s3client.putObject(new PutObjectRequest(
-//                    bucket,
-//                    fileName,
-//                    file.getInputStream(),
-//                    objectMetadata
-//            ));
-//
-//            log.info("File successfully uploaded to S3: {}", fileName);
-//            return fileName;
-//
-//        } catch (IOException e) {
-//            log.error("Error during file upload: ", e);
-//            throw new FileUploadException("파일 업로드 중 오류가 발생했습니다.", e);
-//        }
-//    }
-//
-//    // 사진 조회
-//    public byte[] downloadFile(String fileName) {
-//        try {
-//            log.info("Downloading file from S3: {}", fileName);
-//            var s3Object = s3client.getObject(bucket, fileName);
-//            var objectInputStream = s3Object.getObjectContent();
-//
-//            try {
-//                byte[] bytes = IOUtils.toByteArray(objectInputStream);
-//                log.info("File downloaded successfully. Size: {} bytes", bytes.length);
-//                return bytes;
-//            } finally {
-//                objectInputStream.close();
-//                s3Object.close();
-//            }
-//        } catch (IOException e) {
-//            log.error("Error downloading file from S3: ", e);
-//            throw new FileUploadException("파일 다운로드 중 오류가 발생했습니다.", e);
-//        }
-//    }
-//
-//    // 사진 삭제
-//    public void deleteFile(String fileName) {
-//        try {
-//            log.info("Deleting file from S3: {}", fileName);
-//            s3client.deleteObject(bucket, fileName);
-//            log.info("File deleted successfully: {}", fileName);
-//        } catch (Exception e) {
-//            log.error("Error deleting file from S3: ", e);
-//            throw new FileDeleteException("파일 삭제 중 오류가 발생했습니다.", e);
-//        }
-//    }
-
-    // 수정 코드
+    // 파일 업로드
     public String uploadFile(MultipartFile file, Long userId, Long folderId) {
         try {
             // 파일명을 고유하게 생성
@@ -112,7 +40,7 @@ public class S3Service {
             String fileExtension = getFileExtension(originalFileName);
             String fileName = UUID.randomUUID().toString() + fileExtension;
 
-            // 저장 경로 생성 (default 폴더를 명시적으로 생성)
+            // 저장 경로 생성 (default 폴더를 기본값으로 사용)
             String folderPath = (folderId == null) ? "default/" : folderId.toString() + "/";
             String key = userId + "/" + folderPath + fileName;
 
@@ -121,7 +49,7 @@ public class S3Service {
             objectMetadata.setContentLength(file.getSize());
             objectMetadata.setContentType(file.getContentType());
 
-            // S3에 업로드
+            // S3에 파일 업로드
             PutObjectRequest putObjectRequest = new PutObjectRequest(
                     bucket,
                     key,
@@ -165,7 +93,7 @@ public class S3Service {
         log.info("Validating file");
         if (file.isEmpty()) {
             log.error("File is empty");
-            throw new InvalidFileException("파일이 비어있습니다.");
+            throw new InvalidFileException("파일이 비어 있습니다.");
         }
 
         String contentType = file.getContentType();
@@ -178,21 +106,12 @@ public class S3Service {
 
         if (file.getSize() > 10 * 1024 * 1024) {
             log.error("File too large: {} bytes", file.getSize());
-            throw new InvalidFileException("파일 크기는 10MB를 초과할 수 없습니다.");
+            throw new InvalidFileException("파일 크기가 10MB를 초과할 수 없습니다.");
         }
         log.info("File validation successful");
     }
 
-    private String createFileName(String originalFileName) {
-        return "picto-photos/" + UUID.randomUUID() + "_" + originalFileName;
-    }
-
-      // 기존 코드
-//    public String getFileUrl(String fileName) {
-//        return s3client.getUrl(bucket, fileName).toString();
-//    }
-
-    // 수정 코드
+    // 파일 URL 반환
     public String getFileUrl(String key) {
         return s3client.getUrl(bucket, key).toString();
     }
