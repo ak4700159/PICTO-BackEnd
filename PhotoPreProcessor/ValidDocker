@@ -1,0 +1,28 @@
+FROM python:3.8
+
+WORKDIR /valid
+
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY ValidRequire.txt .
+RUN pip install --no-cache-dir -r ValidRequire.txt
+
+ENV TAGGING_SERVICE_URL=http://host.docker.internal:8083/tag
+
+COPY person_detection.pth .
+COPY person_detector.py .
+COPY nsfw_detector.py .
+COPY text_detector.py .
+COPY valid.py .
+
+EXPOSE 5000
+
+RUN mkdir uploads
+
+CMD ["python", "valid.py"]

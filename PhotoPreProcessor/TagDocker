@@ -1,0 +1,21 @@
+FROM python:3.8
+
+WORKDIR /tag
+
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY TaggingRequire.txt .
+RUN pip install --no-cache-dir -r TaggingRequire.txt
+
+ENV STORE_SERVER_URL=http://host.docker.internal:8084/photo-store/photos
+
+EXPOSE 8083
+
+COPY resnet50_places365.pth.tar .
+COPY get_tag.py .
+COPY tagging.py .
+
+
+CMD ["python", "tagging.py"]

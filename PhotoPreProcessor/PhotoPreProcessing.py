@@ -1,11 +1,14 @@
 import io
 import json
+from wsgiref import headers
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import logging
 import requests
 import mimetypes
+
+from shapely import boundary
 from person_detector import PersonDetector
 from nsfw_detector import NSFWDetector
 from text_detector import TextDetector
@@ -21,7 +24,7 @@ UPLOAD_FOLDER = './uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-STORE_SERVER_URL = 'http://52.78.237.242:8084/photo-store/photos'
+StoreUrl = 'http://52.78.237.242:8084/photo-store/photos'
 
 def validate(image_path):    
     nsfw_detector = NSFWDetector(threshold=0.5)
@@ -57,7 +60,7 @@ def validate_image():
         file.save(temp_path)
         logger.info(f"Image temporarily saved: {temp_path}")
         
-        # 파일 확장자에 따른 MIME 타입 결정
+        # MIME 타입 결정
         mime_type = None
         if file.filename.lower().endswith(('.jpg', '.jpeg')):
             mime_type = 'image/jpeg'
@@ -70,32 +73,47 @@ def validate_image():
         else:
             logger.error("Unsupported image format")
             return jsonify({'error': '지원하지 않는 이미지 형식입니다.'}), 400
-
-        logger.info(f"Determined MIME type: {mime_type}")
         
+        # 이미지 검증
         error = validate(temp_path)
         if error:
-            logger.warning(f"Validation failed: {error}")
             os.remove(temp_path)
             return jsonify({'error': error}), 400
 
+        # 태깅
         with open(temp_path, 'rb') as img_file:
             image_stream = io.BytesIO(img_file.read())
             tag = tagging(image_stream)
             logger.info(f"Generated tags: {tag}")
-        
+            
         data_dict = json.loads(request_data)
         data_dict['tag'] = tag
 
-        # multipart 요청을 위한 boundary 설정
+        print(data_dict)
+        # frameActive에 따른 처리
+        if data_dict.get('frameActive', True):
+            photo_id = data_dict.get('photoId')
+            if not photo_id:
+                return jsonify({'error': 'photoId is required'}), 400
+            
+            ServerUrl = f"{StoreUrl}/frame/{photo_id}"
+        else:
+            ServerUrl = StoreUrl
+
         boundary = 'boundary123456'
         headers = {
             'Content-Type': f'multipart/form-data; boundary={boundary}'
         }
 
-        # Spring Boot 서버로 전송
+        if data_dict.get('frameActive', True):
+            photo_id = data_dict.get('photoId')
+            if not photo_id:
+                return jsonify({'error': 'photoId is required'}), 400
+            ServerUrl = f"{StoreUrl}/frame/{photo_id}"
+
+
+        # 요청 준비
         with open(temp_path, 'rb') as img_file:
-            # multipart 형식으로 데이터 구성
             body = io.BytesIO()
             
             # 파일 파트 추가
@@ -117,29 +135,42 @@ def validate_image():
             
             body_data = body.getvalue()
             
-            logger.info(f"Sending request to Spring Boot server")
+            logger.info(f"Sending {'PATCH' if data_dict.get('frameActive', True) else 'POST'} request to Spring Boot server")
             logger.info(f"Content-Type: {headers['Content-Type']}")
             
-            response = requests.post(
-                STORE_SERVER_URL,
-                data=body_data,
-                headers=headers
-            )
+            if data_dict.get('frameActive', True):
+                print("Frame")
+                data_dict['frameActive'] = False
+                response = requests.patch(
+                    ServerUrl,
+                    data=body_data,
+                    headers=headers
+                )
+            else:
+                response = requests.post(
+                    ServerUrl,
+                    data=body_data,
+                    headers=headers
+                )
+            
             response.raise_for_status()
-
-        os.remove(temp_path)
-        logger.info("Temporary file deleted")
-        
-        return jsonify(response.json()), 200
-        
+            return jsonify(response.json()), 200
+            
     except Exception as e:
         logger.error(f"Error during processing: {str(e)}")
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
         return jsonify({'error': str(e)}), 500
-    
+        
+    finally:
+        # 임시 파일 삭제
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+                logger.info("Temporary file deleted")
+            except Exception as e:
+                logger.error(f"Error deleting temporary file: {str(e)}")
+
 @app.route('/tag', methods=['POST'])
-def process_image():
+def tag_image():
     logger.info("Image tagging request received")
     
     if 'file' not in request.files:
@@ -148,39 +179,109 @@ def process_image():
 
     file = request.files['file']
     request_data = request.form.get('request', '{}')
+    temp_path = None
     
     try:
-        # Process image for tagging
-        image_data = file.read()
-        image_stream = io.BytesIO(image_data)
-        tag = tagging(image_stream)
-        logger.info(f"Generated tags: {tag}")
-
-        # Update request data with tags
-        try:
-            data_dict = json.loads(request_data)
-        except json.JSONDecodeError:
-            data_dict = {}
+        # 임시 파일 저장
+        temp_path = os.path.join(UPLOAD_FOLDER, file.filename)
+        file.save(temp_path)
         
+        # 이미지 태깅
+        with open(temp_path, 'rb') as img_file:
+            image_stream = io.BytesIO(img_file.read())
+            tag = tagging(image_stream)
+            logger.info(f"Generated tags: {tag}")
+
+        data_dict = json.loads(request_data)
         data_dict['tag'] = tag
 
-        # Prepare multipart form data
-        files = {
-            'file': (file.filename, io.BytesIO(image_data), file.content_type or 'application/octet-stream')
-        }
-        form_data = {
-            'request': json.dumps(data_dict, ensure_ascii=False)
-        }
-        
-        # Forward to storage server
-        response = requests.post(STORE_SERVER_URL, files=files, data=form_data)
-        response.raise_for_status()
-        
-        return jsonify(response.json()), 200
+        # MIME 타입 결정
+        mime_type = None
+        if file.filename.lower().endswith(('.jpg', '.jpeg')):
+            mime_type = 'image/jpeg'
+        elif file.filename.lower().endswith('.png'):
+            mime_type = 'image/png'
+        elif file.filename.lower().endswith('.gif'):
+            mime_type = 'image/gif'
+        elif file.filename.lower().endswith('.webp'):
+            mime_type = 'image/webp'
+        else:
+            logger.error("Unsupported image format")
+            return jsonify({'error': '지원하지 않는 이미지 형식입니다.'}), 400
 
+        # frameActive에 따른 처리
+        if data_dict.get('frameActive', True):
+            photo_id = data_dict.get('photoId')
+            if not photo_id:
+                return jsonify({'error': 'photoId is required'}), 400
+                    
+            ServerUrl = f"{StoreUrl}/frame/{photo_id}"
+            
+            # 원본 frameActive 값을 보관
+            is_frame_request = True  # HTTP 메소드 결정용
+            
+            # 전송할 데이터의 복사본 생성
+            request_data_dict = data_dict.copy()
+            request_data_dict['frameActive'] = False  # 전송할 데이터에서만 False로 변경
+            
+            print("Original request data:", data_dict)  # 디버깅용
+            print("Modified request data:", request_data_dict)  # 디버깅용
+
+            # 요청 준비
+            with open(temp_path, 'rb') as img_file:
+                body = io.BytesIO()
+                
+                # 파일 파트 추가
+                body.write(f'--{boundary}\r\n'.encode('utf-8'))
+                body.write(f'Content-Disposition: form-data; name="file"; filename="{file.filename}"\r\n'.encode('utf-8'))
+                body.write(f'Content-Type: {mime_type}\r\n\r\n'.encode('utf-8'))
+                body.write(img_file.read())
+                body.write(b'\r\n')
+                
+                # JSON 데이터 파트 추가
+                body.write(f'--{boundary}\r\n'.encode('utf-8'))
+                body.write('Content-Disposition: form-data; name="request"\r\n'.encode('utf-8'))
+                body.write('Content-Type: application/json\r\n\r\n'.encode('utf-8'))
+                body.write(json.dumps(request_data_dict, ensure_ascii=False).encode('utf-8'))
+                body.write(b'\r\n')
+                
+                # 종료 바운더리 추가
+                body.write(f'--{boundary}--\r\n'.encode('utf-8'))
+                
+                body_data = body.getvalue()
+                
+                # is_frame_request를 기반으로 HTTP 메소드 결정
+                if is_frame_request:
+                    print("Sending PATCH request")
+                    response = requests.patch(
+                        ServerUrl,
+                        data=body_data,
+                        headers=headers
+                    )
+                else:
+                    print("Sending POST request")
+                    response = requests.post(
+                        ServerUrl,
+                        data=body_data,
+                        headers=headers
+                    )
+            
+            response.raise_for_status()
+            return jsonify(response.json()), 200
+            
     except Exception as e:
         logger.error(f"Error during processing: {str(e)}")
         return jsonify({'error': str(e)}), 500
-    
+        
+    finally:
+        # 임시 파일 삭제
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+                logger.info("Temporary file deleted")
+            except Exception as e:
+                logger.error(f"Error deleting temporary file: {str(e)}")
+
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8083, debug=True)
+    app.run(host='0.0.0.0', port=8083, debug=True)  
