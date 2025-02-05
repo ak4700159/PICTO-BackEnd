@@ -52,7 +52,7 @@ public class QPhotoRecord extends EntityPathBase<PhotoRecord> {
         super(type, metadata, inits);
         this.agent = inits.isInitialized("agent") ? new picto.com.generator.domain.user.entity.QUser(forProperty("agent")) : null;
         this.photo = inits.isInitialized("photo") ? new QPhoto(forProperty("photo"), inits.get("photo")) : null;
-        this.photoRecordId = inits.isInitialized("photoRecordId") ? new QPhotoRecordId(forProperty("photoRecordId"), inits.get("photoRecordId")) : null;
+        this.photoRecordId = inits.isInitialized("photoRecordId") ? new QPhotoRecordId(forProperty("photoRecordId")) : null;
     }
 
 }

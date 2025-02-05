@@ -13,16 +13,12 @@ import java.util.Random;
 @Getter
 @NoArgsConstructor
 public class AddDefaultSession {
-    public Session toEntity(User newUser) {
-        Random rand = new Random();
-        double lat = rand.nextDouble(35.88682728 - 35.77475029) + 35.77475029;
-        double lng = rand.nextDouble(128.6355584 - 128.4313995) +  128.4313995;
-
+    public Session toEntity(User newUser, double lat, double lng, String location) {
         return Session.builder().
                 user(newUser).
                 currentLat(lat).
                 currentLng(lng).
-                location("대구광역시 달성군 옥포읍").
+                location(location).
                 active(false).
                 build();
     }

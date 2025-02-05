@@ -10,7 +10,7 @@ import picto.com.generator.domain.user.entity.User;
 @Getter
 @Setter
 @Entity
-@Table(name = "TitleList", schema = "photo_schema", indexes = {
+@Table(name = "TitleList", schema = "picto_schema", indexes = {
         @Index(name = "name", columnList = "name"),
         @Index(name = "user_id", columnList = "user_id")
 })

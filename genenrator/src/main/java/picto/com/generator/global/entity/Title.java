@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "Title", schema = "photo_schema")
+@Table(name = "Title", schema = "picto_schema")
 public class Title {
     @Id
     @Column(name = "name", nullable = false, length = 20)

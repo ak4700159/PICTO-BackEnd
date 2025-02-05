@@ -10,7 +10,7 @@ import picto.com.generator.domain.user.entity.User;
 @Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "Session", schema = "photo_schema")
+@Table(name = "Session", schema = "picto_schema")
 public class Session {
     @Id
     @Column(name = "user_id", nullable = false)

@@ -22,13 +22,9 @@ public class QFilter extends EntityPathBase<Filter> {
 
     public static final QFilter filter = new QFilter("filter");
 
-    public final NumberPath<Long> endDateTime = createNumber("endDateTime", Long.class);
-
     public final StringPath period = createString("period");
 
     public final StringPath sort = createString("sort");
-
-    public final NumberPath<Long> startDateTime = createNumber("startDateTime", Long.class);
 
     public final picto.com.generator.domain.user.entity.QUser user;
 

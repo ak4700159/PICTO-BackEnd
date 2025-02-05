@@ -7,11 +7,14 @@ import picto.com.generator.domain.user.dao.UserRepository;
 import picto.com.generator.domain.user.entity.User;
 import picto.com.generator.domain.user.dto.MakeUserRequest;
 import picto.com.generator.global.dto.*;
+import picto.com.generator.global.dto.response.GetKakaoLocationInfoResponse;
 import picto.com.generator.global.entity.*;
 import picto.com.generator.global.repositories.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +24,9 @@ public class GeneratorUserService {
     private final TagSelectRepositroy tagSelectRepositroy;
     private final FilterRepository filterRepository;
     private final SessionRepository sessionRepository;
-    private final TokenRepository tokenRepository;
     private final UserSettingRepositroy userSettingRepositroy;
     private final int MAX_USERS = 500;
+    private final LocationService locationService;
 
     @Transactional
     public ArrayList<User> makeUserN(){
@@ -64,21 +67,20 @@ public class GeneratorUserService {
 
     @Transactional
     public void makeSessionN(ArrayList<User> users){
+        Random rand = new Random();
         for(int i = 0; i < users.size(); i++){
             User user = userRepository.getReferenceById(users.get(i).getUserId());
-            // 대구광역시 위도(latitude) 경도(longitude) 로 기본 설정
-            // 위도 : 35.77475029 ~ 35.88682728 , 경도 : 128.4313995 ~ 128.6355584
-            Session session = new AddDefaultSession().toEntity(user);
+            double lat = rand.nextDouble(35.88682728 - 35.77475029) + 35.77475029;
+            double lng = rand.nextDouble(128.6355584 - 128.4313995) +  128.4313995;
+            GetKakaoLocationInfoResponse kakaoResponse = locationService.searchLocation(lng, lat);
+            String location;
+            if(Objects.requireNonNull(kakaoResponse).getDocuments().isEmpty()) {
+                location = "좌표 식별 불가";
+            } else{
+                location = kakaoResponse.getDocuments().get(0).getAddress().getAddress_name();
+            }
+            Session session = new AddDefaultSession().toEntity(user, lat, lng, location);
             sessionRepository.save(session);
-        }
-    }
-
-    @Transactional
-    public void makeTokenN(ArrayList<User> users){
-        for(int i = 0; i < users.size(); i++){
-            User user = userRepository.getReferenceById(users.get(i).getUserId());
-            Token token = new AddDefaultToken().toEntity(user);
-            tokenRepository.save(token);
         }
     }
 

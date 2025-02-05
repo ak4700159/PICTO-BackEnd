@@ -16,5 +16,4 @@ public class WebSecurityConfig {
                 web.ignoring()
                         .requestMatchers("/generator/user/**"));
     }
-
 }

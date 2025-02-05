@@ -12,7 +12,7 @@ import picto.com.generator.domain.user.entity.User;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(schema = "photo_schema", name = "Photo")
+@Table(schema = "picto_schema", name = "Photo")
 public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -42,7 +42,6 @@ public class GeneratorUserController {
         ArrayList<User> users = generatorUserService.makeUserN();
         generatorUserService.makeFilterN(users);
         generatorUserService.makeUserSettingN(users);
-        generatorUserService.makeTokenN(users);
         generatorUserService.makeSessionN(users);
         generatorUserService.makeTagSelectN(users);
         return ResponseEntity.status(HttpStatus.CREATED).body(users);
