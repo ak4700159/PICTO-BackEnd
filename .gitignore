@@ -49,3 +49,5 @@ application-private.yml
 # 모델 파일 무시
 *.pth
 *.vhdx
+
+**/generated/**
