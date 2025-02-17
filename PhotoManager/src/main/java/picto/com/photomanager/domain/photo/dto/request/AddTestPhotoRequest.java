@@ -4,7 +4,6 @@ package picto.com.photomanager.domain.photo.dto.request;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import picto.com.photomanager.domain.photo.application.LocationService;
 import picto.com.photomanager.domain.photo.dto.response.GetKakaoLocationInfoResponse;
 import picto.com.photomanager.domain.photo.entity.Photo;
 import picto.com.photomanager.domain.user.entity.User;
@@ -30,12 +29,11 @@ public class AddTestPhotoRequest {
     private String title;
     private String tag;
 
-    public Map<String, Object> toRandomPhoto(Long userIdNum, Long photoIdNum, User user){
+    public Map<String, Object> toRandomPhoto(Long userIdNum, Long photoIdNum, User user, GetKakaoLocationInfoResponse kakaoResponse){
         Random random = new Random();
         Map<String, Object> result = new HashMap<>();
 
-        photoPath = "s3://picto-test-bucket/picto-photos/20210115_104549.jpg";
-        s3FileName = "s3 file name" + random.nextLong(5000) + ".jpg";
+        photoPath = "테스트";
 
         likes = random.nextInt(5000);
         if(likes > 0){
@@ -48,7 +46,6 @@ public class AddTestPhotoRequest {
         lat = random.nextDouble(35.88682728 - 35.77475029) + 35.77475029;
         lng = random.nextDouble(128.6355584 - 128.4313995) +  128.4313995;
         // 밑에 문장은 비용이 많이 들 것이다... --> static function 으로 변환
-        GetKakaoLocationInfoResponse kakaoResponse = LocationService.searchLocation(lng, lat);
         if(Objects.requireNonNull(kakaoResponse).getDocuments().isEmpty()) {
             location = "좌표 식별 불가";
         } else{
@@ -71,7 +68,7 @@ public class AddTestPhotoRequest {
         else if(new Random().nextInt(10)  % 3 == 1)
             tag = "강아지";
         else{
-            tag = "길고양이";
+            tag = "고양이";
         }
 
         Photo newPhoto = Photo
@@ -88,7 +85,6 @@ public class AddTestPhotoRequest {
                 .photoPath(photoPath)
                 .frameActive(frame_active)
                 .sharedActive(shared_active)
-                .s3FileName(s3FileName)
                 .build();
         result.put("photo", newPhoto);
         return result;

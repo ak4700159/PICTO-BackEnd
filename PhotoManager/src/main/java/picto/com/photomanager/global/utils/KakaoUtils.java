@@ -1,28 +1,30 @@
-package picto.com.photomanager.domain.photo.application;
+package picto.com.photomanager.global.utils;
 
-
-import com.amazonaws.services.kms.model.NotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import picto.com.photomanager.domain.photo.dto.response.GetKakaoLocationInfoResponse;
 
+@Component
+public class KakaoUtils {
+    @Value("${kakao.access}")
+    private String kakaoAccess;
 
-public class LocationService {
-    static public GetKakaoLocationInfoResponse searchLocation(double lng, double lat) {
+    public GetKakaoLocationInfoResponse convertLocationFromPos(double lng, double lat) {
         // 카카오 api로 직접 요청 처리
         // 헤더설정
         final RestTemplate restTemplate = new RestTemplate();
         String url = "https://dapi.kakao.com/v2/local/geo/coord2address.json?x=" + lng + "&y=" + lat;
-        String accessKey = "88ec86565e1e0ba7d7cf88440d7621e6";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "KakaoAK " + accessKey);
+        headers.set("Authorization", "KakaoAK " + kakaoAccess);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // 카카오 api 호출 좌표 -> 주소
+        // 카카오 api 호출 좌표 -> 주소 반환
         HttpEntity<String> entity = new HttpEntity<>(headers);
         GetKakaoLocationInfoResponse info;
         try {
@@ -30,7 +32,7 @@ public class LocationService {
                     .exchange(url, HttpMethod.GET, entity, GetKakaoLocationInfoResponse.class)
                     .getBody();
         }catch (HttpClientErrorException e){
-            throw new NotFoundException(e.getMessage());
+            throw new HttpClientErrorException(e.getStatusCode());
         }
         // 호출 완료
 

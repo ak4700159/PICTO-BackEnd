@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(schema = "photo_schema", name = "Photo")
+@Table(schema = "picto_schema", name = "Photo")
 public class Photo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,7 @@ public class Photo implements Serializable {
 
     // 복합키 안에 있는 외래키 명시
     @MapsId("userId")
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     // user 내용만 제외한 정보들만을 serialize하게 된다. -> json 오류 방지
@@ -37,9 +37,6 @@ public class Photo implements Serializable {
     // 사진 저장 경로
     @Column(name = "photo_path", nullable = true, length = 255)
     private String photoPath;
-
-    @Column(name = "s3_file_name", nullable = true, length = 255)
-    private String s3FileName;
 
     // 위도
     @Column(name = "lat", nullable = false)
@@ -84,7 +81,7 @@ public class Photo implements Serializable {
     @Builder
     public Photo(Long photoId,User user, String photoPath, double lat, double lng,
                  String location, Long registerDatetime, Long uploadDatetime, String tag,
-                 boolean frameActive, boolean sharedActive, int likes, int views, String s3FileName) {
+                 boolean frameActive, boolean sharedActive, int likes, int views) {
         this.photoId = photoId;
         this.userId = user.getUserId();
         this.user = user;
@@ -99,6 +96,5 @@ public class Photo implements Serializable {
         this.likes = likes;
         this.views = views;
         this.tag = tag;
-        this.s3FileName = s3FileName;
     }
 }

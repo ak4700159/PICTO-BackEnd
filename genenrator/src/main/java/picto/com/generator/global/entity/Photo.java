@@ -35,9 +35,6 @@ public class Photo {
     @Column(name = "photo_path", nullable = true, length = 255)
     private String photoPath;
 
-    @Column(name = "s3_file_name", nullable = true, length = 255)
-    private String s3FileName;
-
     // 위도
     @Column(name = "lat", nullable = false)
     private double lat;

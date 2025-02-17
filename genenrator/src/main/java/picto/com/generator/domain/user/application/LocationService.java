@@ -1,6 +1,7 @@
 package picto.com.generator.domain.user.application;
 
 import com.amazonaws.services.kms.model.NotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -12,12 +13,14 @@ import picto.com.generator.global.dto.response.GetKakaoLocationInfoResponse;
 
 @Component
 public class LocationService {
+    @Value("${kakao.access}")
+    private String accessKey;
+
     public GetKakaoLocationInfoResponse searchLocation(double lng, double lat) {
         // 카카오 api로 직접 요청 처리
         // 헤더설정
         final RestTemplate restTemplate = new RestTemplate();
         String url = "https://dapi.kakao.com/v2/local/geo/coord2address.json?x=" + lng + "&y=" + lat;
-        String accessKey = "88ec86565e1e0ba7d7cf88440d7621e6";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "KakaoAK " + accessKey);
         headers.setContentType(MediaType.APPLICATION_JSON);

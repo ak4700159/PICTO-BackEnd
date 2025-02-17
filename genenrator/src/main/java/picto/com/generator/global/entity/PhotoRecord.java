@@ -36,7 +36,7 @@ public class PhotoRecord {
     private Photo photo;
 
     @Column(name = "type", nullable = false)
-    private Byte type;
+    private String type;
 
     @Column(name = "event_datetime", nullable = false)
     private Long eventDatetime;

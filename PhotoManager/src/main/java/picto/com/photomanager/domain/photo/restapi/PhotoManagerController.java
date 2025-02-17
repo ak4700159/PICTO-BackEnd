@@ -34,7 +34,6 @@ public class PhotoManagerController {
         for(long i = 1; i <= MAX_USERS; i++){
             Folder newFolder = photoManagerTestService.createTestFolder(i);
             for(long j = 1; j <= MAX_PHOTOS; j++){
-                // 폴더를 생성하고 생성자를 공유한다.(매핑)
                 // i = userId
                 photoManagerTestService.createTestShare(newFolder.getGeneratorId());
 
@@ -42,7 +41,7 @@ public class PhotoManagerController {
                 Map<String, Object> result = photoManagerTestService.createTestPhoto(i, photoCount);
                 GetKakaoLocationInfoResponse info = (GetKakaoLocationInfoResponse)result.get("kakaoResponse");
 
-                // 생성된 사진 활용
+                // 생성된 사진 저장, 지역정보 주입
                 Photo newPhoto = (Photo)result.get("photo");
                 photoManagerTestService.createTestLocationInfo(newPhoto.getUserId(), newPhoto.getPhotoId(), info);
                 photoManagerTestService.createTestSave(newPhoto.getUserId(), newFolder.getFolderId(), newPhoto);
@@ -52,7 +51,6 @@ public class PhotoManagerController {
         }
         return ResponseEntity.ok("good");
     }
-
 
     // 특정 사진 조회 + 유저 포함
     @GetMapping("/photo-manager/photos")

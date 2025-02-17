@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PhotoManagerService {
     private final PhotoRepository photoRepository;
     private final FilterRepository filterRepository;
@@ -44,13 +45,12 @@ public class PhotoManagerService {
     private final UserRepository userRepository;
     private final PhotoRecordRepository photoRecordRepository;
     private final MarkRepository markRepository;
+    private final DateUtils dateUtils;
 
     // 특정 아이디에 대한 사진 조회
-    @Transactional
     public List<GetPhotoResponse> findSpecifiedPhotos(GetSpecifiedPhotoRequest request) throws IllegalAccessException, Exception {
         String type = request.getEventType();
         Long typeId= request.getEventTypeId();
-        Long senderId = request.getSenderId();
         List<Photo> photos;
 
         // Step01. 사용자인지 사진인지
@@ -75,13 +75,11 @@ public class PhotoManagerService {
     }
 
     // 전체 사진 조회
-    @Transactional
     public List<GetPhotoResponse> findAllPhotos(){
         return photoRepository.findAll().stream().map(GetPhotoResponse::new).toList();
     }
 
     // 주변 사진 조회
-    @Transactional
     public List<GetPhotoResponse> findAroundPhotos(GetAroundPhotoRequest request) throws Exception {
         Long typeId= request.getSenderId();
         List<Photo> photos;
@@ -104,29 +102,23 @@ public class PhotoManagerService {
             default: throw new Exception("식별할 수 없는 sort");
         }
 
-        //02-2 start_time 으로부터 period = 하루/일주일/한달/일년/사용자지정/ALL
+        //02-2 start_time 으로부터 period = 하루/일주일/한달/일년/ALL
         String period = userFilter.getPeriod();
         System.out.println("period : " + period);
         long startDatetime = System.currentTimeMillis();
         long endDatetime;
-        if(period.equals("사용자지정")){
-            endDatetime = userFilter.getEndDateTime();
-        }
-        else{
-            endDatetime = DateUtils.getTimeAgo(startDatetime, period);
-        }
+        endDatetime = dateUtils.getTimeAgo(startDatetime, period);
 
         Date startDate = new Date(startDatetime);
         Date endDate = new Date(endDatetime);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        // sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대 설정
         sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // UTC 기준
 
         System.out.println("startDatetime : " + sdf.format(startDate));
         System.out.println("endDatetime : " + sdf.format(endDate));
         photos = photos
                 .stream()
-                .filter((photo)-> (photo.getUploadDatetime() <= startDatetime && photo.getUploadDatetime() >= endDatetime))
+                .filter((photo)-> (photo.getUploadDatetime() >= startDatetime && photo.getUploadDatetime() <= endDatetime))
                 .toList();
         System.out.println("STEP 02 size[유저 설정 시간, 정렬에 맞는 사진 조회] : " + photos.size());
 
@@ -165,7 +157,6 @@ public class PhotoManagerService {
     }
 
     // 지역 대표 사진 조회
-    @Transactional
     public List<GetPhotoResponse> findRepresentativePhotos(GetRepresentativePhotoRequest request) throws IllegalAccessException, Exception {
         List<Photo> photos;
         List<GetPhotoResponse> result;
@@ -219,7 +210,6 @@ public class PhotoManagerService {
                 .toList();
         System.out.println("STEP 02 size[사용자가 차단한 사용자 필터링] : " + photos.size());
 
-
         // STEP 03. 태그에 맞게 조회
         List<String> tags = new ArrayList<>();
         for (TagSelect userTagSelect : userTagSelects) {
@@ -231,30 +221,22 @@ public class PhotoManagerService {
                 .toList();
         System.out.println("STEP 03 size[사용자 태그에 맞는 사진 조회] : " + photos.size());
 
-
         // STEP 04. 필터에 맞게 조회
         String period = userFilter.getPeriod();
         System.out.println("period : " + period);
-        long startDatetime = System.currentTimeMillis();
-        long endDatetime;
-        if(period.equals("사용자지정")){
-            endDatetime = userFilter.getEndDateTime();
-        }
-        else{
-            endDatetime = DateUtils.getTimeAgo(startDatetime, period);
-        }
-
-        Date startDate = new Date(startDatetime);
+        long endDatetime = System.currentTimeMillis();
+        long startDatetime;
+        startDatetime = dateUtils.getTimeAgo(endDatetime, period);
         Date endDate = new Date(endDatetime);
+        Date startDate = new Date(startDatetime);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        // sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대 설정
         sdf.setTimeZone(TimeZone.getTimeZone("UTC")); // UTC 기준
 
         System.out.println("startDatetime : " + sdf.format(startDate));
         System.out.println("endDatetime : " + sdf.format(endDate));
         photos = photos
                 .stream()
-                .filter((photo)-> (photo.getUploadDatetime() <= startDatetime && photo.getUploadDatetime() >= endDatetime))
+                .filter((photo)-> (photo.getUploadDatetime() >= startDatetime && photo.getUploadDatetime() <= endDatetime))
                 .toList();
         System.out.println("STEP 04 size[사용자 설정 시간에 맞게 조회] : " + photos.size());
 
@@ -269,7 +251,6 @@ public class PhotoManagerService {
 
 
     // 사용자가 사진에 좋아요를 누른 경우
-    @Transactional
     public void ClickLike(Long photoId, Long userId){
         User user = userRepository.findById(userId).orElseThrow();
         Photo photo = photoRepository.findById(photoId).orElseThrow();
@@ -288,7 +269,6 @@ public class PhotoManagerService {
     }
 
     // 사용자가 사진에 좋아요를 해제한 경우
-    @Transactional
     public void UnClickLike(Long photoId, Long userId){
         Photo photo = photoRepository.findById(photoId).orElseThrow();
         photo.setLikes(photo.getLikes() - 1);
@@ -298,7 +278,6 @@ public class PhotoManagerService {
         photoRecordRepository.delete(record);
     }
 
-    @Transactional
     public void viewPhoto(Long photoId, Long userId){
         User user = userRepository.findById(userId).orElseThrow();
         Photo photo = photoRepository.findById(photoId).orElseThrow();
@@ -316,8 +295,9 @@ public class PhotoManagerService {
         photoRecordRepository.save(record);
     }
 
-    // 묶을 수 있느 기능 묶기
-    public void filterPhotos(List<Photo> photos, Long userId){
+    // 사용자가 선택한 기간
+    public List<Photo> adaptPeriod(List<Photo> photos, Filter filter){
 
+        return photos;
     }
 }

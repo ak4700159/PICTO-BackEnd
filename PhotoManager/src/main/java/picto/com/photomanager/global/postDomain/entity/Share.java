@@ -29,6 +29,16 @@ public class Share {
     @Column(name = "shared_datetime", nullable = false)
     private Long sharedDatetime;
 
+    @Override
+    public String toString() {
+        return "Share [" +
+                "id=" + id +
+                ", user=" + user +
+                ", folder=" + folder +
+                ", sharedDatetime=" + sharedDatetime +
+                ']';
+    }
+
     @Builder
     public Share(User user, Folder folder, Long sharedDatetime, ShareId id) {
         this.id = id;

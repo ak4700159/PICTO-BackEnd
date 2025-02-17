@@ -14,6 +14,14 @@ public class ShareId {
     private Long userId;
     private Long folderId;
 
+    @Override
+    public String toString() {
+        return "ShareId [" +
+                "userId=" + userId +
+                ", folderId=" + folderId +
+                ']';
+    }
+
     public ShareId(Long userId, Long folderId) {
         this.userId = userId;
         this.folderId = folderId;

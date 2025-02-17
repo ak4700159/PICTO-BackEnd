@@ -36,20 +36,8 @@ dependencies {
     // 보안
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // aws 클라우드 서비스
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-
-    // 웹관련
-    //implementation 'org.springframework.boot:spring-boot-starter-web'
-    //implementation 'org.springframework.boot:spring-boot-starter-web-services'
-
-    // 웹소켓 열때 사용
-    // implementation 'org.springframework.boot:spring-boot-starter-websocket'
-    // implementation 'org.springframework.session:spring-session-jdbc'
-
-
     compileOnly 'org.projectlombok:lombok'
-    // runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+
     // mysql 연결
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'

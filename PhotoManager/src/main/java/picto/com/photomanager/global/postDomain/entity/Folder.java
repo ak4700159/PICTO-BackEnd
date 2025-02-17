@@ -37,6 +37,11 @@ public class Folder {
     @Column(name = "link", nullable = false, length = 30)
     private String link;
 
+    @Override
+    public String toString() {
+        return "Folder [folderId=" + folderId + ", generatorId=" + generatorId + ", user=" + content + ", name=" + name + "]";
+    }
+
     @Builder
     public Folder(Long folderId, Long generatorId, String name, Long createdDatetime, String content, String link, User user) {
         this.folderId = folderId;
