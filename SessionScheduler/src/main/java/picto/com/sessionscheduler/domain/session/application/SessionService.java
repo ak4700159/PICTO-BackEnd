@@ -2,7 +2,6 @@ package picto.com.sessionscheduler.domain.session.application;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.bridge.IMessage;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import picto.com.sessionscheduler.config.GeoDistance;
@@ -10,12 +9,12 @@ import picto.com.sessionscheduler.domain.session.dao.*;
 import picto.com.sessionscheduler.domain.session.dto.GetKakaoLocationInfoResponse;
 import picto.com.sessionscheduler.domain.session.dto.Message;
 import picto.com.sessionscheduler.domain.session.entity.*;
+import picto.com.sessionscheduler.utils.KakaoUtils;
 
 import java.util.*;
 
 // 클라이언트는 자신이 보낸 메시지를 필터해야된다. -> 기능적인 이슈
 // 단수 복수 꼭 확인할 것
-
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +25,7 @@ public class SessionService {
     private final SessionRepository sessionRepository;
     private final TagSelectRepository tagSelectRepository;
     private final PhotoRepository photoRepository;
+    private final KakaoUtils kakaoUtils;
 
     // 세션 연결 -> 어플리케이션 접속
     public void enterSession(Long sessionId) {
@@ -88,7 +88,7 @@ public class SessionService {
 
             // 지역명 업데이트
             String updateLocation;
-            GetKakaoLocationInfoResponse kakaoResponse = LocationService.searchLocation(lng, lat);
+            GetKakaoLocationInfoResponse kakaoResponse = kakaoUtils.convertLocationFromPos(lng, lat);
             if(Objects.requireNonNull(kakaoResponse).getDocuments().isEmpty()) {
                 updateLocation = "좌표 식별 불가";
             } else{

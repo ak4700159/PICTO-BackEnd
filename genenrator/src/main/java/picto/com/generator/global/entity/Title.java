@@ -12,8 +12,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "Title", schema = "picto_schema")
 public class Title {
-    @Id
-    @Column(name = "name", nullable = false, length = 20)
+    @Id @Column(name = "name", nullable = false, length = 20)
     private String name;
 
     @Column(name = "content", nullable = false, length = 40)
