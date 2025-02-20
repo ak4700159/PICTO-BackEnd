@@ -40,32 +40,36 @@ class ChatClient {
 
     // 연결 설정
     connect() {
-        const socket = new SockJS('http://52.79.109.62:8085/session-scheduler');
+        const socket = new SockJS('http://localhost:8084/session-scheduler');
         this.stompClient = Stomp.over(socket);
 
         // 디버그 메시지 비활성화
         this.stompClient.debug = null;
 
-        this.stompClient.connect({}, (frame) => {
+        this.stompClient.connect({
+            "User-Id" : senderId
+        }, (frame) => {
             console.log('Connected: ' + frame);
             
             // 채팅방 구독
             this.subscribeToChatRoom(); // 테스트용 폴더 ID
             // 세션 연결
-            this.stompClient.send(
-                "/send/session/enter",
-                {},
-                JSON.stringify({
-                    senderId: senderId,
-                    messageType: 'ENTER',
-                })
-            );
+            // this.stompClient.send(
+            //     "/send/session/enter",
+            //     {},
+            //     JSON.stringify({
+            //         senderId: senderId,
+            //         messageType: 'ENTER',
+            //     })
+            // );
             
             // 연결 성공 후 터미널로 실시간 채팅
             inputMsg()
 
         }, (error) => {
             console.error('STOMP connection error : ', error);
+            this.disconnect()
+            exit(1)
         });
     }
 
@@ -98,17 +102,23 @@ class ChatClient {
 
     // 연결 종료
     disconnect() {
-        if (this.stompClient) {
-            this.stompClient.send(
-                "/send/session/exit",
-                {},
-                JSON.stringify({
-                    senderId: senderId,
-                    messageType: 'EXIT',
-                })
-            );            this.stompClient.disconnect();
-            console.log('Disconnected');
-        }
+        console.log('Disconnected');
+        this.stompClient.disconnect({
+            "User-Id" : senderId
+        }, ()=>{
+
+        })
+        // if (this.stompClient) {
+        //     this.stompClient.send(
+        //         "/send/session/exit",
+        //         {},
+        //         JSON.stringify({
+        //             senderId: senderId,
+        //             messageType: 'EXIT',
+        //         })
+        //     );            this.stompClient.disconnect();
+        //     console.log('Disconnected');
+        // }
     }
 }
 

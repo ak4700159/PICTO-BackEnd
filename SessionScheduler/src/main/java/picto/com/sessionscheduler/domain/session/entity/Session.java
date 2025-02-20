@@ -10,7 +10,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "Session", schema = "photo_schema")
+@Table
 public class Session {
     @Id
     @Column(name = "user_id", nullable = false)
@@ -31,15 +31,11 @@ public class Session {
     @Column(name = "location", length = 50)
     private String location;
 
-    @Column(name = "active")
-    private Boolean active;
-
     @Builder
-    public Session(User user, Double currentLat, Double currentLng, String location, Boolean active) {
+    public Session(User user, Double currentLat, Double currentLng, String location) {
         this.user = user;
         this.currentLat = currentLat;
         this.currentLng = currentLng;
         this.location = location;
-        this.active = active;
     }
 }

@@ -13,7 +13,7 @@ import java.util.Date;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "ChattingMsg", schema = "photo_schema")
+@Table(name = "ChattingMsg", schema = "picto_schema")
 public class ChattingMsg {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

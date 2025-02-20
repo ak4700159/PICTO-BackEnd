@@ -1,17 +1,19 @@
 package picto.com.sessionscheduler.domain.session.entity;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.domain.Persistable;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "User", schema = "photo_schema")
+@Table(name = "User", schema = "picto_schema")
 public class User{
     @Id
     @Column(name = "user_id", updatable = false)

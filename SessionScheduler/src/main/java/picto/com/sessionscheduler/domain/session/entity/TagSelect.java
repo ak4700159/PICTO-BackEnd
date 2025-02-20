@@ -11,7 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "TagSelect", schema = "photo_schema", indexes = {
+@Table(name = "TagSelect", schema = "picto_schema", indexes = {
         @Index(name = "user_id", columnList = "user_id")
 })
 public class TagSelect {

@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
-import picto.com.sessionscheduler.config.GeoDistance;
+import picto.com.sessionscheduler.utils.GeoDistance;
 import picto.com.sessionscheduler.domain.session.dao.*;
 import picto.com.sessionscheduler.domain.session.dto.GetKakaoLocationInfoResponse;
 import picto.com.sessionscheduler.domain.session.dto.Message;
@@ -27,48 +27,6 @@ public class SessionService {
     private final PhotoRepository photoRepository;
     private final KakaoUtils kakaoUtils;
 
-    // 세션 연결 -> 어플리케이션 접속
-    public void enterSession(Long sessionId) {
-        // 중복 여부 확인
-        Message errMsg;
-        if(sessions.contains(sessionId)) {
-            errMsg = Message.errorMessage(Message.MessageType.DUPLICATED_SESSION);
-            messagingTemplate.convertAndSend("/sessions/" + sessionId, errMsg);
-            return;
-        }
-
-        // 존재하는 사용자인지 확인
-        if(!sessionRepository.existsById(sessionId)) {
-            errMsg = Message.errorMessage(Message.MessageType.NOT_FOUND_USER);
-            messagingTemplate.convertAndSend("/sessions/" + sessionId, errMsg);
-            return;
-        }
-        sessions.add(sessionId);
-        System.out.print("[total] ");
-        for(Long session : sessions){
-            System.out.printf("%d ", session);
-        }
-        System.out.println();
-    }
-
-    // 세션 삭제 -> 어플리케이션 종료
-    public void leaveSession(Long sessionId) {
-        // 세션 확인
-        Message errMsg;
-        if(!sessions.contains(sessionId)) {
-            errMsg = Message.errorMessage(Message.MessageType.NO_EXIST_SESSION);
-            messagingTemplate.convertAndSend("/session/" + sessionId, errMsg);
-            return;
-        }
-
-        // 존재하는 사용자인지 확인
-        if(!sessionRepository.existsById(sessionId)) {
-            errMsg = Message.errorMessage(Message.MessageType.NOT_FOUND_USER);
-            messagingTemplate.convertAndSend("/session/" + sessionId, errMsg);
-            return;
-        }
-        sessions.remove(sessionId);
-    }
 
     // 접속 중인 사용자의 실시간 위치 정보 업데이트
     // 트랜섹션 어노테이션을 통해서 영속성 계층 생성 could not initialize proxy ~ session 에러 해결

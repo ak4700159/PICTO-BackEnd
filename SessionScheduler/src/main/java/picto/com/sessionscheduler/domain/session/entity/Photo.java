@@ -1,6 +1,5 @@
 package picto.com.sessionscheduler.domain.session.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -13,7 +12,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(schema = "photo_schema", name = "Photo")
+@Table
 public class Photo implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,11 +31,8 @@ public class Photo implements Serializable {
     private User user;
 
     // 사진 저장 경로
-    @Column(name = "photo_path", nullable = true, length = 255)
+    @Column(name = "photo_path", length = 255)
     private String photoPath;
-
-    @Column(name = "s3_file_name", nullable = true, length = 255)
-    private String s3FileName;
 
     // 위도
     @Column(name = "lat", nullable = false)
@@ -81,7 +77,7 @@ public class Photo implements Serializable {
     @Builder
     public Photo(Long photoId,User user, String photoPath, double lat, double lng,
                  String location, Long registerDatetime, Long uploadDatetime, String tag,
-                 boolean frameActive, boolean sharedActive, int likes, int views, String s3FileName) {
+                 boolean frameActive, boolean sharedActive, int likes, int views) {
         this.photoId = photoId;
         this.userId = user.getUserId();
         this.user = user;
@@ -96,6 +92,5 @@ public class Photo implements Serializable {
         this.likes = likes;
         this.views = views;
         this.tag = tag;
-        this.s3FileName = s3FileName;
     }
 }

@@ -1,4 +1,4 @@
-package picto.com.sessionscheduler.config;
+package picto.com.sessionscheduler.utils;
 
 public class GeoDistance {
     // 지구의 반지름 (단위: km)
