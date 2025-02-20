@@ -1,9 +1,12 @@
 package picto.com.photomanager.global.utils;
 
+import org.springframework.stereotype.Component;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 
+@Component
 public class DateUtils {
 
     /**

@@ -59,7 +59,7 @@ public class AddTestPhotoRequest {
         // 프레임 여부는 비활성화
         // 공유 여부는 photoId가 3의 배수일때 true
         frame_active = false;
-        shared_active = (new Random().nextInt(10) % 2 == 0);
+        shared_active = (new Random().nextInt() % 2 == 0);
 
         title = userIdNum + "'s photo title";
         updateDatetime = System.currentTimeMillis();
