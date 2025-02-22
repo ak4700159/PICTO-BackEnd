@@ -15,8 +15,10 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import picto.com.sessionscheduler.domain.session.application.SessionService;
 import picto.com.sessionscheduler.domain.session.application.UserSessionRegistry;
 import picto.com.sessionscheduler.domain.session.dto.Message;
+import picto.com.sessionscheduler.domain.session.dto.SessionInfo;
 
 import java.util.Map;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Controller
@@ -32,8 +34,11 @@ public class SessionController {
         GenericMessage headerMsg = (GenericMessage)headerAccessor.getHeader("simpConnectMessage");
         Map<String, Long> headers = (Map<String, Long>)headerMsg.getHeaders().get("nativeHeaders");
         Long userId = headers.get("userId");
+        String sessionId = headerAccessor.getSessionId();
+        SessionInfo info = new SessionInfo(sessionId, userId, headerAccessor.getTimestamp());
+
         if (userId != null) {
-            registry.addUser(userId);
+            registry.addUser(info);
             System.out.printf("[INFO] %d USER enter", userId);
         }
     }
@@ -42,10 +47,10 @@ public class SessionController {
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        System.out.println(headerAccessor);
+        String sessionId = Objects.requireNonNull(headerAccessor.getSessionId());
 
-//        registry.removeUser(userId);
-//        System.out.printf("[INFO] %d USER leave", userId);
+        registry.removeUser(sessionId);
+        System.out.printf("[INFO] %s USER leave\n", sessionId);
     }
 
     @MessageMapping("/session/location")
