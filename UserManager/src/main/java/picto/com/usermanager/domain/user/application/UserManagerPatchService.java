@@ -110,8 +110,6 @@ public class UserManagerPatchService {
             Filter filter = filterRepository.getReferenceById(request.getUserId());
             filter.setSort(request.getSort());
             filter.setPeriod(request.getPeriod());
-            filter.setEndDateTime(request.getEndDatetime());
-            filter.setStartDateTime(request.getStartDatetime());
             filterRepository.save(filter);
         }catch (Exception e){
             throw new IllegalAccessException(e.getMessage());

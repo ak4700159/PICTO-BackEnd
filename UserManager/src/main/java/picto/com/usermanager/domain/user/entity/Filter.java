@@ -13,7 +13,7 @@ import java.util.Date;
 @Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "Filter", schema = "photo_schema")
+@Table(name = "Filter", schema = "picto_schema")
 public class Filter {
     // user_id 는 생성자에 포함 X 왜냐하면 User 객체에서 식별하기 때문
     @Id
@@ -35,19 +35,11 @@ public class Filter {
     @Column(name = "period", nullable = false, length = 10)
     private String period;
 
-    @Column(name = "start_datetime")
-    private Long startDateTime;
-
-    @Column(name = "end_datetime", nullable = true)
-    private Long endDateTime;
-
     @Builder
-    public Filter(String sort, String period, Long startDateTime, Long endDateTime ,User user) {
+    public Filter(String sort, String period ,User user) {
         this.user = user;
         this.sort = sort;
         this.period = period;
-        this.startDateTime = startDateTime;
-        this.endDateTime = endDateTime;
     }
 
     // 처음 생성시 "좋아요순" "한 달"
@@ -56,8 +48,6 @@ public class Filter {
                 user(newUser).
                 sort("좋아요순").
                 period("한달").
-                startDateTime(new Date().getTime()).
-                endDateTime(new Date().getTime()).
                 build();
     }
 }

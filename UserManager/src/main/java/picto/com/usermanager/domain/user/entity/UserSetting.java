@@ -9,7 +9,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "UserSetting", schema = "photo_schema")
+@Table(name = "UserSetting", schema = "picto_schema")
 public class UserSetting {
     @Id
     @Column(name = "user_id", nullable = false)

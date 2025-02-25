@@ -1,41 +1,43 @@
 package picto.com.usermanager.global;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
-import picto.com.usermanager.domain.user.dao.TokenRepository;
-import picto.com.usermanager.domain.user.dao.UserRepository;
-import picto.com.usermanager.domain.user.entity.Token;
-import picto.com.usermanager.domain.user.entity.User;
 import picto.com.usermanager.global.utils.JwtUtilImpl;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthInterceptor implements HandlerInterceptor {
-    private final JwtUtilImpl jwtUtil;
-    private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
-    private String HEAD_TOKEN_KEY =  "Access-Token";
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        User user = userRepository.findById(Long.parseLong(request.getHeader("User-Id")))
-                .orElseThrow(()->new IllegalArgumentException("User Not Found"));
-        Token findToken = tokenRepository.findById(user.getId())
-                .orElseThrow(()->new IllegalArgumentException("Token Not Found"));
-        String token = request.getHeader(HEAD_TOKEN_KEY);
-        verifyToken(token, findToken.getAccessToken());
-        System.out.println(user.getUserId() + "사용자에 대한 토큰 유효성 검사 통과");
-        return true;
-    }
+        JwtUtilImpl jwtUtil = new JwtUtilImpl();
+        try{
+            String accessToken = request.getHeader("Access-Token");
+            String refreshToken = request.getHeader("Refresh-Token");
+            String userId = request.getHeader("user-Id");
 
-    public void verifyToken(String token, String accessToken) {
-        if(!token.equals(accessToken)) {
-            throw new IllegalArgumentException("Invalid token");
+            jwtUtil.setUserId(Long.parseLong(userId));
+            try {
+                // access token이 아니면 refresh token 접근
+                if(accessToken != null) {
+                    jwtUtil.setAccess(true);
+                    jwtUtil.verifyToken(accessToken);
+                } else {
+                    jwtUtil.setAccess(false);
+                    jwtUtil.verifyToken(refreshToken);
+                }
+            } catch(JWTVerificationException | JwtException e) {
+                System.out.println(e.getMessage());
+            }
+        } catch (NullPointerException e) {
+            System.out.println(e.getMessage());
         }
-        jwtUtil.verifyToken(token);
+        return true;
     }
 
 }

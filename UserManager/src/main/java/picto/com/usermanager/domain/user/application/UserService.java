@@ -1,26 +1,29 @@
 package picto.com.usermanager.domain.user.application;
 
 import jakarta.transaction.Transactional;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import picto.com.usermanager.domain.user.dao.*;
 import picto.com.usermanager.domain.user.dto.request.SignInRequest;
 import picto.com.usermanager.domain.user.dto.request.SignUpRequest;
+import picto.com.usermanager.domain.user.dto.response.GetKakaoLocationInfoResponse;
 import picto.com.usermanager.domain.user.dto.response.SignInResponse;
 import picto.com.usermanager.domain.user.entity.*;
 import picto.com.usermanager.global.utils.JwtUtilImpl;
+import picto.com.usermanager.global.utils.KakaoUtils;
 
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
-    private final JwtUtilImpl jwtUtil;
+    private final KakaoUtils kakaoUtils;
 
     // 기본 세팅을 위한 레파지토리
+    private final UserRepository userRepository;
     private final FilterRepository filterRepository;
     private final UserSettingRepositroy userSettingRepository;
     private final TagSelectRepositroy tagSelectRepositroy;
@@ -34,8 +37,19 @@ public class UserService {
         Filter defualFilter = Filter.toEntity(referUser);
         UserSetting defaultSetting = UserSetting.toEntity(referUser);
         TagSelect defaultTag = TagSelect.toEntity(referUser, "돼지");
-        Session defaultSession = Session.toEntity(referUser, signUpRequest.getLat(), signUpRequest.getLng());
 
+        double lat = signUpRequest.getLat();
+        double lng = signUpRequest.getLng();
+        String location = "";
+        GetKakaoLocationInfoResponse response = kakaoUtils.convertLocationFromPos(lat, lng);
+        if(Objects.requireNonNull(response).getDocuments().isEmpty()) {
+            location = "좌표 식별 불가";
+        } else{
+            location = response.getDocuments().get(0).getAddress().getAddress_name();
+        }
+        Session defaultSession = Session.toEntity(referUser, lat, lng, location);
+
+        JwtUtilImpl jwtUtil = new JwtUtilImpl();
         String accessToken = jwtUtil.createToken();
         System.out.println(accessToken.length());
         try{
@@ -43,12 +57,6 @@ public class UserService {
             userSettingRepository.save(defaultSetting);
             tagSelectRepositroy.save(defaultTag);
             sessionRepository.save(defaultSession);
-            tokenRepository.save(Token
-                    .builder()
-                    .accessToken(accessToken)
-                    .refreshToken("")
-                    .user(referUser)
-                    .build());
         }catch (IllegalArgumentException e){
             System.out.println("Default Setting Error");
             throw new IllegalAccessException();
@@ -87,31 +95,20 @@ public class UserService {
         return newUser;
     }
 
-
     @Transactional
     public SignInResponse signIn(SignInRequest signInRequest) throws IllegalAccessException {
+        // 존재하는 사용자인지 검증
         User findUser = userRepository.getUserByEmail(signInRequest.getEmail());
-        Token userToken;
         if (findUser == null) {
             throw new IllegalAccessException("NotFoundUser");
         }
 
+        // 비밀번호 매치
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(signInRequest.getPassword(), findUser.getPassword())) {
             throw new IllegalAccessException("NotMatchingPassword");
         }
-        userToken = tokenRepository.getReferenceById(Objects.requireNonNull(findUser.getId()));
-        try {
-            jwtUtil.verifyToken(userToken.getAccessToken());
-        } catch (Exception e) {
-            System.out.println("InvalidToken");
-            String newToken = jwtUtil.createToken();
-           userToken.setAccessToken(newToken);
-           tokenRepository.save(userToken);
-        }
-
-        // 토큰 발행
-        return new SignInResponse(userToken.getAccessToken(), userToken.getUserId());
+        return new SignInResponse("", findUser.getUserId());
     }
 
     @Transactional

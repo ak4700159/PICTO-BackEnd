@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(schema = "photo_schema", name = "Photo")
+@Table(schema = "picto_schema", name = "Photo")
 public class Photo implements Serializable {
     @EmbeddedId
     private PhotoId id;
@@ -30,10 +30,6 @@ public class Photo implements Serializable {
     // 사진 저장 경로
     @Column(name = "photo_path", nullable = true, length = 255)
     private String photoPath;
-
-    //
-    @Column(name = "s3_file_name", nullable = true, length = 255)
-    private String s3FileName;
 
     // 위도
     @Column(name = "lat", nullable = false)
@@ -78,7 +74,7 @@ public class Photo implements Serializable {
     @Builder
     public Photo(User user, PhotoId photoId, String photoPath, double lat, double lng,
                  String location, Long registerDatetime, Long uploadDatetime, String tag,
-                 boolean frameActive, boolean sharedActive, int likes, int views, String s3FileName) {
+                 boolean frameActive, boolean sharedActive, int likes, int views) {
         this.user = user;
         this.photoPath = photoPath;
         this.lat = lat;
@@ -92,7 +88,6 @@ public class Photo implements Serializable {
         this.views = views;
         this.id = photoId;
         this.tag = tag;
-        this.s3FileName = s3FileName;
     }
 
     @Override

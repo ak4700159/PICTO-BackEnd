@@ -17,7 +17,5 @@ public class GetFilter {
     public GetFilter(Filter filter){
         this.sort = filter.getSort();
         this.period = filter.getPeriod();
-        this.startDatetime = filter.getStartDateTime();
-        this.endDatetime = filter.getEndDateTime();
     }
 }

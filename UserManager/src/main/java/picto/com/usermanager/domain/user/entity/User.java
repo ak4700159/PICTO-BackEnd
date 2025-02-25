@@ -8,7 +8,7 @@ import org.springframework.data.domain.Persistable;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "User", schema = "photo_schema")
+@Table(name = "User", schema = "picto_schema")
 public class User implements Persistable<Long> {
     @Id
     @Column(name = "user_id", updatable = false)
