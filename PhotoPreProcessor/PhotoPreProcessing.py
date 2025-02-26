@@ -9,7 +9,7 @@ import mimetypes
 from person_detector import PersonDetector
 from nsfw_detector import NSFWDetector
 from text_detector import TextDetector
-from get_tag import tagging
+# from get_tag import tagging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
