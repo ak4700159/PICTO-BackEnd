@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
+import picto.com.sessionscheduler.domain.session.dto.SessionInfo;
 import picto.com.sessionscheduler.utils.GeoDistance;
 import picto.com.sessionscheduler.domain.session.dao.*;
 import picto.com.sessionscheduler.domain.session.dto.GetKakaoLocationInfoResponse;
@@ -12,6 +13,7 @@ import picto.com.sessionscheduler.domain.session.entity.*;
 import picto.com.sessionscheduler.utils.KakaoUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 // 클라이언트는 자신이 보낸 메시지를 필터해야된다. -> 기능적인 이슈
 // 단수 복수 꼭 확인할 것
@@ -20,7 +22,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SessionService {
     // List elements = sessionId = userId
-    private final Set<Long> sessions = new HashSet<Long>();
     private final SimpMessageSendingOperations messagingTemplate;
     private final SessionRepository sessionRepository;
     private final TagSelectRepository tagSelectRepository;
@@ -64,7 +65,7 @@ public class SessionService {
     // 해당 함수가 호출되었다는 것은 [photo-preprocessing -> photo-manager] 에서 정상적으로 디비에 사진을 저장했음을 의미.
     // 해당 사진 중심으로 반경 5km 이내의 접속 중인 사용자들을 탐색.
     @Transactional
-    public void sharedPhoto(Message message) {
+    public void sharedPhoto(Message message, UserSessionRegistry registry) {
         Long photoId = message.getPhotoId();
         Photo photo = photoRepository.getReferenceById(photoId);
         double photoLng = message.getLng();
@@ -73,6 +74,11 @@ public class SessionService {
         // 해당 사진 중심으로 반경 5km 이내의 접속 중인 사용자들을 탐색.
         if(message.getMessageType() == Message.MessageType.SHARE){
             // 현재 접속 중인 유저들에 대한 Session을 한꺼번에 조회
+            Set<Long> sessions = registry
+                    .getActiveUsers()
+                    .stream()
+                    .map(SessionInfo::getUserId)
+                    .collect(Collectors.toSet());
             List<Session> dbSessions = sessionRepository.findAllById(sessions);
             for(Session dbSession : dbSessions){
                 if(dbSession == null){

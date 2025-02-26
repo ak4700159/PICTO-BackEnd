@@ -17,6 +17,7 @@ import picto.com.sessionscheduler.domain.session.application.UserSessionRegistry
 import picto.com.sessionscheduler.domain.session.dto.Message;
 import picto.com.sessionscheduler.domain.session.dto.SessionInfo;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
@@ -29,18 +30,17 @@ public class SessionController {
     // 사용자가 웹소켓에 연결될 때 실행됨
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        // 사용자 식별키 헤더에서 추출
+        // 사용자 식별키를 헤더에서 추출
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         GenericMessage headerMsg = (GenericMessage)headerAccessor.getHeader("simpConnectMessage");
-        Map<String, Long> headers = (Map<String, Long>)headerMsg.getHeaders().get("nativeHeaders");
-        Long userId = headers.get("userId");
+        Map<String, Object> headers = (Map<String, Object>)headerMsg.getHeaders().get("nativeHeaders");
+        ArrayList<String> nativeHeaders = (ArrayList<String>) headers.get("User-Id");
+        Long userId = Long.parseLong(nativeHeaders.get(0));
         String sessionId = headerAccessor.getSessionId();
         SessionInfo info = new SessionInfo(sessionId, userId, headerAccessor.getTimestamp());
 
-        if (userId != null) {
-            registry.addUser(info);
-            System.out.printf("[INFO] %d USER enter", userId);
-        }
+        registry.addUser(info);
+        System.out.printf("[INFO] %d USER enter\n", userId);
     }
 
     // 사용자가 웹소켓에서 나갈 때 실행됨
@@ -66,9 +66,10 @@ public class SessionController {
     @PostMapping("/session-scheduler/shared")
     @ResponseBody
     ResponseEntity<String> shared(@RequestBody Message message) {
+        System.out.println("check");
         message.setSendDatetime(System.currentTimeMillis());
         if(message.getMessageType() == Message.MessageType.SHARE){
-            sessionService.sharedPhoto(message);
+            sessionService.sharedPhoto(message, registry);
         }
         else{
             throw new IllegalArgumentException("not valid message type");
