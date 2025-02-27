@@ -3,16 +3,12 @@ package picto.com.generator.domain.user.application;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import picto.com.generator.domain.user.dao.UserRepository;
-import picto.com.generator.domain.user.entity.User;
-import picto.com.generator.domain.user.dto.MakeUserRequest;
-import picto.com.generator.global.dto.*;
-import picto.com.generator.global.dto.response.GetKakaoLocationInfoResponse;
-import picto.com.generator.global.entity.*;
-import picto.com.generator.global.repositories.*;
+import picto.com.generator.domain.user.dao.*;
+import picto.com.generator.domain.user.dto.make.*;
+import picto.com.generator.domain.user.dto.response.GetKakaoLocationInfoResponse;
+import picto.com.generator.domain.user.entity.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -32,7 +28,7 @@ public class GeneratorUserService {
     public ArrayList<User> makeUserN(){
         ArrayList<User> users = new ArrayList<User>();
         for(long i = 0; i < MAX_USERS; i++){
-            User newUser = new MakeUserRequest().toRandomEntity(i);
+            User newUser = new MakeUserDefault().toRandomEntity(i);
             userRepository.save(newUser);
             users.add(newUser);
         }
@@ -46,7 +42,7 @@ public class GeneratorUserService {
         for(int i = 0; i < users.toArray().length; i++){
             User user = userRepository.getReferenceById(users.get(i).getUserId());
             // 기본 필터 저장 [정렬 : 좋아요순] / [기간 : 한달] / [start_datetime : 생성기준 UTC]
-            Filter filter = new AddDefaultFilter().toEntity(user);
+            Filter filter = new MakeDefaultFilter().toEntity(user);
             filterRepository.save(filter);
         }
     }
@@ -56,11 +52,11 @@ public class GeneratorUserService {
         for(int i = 0; i < users.size(); i++){
             User user = userRepository.getReferenceById(users.get(i).getUserId());
             // 초기 사용자 선택된 태그는 [돼지 고양이 강아지]
-            TagSelect tagSelect = new AddDefaultTagSelect().toEntity(user, "돼지");
+            TagSelect tagSelect = new MakeDefaultTagSelect().toEntity(user, "돼지");
             tagSelectRepositroy.save(tagSelect);
-            TagSelect tagSelect2 = new AddDefaultTagSelect().toEntity(user, "강아지");
+            TagSelect tagSelect2 = new MakeDefaultTagSelect().toEntity(user, "강아지");
             tagSelectRepositroy.save(tagSelect2);
-            TagSelect tagSelect3 = new AddDefaultTagSelect().toEntity(user, "고양이");
+            TagSelect tagSelect3 = new MakeDefaultTagSelect().toEntity(user, "고양이");
             tagSelectRepositroy.save(tagSelect3);
         }
     }
@@ -79,7 +75,7 @@ public class GeneratorUserService {
             } else{
                 location = kakaoResponse.getDocuments().get(0).getAddress().getAddress_name();
             }
-            Session session = new AddDefaultSession().toEntity(user, lat, lng, location);
+            Session session = new MakeDefaultSession().toEntity(user, lat, lng, location);
             sessionRepository.save(session);
         }
     }
@@ -88,16 +84,8 @@ public class GeneratorUserService {
     public void makeUserSettingN(ArrayList<User> users){
         for(int i = 0; i < users.size(); i++){
             User user = userRepository.getReferenceById(users.get(i).getUserId());
-            UserSetting userSetting = new AddDefaultUserSetting().toEntity(user);
+            UserSetting userSetting = new MakeDefaultUserSetting().toEntity(user);
             userSettingRepositroy.save(userSetting);
         }
-    }
-
-    public List<User> findEmailUsers(String email){
-        return userRepository.findEmailName(email);
-    }
-
-    public List<User> findAllUser(){
-        return userRepository.findAll();
     }
 }
