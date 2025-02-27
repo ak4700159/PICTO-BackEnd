@@ -42,7 +42,7 @@ public class Filter {
         this.period = period;
     }
 
-    // 처음 생성시 "좋아요순" "한 달"
+    // 처음 생성시 "좋아요순" "한달"
     static public Filter toEntity(User newUser){
         return Filter.builder().
                 user(newUser).

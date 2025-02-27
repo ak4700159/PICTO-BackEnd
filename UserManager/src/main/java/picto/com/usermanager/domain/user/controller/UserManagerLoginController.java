@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import picto.com.usermanager.domain.user.application.UserService;
+import picto.com.usermanager.domain.user.application.UserManagerLoginService;
 import picto.com.usermanager.domain.user.dto.request.SignInRequest;
 import picto.com.usermanager.domain.user.dto.request.SignUpRequest;
 import picto.com.usermanager.domain.user.dto.response.SignInResponse;
@@ -14,18 +14,17 @@ import picto.com.usermanager.domain.user.entity.User;
 
 @RestController
 @RequiredArgsConstructor
-public class UserController {
-    private final UserService userService;
+public class UserManagerLoginController {
+    private final UserManagerLoginService userManagerLoginService;
 
     // 회원가입
     @PostMapping("/user-manager/signup")
     public ResponseEntity<User> signUp(@RequestBody SignUpRequest signUpRequest) {
         User newUser;
         try {
-            newUser = userService.signUp(signUpRequest);
-            userService.addDefault(newUser, signUpRequest);
+            newUser = userManagerLoginService.signUp(signUpRequest);
+            userManagerLoginService.addDefaultUser(newUser, signUpRequest);
         }catch (Exception e) {
-            System.out.println(e);
             System.out.println(e.getLocalizedMessage());
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).header("message", e.getMessage()).build();
         }
@@ -33,12 +32,12 @@ public class UserController {
     }
 
     // 로그인
+    // refresh, access token 발생
     @PostMapping("/user-manager/signin")
     public ResponseEntity<SignInResponse> signIn(@RequestBody SignInRequest signInRequest) {
         SignInResponse response;
-
         try {
-            response = userService.signIn(signInRequest);
+            response = userManagerLoginService.signIn(signInRequest);
         }catch (Exception e){
             System.out.println(e.getMessage());
             System.out.println(e.getLocalizedMessage());
@@ -51,7 +50,7 @@ public class UserController {
     @GetMapping("/user-manager/email/{email}")
     public ResponseEntity<String> duplicatedEmail(@PathVariable String email) {
         try {
-            userService.verifyDuplicatedUser(email);
+            userManagerLoginService.verifyDuplicatedUser(email);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.out.println(e.getLocalizedMessage());

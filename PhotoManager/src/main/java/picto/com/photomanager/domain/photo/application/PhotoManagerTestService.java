@@ -20,7 +20,6 @@ import picto.com.photomanager.global.utils.KakaoUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 
 @Service

@@ -6,10 +6,12 @@ import lombok.Getter;
 @Getter
 public class SignInResponse {
     String accessToken;
+    String refreshToken;
     Long userId;
 
-    public SignInResponse(String accessToken, Long userId) {
-        this.userId = userId;
+    public SignInResponse(String accessToken, String refreshToken, Long userId) {
+        this.refreshToken = refreshToken;
         this.accessToken = accessToken;
+        this.userId = userId;
     }
 }

@@ -1,9 +1,7 @@
 package picto.com.usermanager.domain.user.application;
 
 import jakarta.transaction.Transactional;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import picto.com.usermanager.domain.user.dao.*;
@@ -13,15 +11,15 @@ import picto.com.usermanager.domain.user.dto.response.GetKakaoLocationInfoRespon
 import picto.com.usermanager.domain.user.dto.response.SignInResponse;
 import picto.com.usermanager.domain.user.entity.*;
 import picto.com.usermanager.global.utils.JwtUtilImpl;
-import picto.com.usermanager.global.utils.KakaoUtils;
+import picto.com.usermanager.global.utils.KakaoUtil;
 
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
-    private final KakaoUtils kakaoUtils;
-
+public class UserManagerLoginService {
+    private final KakaoUtil kakaoUtil;
+    private final JwtUtilImpl jwtUtil;
     // 기본 세팅을 위한 레파지토리
     private final UserRepository userRepository;
     private final FilterRepository filterRepository;
@@ -31,17 +29,17 @@ public class UserService {
 
     // 사용자 디폴트값 설정
     @Transactional
-    public void addDefault(User newUser, SignUpRequest signUpRequest) throws IllegalAccessException {
-        assert newUser.getId() != null;
-        User referUser = userRepository.getReferenceById(newUser.getId());
+    public void addDefaultUser(User newUser, SignUpRequest signUpRequest) throws IllegalAccessException {
+        User referUser = userRepository.getUserByEmail(newUser.getEmail());
         Filter defualFilter = Filter.toEntity(referUser);
         UserSetting defaultSetting = UserSetting.toEntity(referUser);
         TagSelect defaultTag = TagSelect.toEntity(referUser, "돼지");
 
         double lat = signUpRequest.getLat();
         double lng = signUpRequest.getLng();
-        String location = "";
-        GetKakaoLocationInfoResponse response = kakaoUtils.convertLocationFromPos(lat, lng);
+        String location;
+        GetKakaoLocationInfoResponse response = kakaoUtil.convertLocationFromPos(lat, lng);
+
         if(Objects.requireNonNull(response).getDocuments().isEmpty()) {
             location = "좌표 식별 불가";
         } else{
@@ -49,9 +47,6 @@ public class UserService {
         }
         Session defaultSession = Session.toEntity(referUser, lat, lng, location);
 
-        JwtUtilImpl jwtUtil = new JwtUtilImpl();
-        String accessToken = jwtUtil.createToken();
-        System.out.println(accessToken.length());
         try{
             filterRepository.save(defualFilter);
             userSettingRepository.save(defaultSetting);
@@ -84,8 +79,7 @@ public class UserService {
         User newUser = User.toMakeEntity(signUpRequest.getName(), signUpRequest.getEmail(), hashedPwd);
         System.out.println(newUser);
         try{
-            System.out.println("newUserId : " + newUser.getEmail());
-            userRepository.save(newUser);
+            newUser = userRepository.save(newUser);
         }
         catch (Exception e){
             throw new Exception("DuplicatedId");
@@ -108,15 +102,22 @@ public class UserService {
         if (!passwordEncoder.matches(signInRequest.getPassword(), findUser.getPassword())) {
             throw new IllegalAccessException("NotMatchingPassword");
         }
-        return new SignInResponse("", findUser.getUserId());
+
+        // 토큰 생성 로직
+        jwtUtil.setUserId(findUser.getId());
+        jwtUtil.setAccess(true);
+        String accessToken = jwtUtil.createToken();
+
+        jwtUtil.setAccess(false);
+        String refreshToken = jwtUtil.createToken();
+        return new SignInResponse(accessToken, refreshToken, findUser.getUserId());
     }
 
     @Transactional
-    public boolean verifyDuplicatedUser(String userEmail) throws IllegalAccessException {
+    public void verifyDuplicatedUser(String userEmail) throws IllegalAccessException {
         if(userRepository.getUserByEmail(userEmail) != null) {
             System.out.println("중복된 유저");
             throw new IllegalAccessException("Duplicated");
         }
-        return true;
     }
 }
