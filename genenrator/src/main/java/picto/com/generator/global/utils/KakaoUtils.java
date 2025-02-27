@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import picto.com.generator.global.dto.response.GetKakaoLocationInfoResponse;
+import picto.com.generator.domain.user.dto.response.GetKakaoLocationInfoResponse;
 
 @Component
 public class KakaoUtils {
