@@ -72,4 +72,10 @@ public class UserManagerLoginController {
     public String restoreEmail() {
         return "";
     }
+
+    // 토큰 인증 api
+    @GetMapping("/user-manager/token")
+    public String validateToken() {
+        return "";
+    }
 }
