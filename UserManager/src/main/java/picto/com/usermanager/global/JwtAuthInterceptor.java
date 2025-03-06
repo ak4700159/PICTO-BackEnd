@@ -1,11 +1,9 @@
 package picto.com.usermanager.global;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import picto.com.usermanager.global.utils.JwtUtilImpl;
@@ -38,9 +36,8 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
                     String newAccessToken = jwtUtil.createToken();
                     throw new Exception("[INFO]" + newAccessToken);
                 }
-                System.out.println(request.getRequestURI());
                 System.out.println("[INFO] token validated");
-            } catch(JWTVerificationException | JwtException e) {
+            } catch(JWTVerificationException e) {
                 System.out.println(e.getMessage());
                 throw new Exception("[ERROR] login");
             }

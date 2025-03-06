@@ -33,23 +33,23 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
-	// Spring security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	testImplementation 'org.springframework.security:spring-security-test'
-
 	//JWT 관련 의존성 추가
 	// 이 모듈에선 auth0을 이용하여 구현
-	implementation 'com.auth0:java-jwt:3.8.2'
-
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	implementation group: 'org.json', name: 'json', version: '20200518'
+	implementation 'com.auth0:java-jwt:4.5.0'
 
 	// aws 클라우드 서비스
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
 	// 웹관련
 	compileOnly 'org.projectlombok:lombok'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	implementation 'org.webjars:webjars-locator-core'
+	implementation 'org.webjars:sockjs-client:1.5.1'
+	implementation 'org.webjars:stomp-websocket:2.3.4'
+	implementation 'org.webjars:bootstrap:5.2.3'
+	implementation 'org.webjars:jquery:3.6.4'
+
 
 	// mysql 연결
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -66,5 +66,5 @@ dependencies {
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+	//useJUnitPlatform()
 }

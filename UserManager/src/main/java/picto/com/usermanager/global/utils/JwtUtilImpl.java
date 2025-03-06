@@ -5,14 +5,11 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import io.jsonwebtoken.JwtException;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import org.json.JSONObject;
 
 import java.util.Base64;
 import java.util.Date;
@@ -49,7 +46,7 @@ public class JwtUtilImpl implements picto.com.usermanager.global.utils.JwtUtil {
     }
 
     @Override
-    public void verifyToken(String givenToken) throws JWTVerificationException {
+    public void verifyToken(String givenToken) throws Exception {
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(isAccess ? TEST_SIGN_KEY : REFRESH_SECRET_KEY))
                     .withIssuer(ISSUER)
@@ -61,11 +58,19 @@ public class JwtUtilImpl implements picto.com.usermanager.global.utils.JwtUtil {
             //System.out.println("[INFO]userId from decodedJWT:" + jsonObject.get("userId"));
             //System.out.println("[INFO]userId from setting:" + userId.toString());
 
-            if(!Objects.equals(Long.parseLong(jsonObject.get("userId").toString()), userId)) {
+            if (!Objects.equals(Long.parseLong(jsonObject.get("userId").toString()), userId)) {
                 throw new JWTVerificationException("[ERROR]user id match failed");
             }
-        } catch (JWTVerificationException | JSONException e) {
-            throw new JwtException(e.getMessage());
+            // 엑세스 토큰인 경우 리프레쉬 토큰이 만료되지 않은 경우 엑세스 토큰을 만들어 발행^M
+            if (!isAccess) {
+                isAccess = true;
+                String newAccessToken = createToken();
+                throw new Exception("[Token]" + newAccessToken);
+
+            }
+        } catch (Exception e) {
+            throw new Exception("[ERROR]refresh verify token failed");
+
         }
     }
 }
