@@ -47,7 +47,7 @@ dependencies {
 	implementation 'org.webjars:bootstrap:5.2.3'
 	implementation 'org.webjars:jquery:3.6.4'
 
-	// 파잉ㄹ 수정시 재시작하지 않고 자동 컴파일 가능
+	// 파일 수정시 재시작하지 않고 자동 컴파일 가능
 	implementation 'org.springframework.boot:spring-boot-devtools'
 
 

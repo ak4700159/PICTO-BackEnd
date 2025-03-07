@@ -27,21 +27,26 @@ public class SessionController {
     private final SessionService sessionService;
     private final UserSessionRegistry registry;
 
-    // 사용자가 웹소켓에 연결될 때 실행됨
-    @EventListener
-    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        // 사용자 식별키를 헤더에서 추출
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        GenericMessage headerMsg = (GenericMessage)headerAccessor.getHeader("simpConnectMessage");
-        Map<String, Object> headers = (Map<String, Object>)headerMsg.getHeaders().get("nativeHeaders");
-        ArrayList<String> nativeHeaders = (ArrayList<String>) headers.get("User-Id");
-        Long userId = Long.parseLong(nativeHeaders.get(0));
-        String sessionId = headerAccessor.getSessionId();
-        SessionInfo info = new SessionInfo(sessionId, userId, headerAccessor.getTimestamp());
 
-        registry.addUser(info);
-        System.out.printf("[INFO] %d USER enter\n", userId);
-    }
+    // 사용자가 웹소켓에 연결될 때 실행됨
+//    @EventListener
+//    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+//        // 사용자 식별키를 헤더에서 추출
+//        System.out.println("[INFO]" + event.getMessage());
+//        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+//        System.out.println("[INFO]" + headerAccessor);
+//        Object headerMsg = headerAccessor.getFirstNativeHeader("simpConnectMessage");
+//        System.out.println("[INFO]" + headerMsg);
+//        Map<String, Object> headers = (Map<String, Object>)headerMsg.getHeaders().get("nativeHeaders");
+//        System.out.println("[INFO]" + headers);
+//        ArrayList<String> nativeHeaders = (ArrayList<String>) headers.get("User-Id");
+//        Long userId = Long.parseLong(nativeHeaders.get(0));
+//        String sessionId = headerAccessor.getSessionId();
+//        SessionInfo info = new SessionInfo(sessionId, userId, headerAccessor.getTimestamp());
+//
+//        registry.addUser(info);
+//        System.out.printf("[INFO] %d USER enter\n", userId);
+//    }
 
     // 사용자가 웹소켓에서 나갈 때 실행됨
     @EventListener
