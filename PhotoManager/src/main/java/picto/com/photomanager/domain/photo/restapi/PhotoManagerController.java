@@ -22,35 +22,6 @@ import java.util.Map;
 @RestController
 public class PhotoManagerController {
     final private PhotoManagerService photoManagerService;
-    final private PhotoManagerTestService photoManagerTestService;
-
-    // 5000개 이미지 생성
-    // Photo Location Folder Save Share 데이터 추가
-    @PostMapping("/photo-manager/photos")
-    public ResponseEntity<String> createTestPhoto(){
-        final int MAX_USERS = 500;
-        final int MAX_PHOTOS = 10;
-        long photoCount = 1;
-        for(long i = 1; i <= MAX_USERS; i++){
-            Folder newFolder = photoManagerTestService.createTestFolder(i);
-            for(long j = 1; j <= MAX_PHOTOS; j++){
-                // i = userId
-                photoManagerTestService.createTestShare(newFolder.getGeneratorId());
-
-                // 사진을 생성하고 지역 정보 주입 후 저장한다.
-                Map<String, Object> result = photoManagerTestService.createTestPhoto(i, photoCount);
-                GetKakaoLocationInfoResponse info = (GetKakaoLocationInfoResponse)result.get("kakaoResponse");
-
-                // 생성된 사진 저장, 지역정보 주입
-                Photo newPhoto = (Photo)result.get("photo");
-                photoManagerTestService.createTestLocationInfo(newPhoto.getUserId(), newPhoto.getPhotoId(), info);
-                photoManagerTestService.createTestSave(newPhoto.getUserId(), newFolder.getFolderId(), newPhoto);
-
-                photoCount++;
-            }
-        }
-        return ResponseEntity.ok("good");
-    }
 
     // 특정 사진 조회 + 유저 포함
     @GetMapping("/photo-manager/photos")

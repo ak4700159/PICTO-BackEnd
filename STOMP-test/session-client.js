@@ -14,6 +14,9 @@ const rl = readline.createInterface({ input, output });
 // arguments 받기
 const senderId = process.argv[2]
 
+// URL
+const ip = "bogota.iptime.org"
+
 function askQuestion(query) {
     return new Promise((resolve) => {
         rl.question(query, resolve)
@@ -40,7 +43,7 @@ class ChatClient {
 
     // 연결 설정
     connect() {
-        const socket = new SockJS('http://localhost:8084/session-scheduler');
+        const socket = new SockJS(`http://${ip}:8084/session-scheduler`);
         this.stompClient = Stomp.over(socket);
 
         // 디버그 메시지 비활성화

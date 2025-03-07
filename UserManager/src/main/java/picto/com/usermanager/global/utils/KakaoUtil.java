@@ -1,4 +1,4 @@
-package picto.com.generator.global.utils;
+package picto.com.usermanager.global.utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -8,14 +8,14 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import picto.com.generator.domain.user.dto.response.GetKakaoLocationInfoResponse;
+import picto.com.usermanager.domain.user.dto.response.GetKakaoLocationInfoResponse;
 
 @Component
-public class KakaoUtils {
+public class KakaoUtil {
     @Value("${kakao.access}")
     private String kakaoAccess;
 
-    public GetKakaoLocationInfoResponse convertLocationFromPos(double lng, double lat) {
+    public GetKakaoLocationInfoResponse convertLocationFromPos(double lat, double lng) {
         // 카카오 api로 직접 요청 처리
         // 헤더설정
         final RestTemplate restTemplate = new RestTemplate();

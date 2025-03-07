@@ -1,4 +1,4 @@
-package picto.com.usermanager.domain.user.entity;
+package picto.com.generator.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -6,11 +6,8 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.Date;
-
 
 @Getter
-@Setter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "Filter", schema = "picto_schema")
@@ -36,18 +33,9 @@ public class Filter {
     private String period;
 
     @Builder
-    public Filter(String sort, String period ,User user) {
+    public Filter(String sort, String period, User user) {
         this.user = user;
         this.sort = sort;
         this.period = period;
-    }
-
-    // 처음 생성시 "좋아요순" "한달"
-    static public Filter toEntity(User newUser){
-        return Filter.builder().
-                user(newUser).
-                sort("좋아요순").
-                period("한달").
-                build();
     }
 }

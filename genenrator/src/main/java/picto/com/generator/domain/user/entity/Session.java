@@ -1,10 +1,9 @@
-package picto.com.photomanager.global.getDomain.entity;
+package picto.com.generator.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import picto.com.photomanager.domain.user.entity.User;
 
 @Getter
 @Setter
@@ -14,12 +13,12 @@ import picto.com.photomanager.domain.user.entity.User;
 public class Session {
     @Id
     @Column(name = "user_id", nullable = false)
-    private Long id;
+    private Long userId;
 
     @MapsId
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "user_id")
     private User user;
 
     @Column(name = "current_lat")
@@ -31,12 +30,16 @@ public class Session {
     @Column(name = "location", length = 50)
     private String location;
 
+    @Column(name = "active")
+    private Boolean active;
+
     @Builder
-    public Session(User user, Double currentLat, Double currentLng, String location) {
+    public Session(User user, Double currentLat, Double currentLng, String location, Boolean active) {
         this.user = user;
         this.currentLat = currentLat;
         this.currentLng = currentLng;
         this.location = location;
+        this.active = active;
     }
 
 }
