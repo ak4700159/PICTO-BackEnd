@@ -4,15 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import picto.com.photomanager.domain.photo.application.PhotoManagerService;
-import picto.com.photomanager.domain.photo.application.PhotoManagerTestService;
 import picto.com.photomanager.domain.photo.dto.PhotoEventDTO;
-import picto.com.photomanager.domain.photo.dto.response.GetKakaoLocationInfoResponse;
 import picto.com.photomanager.domain.photo.dto.response.GetPhotoResponse;
 import picto.com.photomanager.domain.photo.dto.request.GetAroundPhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetRepresentativePhotoRequest;
 import picto.com.photomanager.domain.photo.dto.request.GetSpecifiedPhotoRequest;
-import picto.com.photomanager.domain.photo.entity.Photo;
-import picto.com.photomanager.global.postDomain.entity.Folder;
 
 import java.util.ArrayList;
 import java.util.List;
