@@ -2,22 +2,18 @@ name: PICTO-CI
 on:
 # 특정 경로 내 파일이 변동 되었을 경우 위크플로우 트리거
   push:
-    path:
-      - "SesisonScheduler/**"
+    paths:
+      - "SeissonScheduler/**"
       - "PhotoManager/**"
       - "UserManager/**"
   pull_request:
-      path:
-      - "SesisonScheduler/**"
+      paths:
+      - "SeissonScheduler/**"
       - "PhotoManager/**"
       - "UserManager/**"
 
 # 환경 변수 설정
-env:
-  RESOURCE_PATH: 
-      - SesisonScheduler/**/resources/application.yml
-      - PhotoManager/**/resources/application.yml
-      - UserManager/**/resources/application.yml
+
     
 # {소유자명}/{저장소명}@{참조자} 를 통해 다른 사용자가 만든 명령어 파이프라인을 사용할 수 있다.
 # ex) actions/checkout@v2는 실행 환경에서 현재 깃헙 레파지토리를 가지고 와서 main 브랜치로 checkout하는 동작을 수행
@@ -50,7 +46,7 @@ jobs:
       run:
         working-directory: PhotoManager
     needs: filter
-    if: ${{ steps.filter.outputs.photo == true}} 
+    if: ${{ needs.filter.outputs.photo == true}} 
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -59,11 +55,14 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Set application.yml
+      - name: Set github checkout
         uses: actions/checkout@v3
-        run: touch ./src/main/resources/application.yml
-        run: sudo echo "${{ secrets.PHOTO_MANAGER_ACPPLICATION }}" > ./src/main/resources/application.yml
-        run: cat ./src/main/resources/application.yml
+
+      - name: Set application.yml
+        run: | 
+          touch ./src/main/resources/application.yml
+          sudo echo "${{ secrets.PHOTO_MANAGER_ACPPLICATION }}" > ./src/main/resources/application.yml
+          cat ./src/main/resources/application.yml
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
@@ -90,93 +89,8 @@ jobs:
         run: echo "UserManager true"
 
   session-scheduler:
-    nedds: filter
+    needs: filter
     if: ${{ steps.filter.outputs.session == true}} 
     steps:
       - name : Test
         run: echo "SessionHandler true"
-
-
-
-
-
-# 캡스톤(1) 때 사용했던 
-# name: Deploy to Amazon ECS
-
-# on:
-#   push:
-#     branches:
-#       - main
-# env:
-#   RESOURCE_PATH: ./src/main/resources/application.yml
-
-# jobs:
-#   deploy:
-#     name: Deploy
-#     runs-on: ubuntu-latest
-#     environment: production
-
-#     steps:
-#       - name: Checkout
-#         uses: actions/checkout@v3
-
-#       - name: Set up JDK 17
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: 'corretto'
-#           java-version: '17'
-#           cache: 'gradle'
-
-#       ## application.yml 생성 후 secret 값 복붙
-#       - uses: actions/checkout@v3
-#       - run: touch ./src/main/resources/application.yml
-#       - run: sudo echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.yml
-#       - run: cat ./src/main/resources/application.yml
-
-
-#       - name: Change wrapper permissions
-#         run: chmod +x ./gradlew
-
-#       - name: Init gradle wrapper
-#         run: gradle wrapper
-
-#       - name: Build with Gradle
-#         run: ./gradlew clean build
-
-#       - name: Configure AWS credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           aws-region: ap-northeast-2
-
-#       - name: Login to Amazon ECR
-#         id: login-ecr
-#         uses: aws-actions/amazon-ecr-login@v1
-
-#       - name: Build, tag, and push image to Amazon ECR
-#         id: build-image
-#         env:
-#           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-#           ECR_REPOSITORY: picto
-#           IMAGE_TAG: photo-manager
-#         run: |
-#           docker build --platform amd64 -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-#           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-#           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-
-#       - name: Fill in the new image ID in the Amazon ECS task definition
-#         id: task-def
-#         uses: aws-actions/amazon-ecs-render-task-definition@v1
-#         with:
-#           task-definition: task-definition.json
-#           container-name: photo-manager
-#           image: ${{ steps.build-image.outputs.image }}
-
-#       - name: Deploy Amazon ECS task definition
-#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#         with:
-#           task-definition: ${{ steps.task-def.outputs.task-definition }}
-#           service: picto-service
-#           cluster: PICTO-CLUSTER
-#           wait-for-service-stability: true
