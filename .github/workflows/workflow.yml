@@ -3,12 +3,12 @@ on:
 # 특정 경로 내 파일이 변동 되었을 경우 위크플로우 트리거
   push:
     paths:
-      - "SeissonScheduler/**"
+      - "SessionScheduler/**"
       - "PhotoManager/**"
       - "UserManager/**"
   pull_request:
       paths:
-      - "SeissonScheduler/**"
+      - "SessionScheduler/**"
       - "PhotoManager/**"
       - "UserManager/**"
 
@@ -24,15 +24,17 @@ jobs:
   # 실행 환경
     runs-on: ubuntu-latest
     outputs:
+    # key : value (출력값 : 입력값(filter의 결과값 리스트))
       photo-manager: ${{ steps.filter.outputs.photo }}
       user-manager: ${{ steps.filter.outputs.user }}
-      session-scheduler: ${{ steps.filter.outputs.session }}
+      session-handler: ${{ steps.filter.outputs.session }}
     steps:
       - uses: actions/checkout@v2
       - name: Filter changed paths
         id: filter
         uses: dorny/paths-filter@v2
         with:
+        # key : value (value에 해당되는 파일들의 변화가 있으면 파일명이 아닌 true로 반환 아니면 false)
           filters: |
             photo: 'PhotoManager/**'
             user: 'UserManager/**'
@@ -41,19 +43,19 @@ jobs:
 
   # 이후부터는 선택적으로 실행된다 -> 폴더 변화 유무에 따라 실행
   photo-manager:
+    needs: filter
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: PhotoManager
-    needs: filter
-    if: ${{ needs.filter.outputs.photo == true}} 
+    if: ${{ needs.filter.outputs.photo-manager == 'true'}} 
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           distribution: 'corretto'
           java-version: '17'
-          cache: 'gradle'
+          # cache: 'gradle'
 
       - name: Set github checkout
         uses: actions/checkout@v3
@@ -67,12 +69,17 @@ jobs:
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
+      - name: Init gradle wrapper
+        run: gradle wrapper
+
       - name: Build with Gradle
         run: ./gradlew clean build
 
-      - name: Install Dcoker
-        run: apt-get update
-        run: apt install docker
+      - name: Login Docker
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build Dcoker image
         run: docker build -f Dockerfile -t ak47001/picto:photo-manager .
@@ -83,14 +90,22 @@ jobs:
 
   user-manager:
     needs: filter
-    if: ${{ steps.filter.outputs.user == true}} 
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: UserManager
+    if: ${{ needs.filter.outputs.user-manager == 'true'}} 
     steps:
       - name : Test
         run: echo "UserManager true"
 
   session-scheduler:
     needs: filter
-    if: ${{ steps.filter.outputs.session == true}} 
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SessionScheduler
+    if: ${{ needs.filter.outputs.session-handler == 'true'}} 
     steps:
       - name : Test
         run: echo "SessionHandler true"
