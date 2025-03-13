@@ -7,6 +7,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import picto.com.sessionscheduler.domain.session.controller.WebSocketInterceptor;
 
 // 스프링에서 제공하는 내장 메시지 브로커를 사용한다.
 
@@ -14,6 +15,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+    private final WebSocketInterceptor webSocketInterceptor;
+
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         //클라이언트에서 보낸 메세지를 받을 prefix (클라이언트 -> 서버)
@@ -29,5 +33,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/session-scheduler")   //SockJS 연결 주소
                 .withSockJS(); //버전 낮은 브라우저에서도 적용 가능
+    }
+
+    // 웹소켓 연결 가로채기
+    @Override
+    public void configureClientInboundChannel(org.springframework.messaging.simp.config.ChannelRegistration registration) {
+        registration.interceptors(webSocketInterceptor); // 인터셉터 추가
     }
 }

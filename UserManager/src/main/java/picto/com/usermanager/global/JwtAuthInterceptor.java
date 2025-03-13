@@ -23,23 +23,23 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             try {
                 // access token이 아니면 refresh token 접근
                 if(accessToken != null) {
-                    System.out.println("[INFO]access token validate");
                     jwtUtil.setAccess(true);
                     jwtUtil.verifyToken(accessToken);
+                    System.out.println("[INFO]access token validate");
                 } else {
-                    System.out.println("[INFO]refresh token validate");
                     jwtUtil.setAccess(false);
                     jwtUtil.verifyToken(refreshToken);
+                    System.out.println("[INFO]refresh token validate");
 
                     // refresh 토큰 증명이 된다면
                     jwtUtil.setAccess(true);
                     String newAccessToken = jwtUtil.createToken();
                     throw new Exception("[INFO]" + newAccessToken);
                 }
-                System.out.println("[INFO] token validated");
+                System.out.println("[INFO]token validated");
             } catch(JWTVerificationException e) {
                 System.out.println(e.getMessage());
-                throw new Exception("[ERROR] login");
+                throw new Exception("[ERROR]login");
             }
         } catch (NullPointerException e) {
             System.out.println(e.getMessage());

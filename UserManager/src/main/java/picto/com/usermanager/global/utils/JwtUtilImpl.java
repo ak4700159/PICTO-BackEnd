@@ -66,10 +66,9 @@ public class JwtUtilImpl implements picto.com.usermanager.global.utils.JwtUtil {
                 isAccess = true;
                 String newAccessToken = createToken();
                 throw new Exception("[Token]" + newAccessToken);
-
             }
         } catch (Exception e) {
-            throw new Exception("[ERROR]refresh verify token failed");
+            throw new Exception(e.getMessage());
 
         }
     }
