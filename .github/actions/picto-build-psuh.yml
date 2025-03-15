@@ -1,0 +1,63 @@
+name: "Picto Build and Push"
+description: "공통 Gradle 빌드와 Docker 이미지 빌드를 수행하는 Composite Action"
+
+# 아래 입력값 세 개는 필수.
+inputs:
+  directory:
+    description: "프로젝트가 위치한 서브 디렉토리 (예: PhotoManager)"
+    required: true
+  docker-image:
+    description: "빌드 후 푸시할 Docker 이미지 이름 (예: ak47001/picto:photo-manager)"
+    required: true
+  application-yml:
+    description: "application.yml에 들어갈 내용"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'corretto'
+        java-version: '17'
+
+    - name: Check out code
+      uses: actions/checkout@v3
+
+    - name: Set application.yml
+      shell: bash
+      run: |
+        # Composite Action에서는 현재 워크스페이스가 레포지토리 루트
+        touch ./${{ inputs.directory }}/src/main/resources/application.yml
+        echo "${{ inputs.application-yml }}" | sudo tee ./${{ inputs.directory }}/src/main/resources/application.yml
+        cat ./${{ inputs.directory }}/src/main/resources/application.yml
+
+    - name: Change wrapper permissions
+      run: chmod +x ./${{ inputs.directory }}/gradlew
+
+    - name: Init gradle wrapper
+      run: |
+        cd ${{ inputs.directory }}
+        gradle wrapper
+
+    - name: Build with Gradle
+      run: |
+        cd ${{ inputs.directory }}
+        ./gradlew clean build
+
+    - name: Login Docker
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build Docker image
+      run: |
+        docker build -f ${{ inputs.directory }}/Dockerfile \
+                     -t ${{ inputs.docker-image }} \
+                     .
+
+    - name: Push Docker image
+      run: |
+        docker image push ${{ inputs.docker-image }}

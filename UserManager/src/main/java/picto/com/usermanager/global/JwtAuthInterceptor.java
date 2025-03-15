@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import picto.com.usermanager.global.utils.JwtUtilImpl;
 
+import java.io.PrintWriter;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthInterceptor implements HandlerInterceptor {
@@ -31,19 +33,33 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
                     jwtUtil.verifyToken(refreshToken);
                     System.out.println("[INFO]refresh token validate");
 
-                    // refresh 토큰 증명이 된다면
+                    // refresh 토큰 증명이 된다면 새로운 access 토큰 발급
                     jwtUtil.setAccess(true);
                     String newAccessToken = jwtUtil.createToken();
                     throw new Exception("[INFO]" + newAccessToken);
                 }
                 System.out.println("[INFO]token validated");
-            } catch(JWTVerificationException e) {
-                System.out.println(e.getMessage());
-                throw new Exception("[ERROR]login");
+            } catch(Exception e) {
+                System.out.println("[WARN]JWT verification failed");
+                response.setContentType("text/html; charset=utf-8");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                PrintWriter out = response.getWriter();
+                String element = e.getMessage();
+                out.print(element);
+                out.flush();
+                out.close();
+                return false;
             }
         } catch (NullPointerException e) {
-            System.out.println(e.getMessage());
-            throw new Exception(e.getMessage());
+            System.out.println("[WARN]JWT verification failed");
+            response.setContentType("text/json; charset=utf-8");
+            response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+            PrintWriter out = response.getWriter();
+            String element = e.getMessage();
+            out.print(element);
+            out.flush();
+            out.close();
+            return false;
         }
         return true;
     }
