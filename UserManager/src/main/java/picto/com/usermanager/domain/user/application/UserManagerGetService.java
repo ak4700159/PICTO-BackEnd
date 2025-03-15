@@ -7,9 +7,7 @@ import picto.com.usermanager.domain.user.dao.*;
 import picto.com.usermanager.domain.user.dto.response.get.userInfo.*;
 import picto.com.usermanager.domain.user.entity.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,56 +22,48 @@ public class UserManagerGetService {
     private final TitleListRepository titleListRepository;
 
     private final ShareRepository shareRepository;
-    private final FolderRepository folderRepository;
+    private final SaveRepository saveRepsitory;
 
     private final MarkRepository markRepository;
     private final BlockRepository blockRepository;
+    private final FolderRepository folderRepository;
 
-    // 사용자의 모든 정보를 조회
-    // = 해당 사용자의 사진, 세팅, 필터, 선택한 태그, 칭호, 정보
+    // 지도 화면에서 필요한 데이터 로딩
     @Transactional
     public GetUserInfoResponse getUser(Long userId) {
         User user = userRepository.getReferenceById(userId);
 
-        List<Photo> photos = photoRepository.findByUserId(user.getUserId());
         Filter filter = filterRepository.getReferenceById(user.getUserId());
         UserSetting setting = userSettingRepository.getReferenceById(user.getUserId());
         List<TagSelect> tags = tagSelectRepository.findByUserId(user.getUserId());
-        List<TitleList> titleList = titleListRepository.findByUserId(user.getUserId());
-        List<Title> titles = titleList.stream().map(TitleList::getTitle).toList();
 
-        List<Mark> marks = markRepository.findByUserId(user.getUserId());
-        List<Block> blocks = blockRepository.findByUserId(user.getUserId());
-
-        // 해당 유저가 속해있는 폴더 조회
-        List<Folder> folders = folderRepository.findByUserId(user.getUserId());
-        // 폴더별 사용자 조회
+        // 폴더별 사진 조회
         List<Share> shares = shareRepository.findByUserId(userId);
 
+        Map<Folder, List<Photo>> folderPhoto = new HashMap<>();
+        for (Long folderId : shares.stream().map(share -> share.getId().getFolderId()).toList()) {
+            List<Save> saves = saveRepsitory.getSaveByFolderId(folderId);
+            List<Photo> photoList = new ArrayList<>();
+            Folder folder = folderRepository.findByFolderId(folderId);
+            for (Save save : saves) {
+                System.out.println("[INFO]photo list added");
+                photoList.add(photoRepository.getReferenceById(save.getId().getPhotoId()));
+            }
+            folderPhoto.put(folder, photoList);
+        }
+
         // Response entity 반환
-        return GetUserInfoResponse
-                .builder()
-                .folders(folders)
-                .shares(shares)
-                .user(user)
-                .setting(setting)
-                .filter(filter)
-                .tags(tags)
-                .titles(titles)
-                .photos(photos)
-                .marks(marks)
-                .blocks(blocks)
-                .build();
+        return GetUserInfoResponse.builder().folderPhoto(folderPhoto).user(user).setting(setting).filter(filter).tags(tags).build();
     }
 
     @Transactional
-    public GetUser GetOtherUserById(Long userId){
+    public GetUser GetOtherUserById(Long userId) {
         User user = userRepository.getReferenceById(userId);
         return new GetUser(user);
     }
 
     @Transactional
-    public GetUser GetOtherUserByEmail(String email){
+    public GetUser GetOtherUserByEmail(String email) {
         User user = userRepository.getUserByEmail(email);
         System.out.println(user.toString());
         return new GetUser(user);
@@ -114,10 +104,7 @@ public class UserManagerGetService {
 
     public List<GetTitle> getTitleList(Long userId) {
         List<TitleList> titles = titleListRepository.findByUserId(userId);
-        return titles
-                .stream()
-                .map(titleList -> new GetTitle(titleList.getTitle()))
-                .toList();
+        return titles.stream().map(titleList -> new GetTitle(titleList.getTitle())).toList();
     }
 
     public GetTitle getTitle(Long userId) {

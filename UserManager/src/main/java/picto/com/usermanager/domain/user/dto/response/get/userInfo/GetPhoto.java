@@ -22,8 +22,8 @@ public class GetPhoto {
     //private boolean shared_active;
 
     public GetPhoto(Photo photo) {
-        this.photoId = photo.getId().getPhotoId();
-        this.userId = photo.getId().getUserId();
+        this.photoId = photo.getPhotoId();
+        this.userId = photo.getUserId();
         this.photoPath = photo.getPhotoPath();
         this.lat = photo.getLat();
         this.lng = photo.getLng();

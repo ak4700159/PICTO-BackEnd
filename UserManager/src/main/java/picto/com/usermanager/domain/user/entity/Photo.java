@@ -15,12 +15,17 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(schema = "picto_schema", name = "Photo")
 public class Photo implements Serializable {
-    @EmbeddedId
-    private PhotoId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "photo_id", nullable = false)
+    private Long photoId;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     // 복합키 안에 있는 외래키 명시
     @MapsId("userId")
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     // user 내용만 제외한 정보들만을 serialize하게 된다. -> json 오류 방지
@@ -72,9 +77,11 @@ public class Photo implements Serializable {
     private String tag;
 
     @Builder
-    public Photo(User user, PhotoId photoId, String photoPath, double lat, double lng,
+    public Photo(Long photoId,User user, String photoPath, double lat, double lng,
                  String location, Long registerDatetime, Long uploadDatetime, String tag,
                  boolean frameActive, boolean sharedActive, int likes, int views) {
+        this.photoId = photoId;
+        this.userId = user.getUserId();
         this.user = user;
         this.photoPath = photoPath;
         this.lat = lat;
@@ -86,12 +93,6 @@ public class Photo implements Serializable {
         this.sharedActive = sharedActive;
         this.likes = likes;
         this.views = views;
-        this.id = photoId;
         this.tag = tag;
-    }
-
-    @Override
-    public String toString(){
-        return "userId : " + user.getUserId();
     }
 }
