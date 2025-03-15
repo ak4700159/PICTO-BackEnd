@@ -47,12 +47,15 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.filter.outputs.photo-manager == 'true' }}
     steps:
+      - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
       - name: Build and Push PhotoManager
         uses: ./.github/actions/picto-build-push
         with:
           directory: "PhotoManager"
           docker-image: "ak47001/picto:photo-manager"
           application-yml: ${{ secrets.PHOTO_MANAGER_ACPPLICATION }}
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
 
   user-manager:
@@ -60,21 +63,27 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.filter.outputs.user-manager == 'true' }}
     steps:
+      - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
       - name: Build and Push UserManager
         uses: ./.github/actions/picto-build-push
         with:
           directory: "UserManager"
           docker-image: "ak47001/picto:user-manager"
           application-yml: ${{ secrets.USER_MANAGER_ACPPLICATION }}
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
   session-handler:
     needs: filter
     runs-on: ubuntu-latest
     if: ${{ needs.filter.outputs.session-handler == 'true'}} 
     steps:
+      - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
       - name: Build and Push SessionScheduler
         uses: ./.github/actions/picto-build-push
         with:
           directory: "SessionScheduler"
           docker-image: "ak47001/picto:session-scheduler"
           application-yml: ${{ secrets.SESSION_HANDLER_ACPPLICATION }}
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
