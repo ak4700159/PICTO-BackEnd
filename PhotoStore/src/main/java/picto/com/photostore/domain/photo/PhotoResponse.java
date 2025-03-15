@@ -1,4 +1,4 @@
-package picto.com.photostore.domain;
+package picto.com.photostore.domain.photo;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -16,8 +16,8 @@ public class PhotoResponse {
     private int views;
     private Long uploadTime;
 
-    public static PhotoResponse from(Photo photo) {
-        return PhotoResponse.builder()
+    public static picto.com.photostore.domain.photo.PhotoResponse from(Photo photo) {
+        return picto.com.photostore.domain.photo.PhotoResponse.builder()
                 .photoId(photo.getPhotoId())
                 .photoPath(photo.getPhotoPath())
                 .lat(photo.getLat())

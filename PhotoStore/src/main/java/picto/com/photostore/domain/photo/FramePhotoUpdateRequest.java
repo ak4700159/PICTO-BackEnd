@@ -1,4 +1,4 @@
-package picto.com.photostore.domain;
+package picto.com.photostore.domain.photo;
 
 import lombok.*;
 

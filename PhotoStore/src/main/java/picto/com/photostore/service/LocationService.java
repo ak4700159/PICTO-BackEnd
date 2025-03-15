@@ -6,7 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
-import picto.com.photostore.domain.GetKakaoLocationInfoResponse;
+import picto.com.photostore.domain.locationinfo.GetKakaoLocationInfoResponse;
 
 @Slf4j
 public class LocationService {

@@ -19,7 +19,7 @@ public class PhotoResponse {
     private Long uploadTime;
 
     public static picto.com.foldermanager.domain.photo.PhotoResponse from(Photo photo) {
-        String fileName = photo.getS3FileName();
+        String fileName = photo.getPhotoPath();
         String contentType = determineContentType(fileName);
 
         return picto.com.foldermanager.domain.photo.PhotoResponse.builder()

@@ -1,15 +1,17 @@
-package picto.com.photostore.domain;
+package picto.com.photostore.domain.photo;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import picto.com.photostore.domain.folder.Folder;
+import picto.com.photostore.domain.user.User;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "Photo", schema = "photo_schema")
+@Table(name = "Photo", schema = "picto_schema")
 public class Photo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,11 +22,8 @@ public class Photo {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "photo_path", length = 255)
+    @Column(name = "photo_path", length = 100)
     private String photoPath;
-
-    @Column(name = "s3_file_name", length = 255)
-    private String s3FileName;
 
     @Column(name = "tag", length = 20)
     private String tag;
@@ -57,14 +56,13 @@ public class Photo {
     private boolean sharedActive;
 
     @Builder
-    public Photo(Long photoId, User user, String photoPath, String s3FileName,
+    public Photo(Long photoId, User user, String photoPath,
                  String tag, double lat, double lng, String location,
                  int likes, int views, Long registerDatetime,
                  boolean frameActive, boolean sharedActive) {
         this.photoId = photoId;
         this.user = user;
         this.photoPath = photoPath;
-        this.s3FileName = s3FileName;
         this.tag = tag;
         this.lat = lat;
         this.lng = lng;
@@ -85,13 +83,11 @@ public class Photo {
     }
 
     public void updatePhoto(double lat, double lng, String tag,
-                            String photoPath, String s3FileName,
-                            boolean frameActive, boolean sharedActive) {
+                            String photoPath, boolean frameActive, boolean sharedActive) {
         this.lat = lat;
         this.lng = lng;
         this.tag = tag;
         this.photoPath = photoPath;
-        this.s3FileName = s3FileName;
         this.frameActive = frameActive;
         this.sharedActive = sharedActive;
         this.uploadDatetime = System.currentTimeMillis();

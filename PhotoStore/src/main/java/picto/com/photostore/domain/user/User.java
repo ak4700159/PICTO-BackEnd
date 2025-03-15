@@ -1,4 +1,4 @@
-package picto.com.photostore.domain;
+package picto.com.photostore.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,7 +7,7 @@ import org.springframework.data.domain.Persistable;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "User", schema = "photo_schema")
+@Table(name = "User", schema = "picto_schema")
 public class User implements Persistable<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
