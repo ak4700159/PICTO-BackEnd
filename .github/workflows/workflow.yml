@@ -21,13 +21,15 @@ on:
 jobs:
   # 첫번째 JOB, filter : 특정 폴더에 변화가 있는지 확인하고 결과를 반환.
   filter:
-  # 실행 환경
     runs-on: ubuntu-latest
     outputs:
     # key : value (출력값 : 입력값(filter의 결과값 리스트))
       photo-manager: ${{ steps.filter.outputs.photo }}
       user-manager: ${{ steps.filter.outputs.user }}
       session-handler: ${{ steps.filter.outputs.session }}
+      foler-manager: ${{ steps.filter.outputs.folder }}
+      photo-store: ${{ steps.filter.outputs.store }}
+      genenrator: ${{ steps.filter.outputs.genenrator }}
     steps:
       - uses: actions/checkout@v2
       - name: Filter changed paths
@@ -39,24 +41,38 @@ jobs:
             photo: 'PhotoManager/**'
             user: 'UserManager/**'
             session: 'SessionScheduler/**'
+            folder: 'FolderManager/**'
+            store: 'PhotoStore/**'
+            generator: 'genenrator/**'
             
 
   # 이후부터는 선택적으로 실행된다 -> 폴더 변화 유무에 따라 실행
+  # 8080 : generator server
+  # 8081 : UserManager server
+  # 8082 : FolderManager server
+  # 8083 : PhotoManager server
+  # 8084 : SessionScheduler server
+  # 8085 : ChattingScheduler server
+  # 8086 : PhotoStore server
+  # 8087 : PhotoPreprocessor server
   photo-manager:
     needs: filter
     runs-on: ubuntu-latest
     if: ${{ needs.filter.outputs.photo-manager == 'true' }}
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
-      - name: Build and Push PhotoManager
+      - name: CI/CD PhotoManager
         uses: ./.github/actions/picto-build-push
         with:
           directory: "PhotoManager"
           docker-image: "ak47001/picto:photo-manager"
           application-yml: ${{ secrets.PHOTO_MANAGER_ACPPLICATION }}
+          application-port: "8083"
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
+          ssh_host: ${{ secrets.SSH_HOST }}
+          ssh_username: ${{ secrets.SSH_USERNAME }}
+          ssh_password: ${{ secrets.SSH_PASSWORD }}
 
   user-manager:
     needs: filter
@@ -64,14 +80,18 @@ jobs:
     if: ${{ needs.filter.outputs.user-manager == 'true' }}
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
-      - name: Build and Push UserManager
+      - name: CI/CD UserManager
         uses: ./.github/actions/picto-build-push
         with:
           directory: "UserManager"
           docker-image: "ak47001/picto:user-manager"
           application-yml: ${{ secrets.USER_MANAGER_ACPPLICATION }}
+          application-port: "8081"
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          ssh_host: ${{ secrets.SSH_HOST }}
+          ssh_username: ${{ secrets.SSH_USERNAME }}
+          ssh_password: ${{ secrets.SSH_PASSWORD }}
 
   session-handler:
     needs: filter
@@ -79,11 +99,72 @@ jobs:
     if: ${{ needs.filter.outputs.session-handler == 'true'}} 
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
-      - name: Build and Push SessionScheduler
+      - name: CI/CD SessionScheduler
         uses: ./.github/actions/picto-build-push
         with:
           directory: "SessionScheduler"
           docker-image: "ak47001/picto:session-scheduler"
           application-yml: ${{ secrets.SESSION_HANDLER_ACPPLICATION }}
+          application-port: "8084"
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          ssh_host: ${{ secrets.SSH_HOST }}
+          ssh_username: ${{ secrets.SSH_USERNAME }}
+          ssh_password: ${{ secrets.SSH_PASSWORD }}
+
+  folder-manager:
+    needs: filter
+    runs-on: ubuntu-latest
+    if: ${{ needs.filter.outputs.folder-manager == 'true'}} 
+    steps:
+      - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+      - name: CI/CD FolderManager
+        uses: ./.github/actions/picto-build-push
+        with:
+          directory: "FolderManager"
+          docker-image: "ak47001/picto:folder-manager"
+          application-yml: ${{ secrets.FOLDER_MANAGER_ACPPLICATION }}
+          application-port: "8082"
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          ssh_host: ${{ secrets.SSH_HOST }}
+          ssh_username: ${{ secrets.SSH_USERNAME }}
+          ssh_password: ${{ secrets.SSH_PASSWORD }}
+
+  photo-store:
+    needs: filter
+    runs-on: ubuntu-latest
+    if: ${{ needs.filter.outputs.photo-store == 'true'}} 
+    steps:
+      - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+      - name: CI/CD PhotoStore
+        uses: ./.github/actions/picto-build-push
+        with:
+          directory: "PhotoStore"
+          docker-image: "ak47001/picto:photo-store"
+          application-yml: ${{ secrets.PHOTO_STORE_ACPPLICATION }}
+          application-port: "8086"
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          ssh_host: ${{ secrets.SSH_HOST }}
+          ssh_username: ${{ secrets.SSH_USERNAME }}
+          ssh_password: ${{ secrets.SSH_PASSWORD }}
+
+  # generator:
+  #   needs: filter
+  #   runs-on: ubuntu-latest
+  #   if: ${{ needs.filter.outputs.generator == 'true'}} 
+  #   steps:
+  #     - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+  #     - name: CI/CD generator
+  #       uses: ./.github/actions/picto-build-push
+  #       with:
+  #         directory: "generator"
+  #         docker-image: "ak47001/picto:generator"
+  #         application-yml: ${{ secrets.GENERATOR_APPLICATION }}
+  #         application-port: 8080
+  #         dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+  #         ssh_host: ${{ secrets.SSH_HOST }}
+  #         ssh_username: ${{ secrets.SSH_USERNAME }}
+  #         ssh_password: ${{ secrets.SSH_PASSWORD }}

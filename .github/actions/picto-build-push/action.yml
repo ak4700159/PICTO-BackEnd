@@ -1,4 +1,4 @@
-name: "Picto Build and Push"
+name: "Picto CI/CD"
 description: "입력받은 작업 디렉토리에서 Gradle 빌드와 Docker 이미지 빌드를 수행하는 Composite Action"
 
 inputs:
@@ -11,12 +11,24 @@ inputs:
   application-yml:
     description: "application.yml 파일에 들어갈 내용"
     required: true
+  application-port:
+    description: "어플리케이션 사용 포트(내부 외부 포트 동일)"
+    required: true
   dockerhub_username:
     description: "DockerHub username"
     required: true
   dockerhub_password:
     description: "DockerHub password"
     required: true
+  ssh_host:
+    description: "PICTO ssh hostname"
+    requried: true
+  ssh_username:
+    description: "PICTO ssh username"
+    requried: true
+  ssh_password:
+    description: "PICTO ssh password"
+    requried: true
 
 runs:
   using: "composite"
@@ -67,3 +79,18 @@ runs:
       run: |
         docker image push ${{ inputs.docker-image }}
       shell: bash
+
+    - name: Connect SSH-Server
+      uses: appleboy/ssh-action@v0.1.4   
+      with:
+        host: ${{ inputs.ssh_host }}          
+        username: ${{ inputs.ssh_username }}
+        password: ${{ inputs.ssh_password }}
+        port: 22
+        timeout: 40s  # 30초 기본        
+        script: |
+          export PATH=/usr/local/bin:$PATH
+          docker stop ${{ inputs.directory }}
+          docker rm ${{ inputs.directory }}
+          docker pull ${{ inputs.docker-image }}
+          docker run -d --name ${{ inputs.directory }} -p ${{ inputs.application-port }}:${{ inputs.application-port }} ${{ inputs.docker-image }}
