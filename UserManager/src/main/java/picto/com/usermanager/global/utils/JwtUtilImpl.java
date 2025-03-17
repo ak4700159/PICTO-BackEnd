@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.json.JSONObject;
 
-import java.util.Base64;
-import java.util.Date;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 @Component
 @NoArgsConstructor
@@ -54,6 +51,7 @@ public class JwtUtilImpl implements picto.com.usermanager.global.utils.JwtUtil {
             // base64 디코딩 -> json 파싱 -> userId 추출
             DecodedJWT jwt = verifier.verify(givenToken);
             byte[] decodedPayload = Base64.getDecoder().decode(jwt.getPayload());
+            System.out.println("[INFO]decoded JWT : " + Arrays.toString(decodedPayload));
             JSONObject jsonObject = new JSONObject(new String(decodedPayload));
             //System.out.println("[INFO]userId from decodedJWT:" + jsonObject.get("userId"));
             //System.out.println("[INFO]userId from setting:" + userId.toString());
@@ -72,7 +70,6 @@ public class JwtUtilImpl implements picto.com.usermanager.global.utils.JwtUtil {
                 throw new Exception("[ERROR]refresh token error : " + e.getMessage());
             }
             throw new Exception(e.getMessage());
-
         }
     }
 }

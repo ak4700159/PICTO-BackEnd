@@ -127,7 +127,7 @@ jobs:
         with:
           directory: "FolderManager"
           docker-image: "ak47001/picto:folder-manager"
-          application-yml: ${{ secrets.FOLDER_MANAGER_ACPPLICATION }}
+          application-yml: ${{ secrets.FOLDER_MANAGER_APPLICATION }}
           application-port: "8082"
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -146,7 +146,7 @@ jobs:
         with:
           directory: "PhotoStore"
           docker-image: "ak47001/picto:photo-store"
-          application-yml: ${{ secrets.PHOTO_STORE_ACPPLICATION }}
+          application-yml: ${{ secrets.PHOTO_STORE_APPLICATION }}
           application-port: "8086"
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
