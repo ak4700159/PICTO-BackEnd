@@ -1,4 +1,4 @@
-package picto.com.photostore.domain;
+package picto.com.photostore.domain.locationinfo;
 
 import lombok.Builder;
 import lombok.Getter;

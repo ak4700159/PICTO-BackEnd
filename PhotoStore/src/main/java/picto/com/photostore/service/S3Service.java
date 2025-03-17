@@ -66,9 +66,9 @@ public class S3Service {
         }
     }
 
-    public byte[] downloadFile(String key) {
+    public byte[] downloadFile(String photoPath) {
         try {
-            S3Object s3Object = s3client.getObject(new GetObjectRequest(bucket, key));
+            S3Object s3Object = s3client.getObject(new GetObjectRequest(bucket, photoPath));
             S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
 
             try (objectInputStream) {
@@ -80,9 +80,9 @@ public class S3Service {
         }
     }
 
-    public void deleteFile(String key) {
+    public void deleteFile(String photoPath) {
         try {
-            s3client.deleteObject(bucket, key);
+            s3client.deleteObject(bucket, photoPath);
         } catch (AmazonServiceException e) {
             log.error("파일 삭제 실패: {}", e.getMessage());
             throw new FileDeleteException("파일 삭제 중 오류가 발생했습니다.", e);
@@ -104,10 +104,6 @@ public class S3Service {
             throw new InvalidFileException("이미지 파일만 업로드 가능합니다.");
         }
 
-        if (file.getSize() > 10 * 1024 * 1024) {
-            log.error("File too large: {} bytes", file.getSize());
-            throw new InvalidFileException("파일 크기가 10MB를 초과할 수 없습니다.");
-        }
         log.info("File validation successful");
     }
 

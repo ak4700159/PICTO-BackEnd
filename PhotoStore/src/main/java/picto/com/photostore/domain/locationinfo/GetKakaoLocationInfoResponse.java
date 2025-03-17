@@ -1,4 +1,4 @@
-package picto.com.photostore.domain;
+package picto.com.photostore.domain.locationinfo;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,8 +8,8 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class GetKakaoLocationInfoResponse {
-    private Meta meta;
-    private List<Document> documents;
+    private picto.com.photostore.domain.locationinfo.GetKakaoLocationInfoResponse.Meta meta;
+    private List<picto.com.photostore.domain.locationinfo.GetKakaoLocationInfoResponse.Document> documents;
 
     @Getter
     @NoArgsConstructor
@@ -20,8 +20,8 @@ public class GetKakaoLocationInfoResponse {
     @Getter
     @NoArgsConstructor
     public static class Document {
-        private RoadAddress road_address;
-        private Address address;
+        private picto.com.photostore.domain.locationinfo.GetKakaoLocationInfoResponse.RoadAddress road_address;
+        private picto.com.photostore.domain.locationinfo.GetKakaoLocationInfoResponse.Address address;
     }
 
     @Getter

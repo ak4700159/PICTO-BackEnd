@@ -269,7 +269,7 @@ public class FolderService {
                 .collect(Collectors.toList());
 
         userSaves.forEach(save -> {
-            String fileName = extractFileName(save.getPhoto().getS3FileName());
+            String fileName = extractFileName(save.getPhoto().getPhotoPath());
             deleteFileFromSharedUsers(folder, fileName);
             saveRepository.delete(save);
         });
@@ -292,14 +292,19 @@ public class FolderService {
 
         Folder folder = getFolderWithAccessCheck(folderId, userId);
 
+        // default 폴더는 업로드 차단
+        if (isDefaultFolder(folder)) {
+            throw new CustomException("기본 폴더에는 사진을 직접 업로드할 수 없습니다.");
+        }
+
         if (saveRepository.existsByFolderAndPhoto(folder, photo)) {
             throw new CustomException("이미 저장된 사진입니다.");
         }
 
         // 원본 파일 이름 추출
-        String originalFileName = extractFileName(photo.getS3FileName());
+        String originalFileName = extractFileName(photo.getPhotoPath());
         // 공유된 사용자에게 파일 복사
-        copyFileToSharedUsers(folder, originalFileName, photo.getS3FileName());
+        copyFileToSharedUsers(folder, originalFileName, photo.getPhotoPath());
 
         SaveId saveId = new SaveId(photoId, folder.getId());
         Save save = Save.builder()
@@ -309,6 +314,11 @@ public class FolderService {
                 .build();
 
         return SaveResponse.from(saveRepository.save(save));
+    }
+
+    // Default 폴더인지 확인하는 메서드
+    private boolean isDefaultFolder(Folder folder) {
+        return "default".equalsIgnoreCase(folder.getName());
     }
 
     // 폴더 사진 삭제
@@ -325,7 +335,7 @@ public class FolderService {
                 .orElseThrow(() -> new CustomException("폴더와 사진 매핑 정보를 찾을 수 없습니다."));
 
         // 원본 파일 이름 추출
-        String originalFileName = extractFileName(photo.getS3FileName());
+        String originalFileName = extractFileName(photo.getPhotoPath());
         // 공유된 사용자 폴더에서 삭제
         deleteFileFromSharedUsers(folder, originalFileName);
         saveRepository.delete(save);

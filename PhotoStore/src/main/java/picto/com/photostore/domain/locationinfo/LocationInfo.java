@@ -1,9 +1,10 @@
-package picto.com.photostore.domain;
+package picto.com.photostore.domain.locationinfo;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import picto.com.photostore.domain.photo.Photo;
 
 import java.io.Serializable;
 

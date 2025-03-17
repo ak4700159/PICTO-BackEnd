@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import picto.com.photostore.domain.*;
+import picto.com.photostore.domain.photo.*;
 import picto.com.photostore.exception.InvalidFileException;
 import picto.com.photostore.service.PhotoService;
 import picto.com.photostore.service.S3Service;
@@ -36,24 +36,6 @@ public class PhotoController {
         if (!request.isFrameActive() && (file == null || file.isEmpty())) {
             throw new InvalidFileException("일반 사진 업로드 시에는 파일이 필수입니다.");
         }
-
-        // 요청 정보 로깅
-        log.info("File upload request received");
-        if (file != null) {
-            log.info("File name: {}", file.getOriginalFilename());
-            log.info("File content type: {}", file.getContentType());
-            log.info("File size: {} bytes", file.getSize());
-        }
-
-        // Request 데이터 로깅
-        log.info("Request data: {}", request);
-        log.info("userId: {}", request.getUserId());
-        log.info("lat: {}", request.getLat());
-        log.info("lng: {}", request.getLng());
-        log.info("tag: {}", request.getTag());
-        log.info("registerTime: {}", request.getRegisterTime());
-        log.info("frameActive: {}", request.isFrameActive());
-        log.info("sharedActive: {}", request.isSharedActive());
 
         PhotoResponse response = photoService.uploadPhoto(file, request);
         log.info("File upload successful. PhotoId: {}", response.getPhotoId());
@@ -93,8 +75,8 @@ public class PhotoController {
     public ResponseEntity<byte[]> downloadPhoto(@PathVariable(name = "photoId") Long photoId) {
         try {
             Photo photo = photoService.getPhotoById(photoId);
-            byte[] imageBytes = s3Service.downloadFile(photo.getS3FileName());
-            String fileName = photo.getS3FileName();
+            byte[] imageBytes = s3Service.downloadFile(photo.getPhotoPath());
+            String fileName = photo.getPhotoPath();
             String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
 
             MediaType mediaType = switch (extension) {

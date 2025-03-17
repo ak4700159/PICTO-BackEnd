@@ -7,20 +7,23 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
-import picto.com.photostore.domain.*;
+import picto.com.photostore.domain.folder.Folder;
+import picto.com.photostore.domain.locationinfo.LocationInfo;
+import picto.com.photostore.domain.photo.FramePhotoUpdateRequest;
+import picto.com.photostore.domain.photo.Photo;
+import picto.com.photostore.domain.photo.PhotoResponse;
+import picto.com.photostore.domain.photo.PhotoUploadRequest;
 import picto.com.photostore.exception.*;
+import picto.com.photostore.repository.FolderRepository;
 import picto.com.photostore.repository.PhotoRepository;
 import picto.com.photostore.repository.UserRepository;
 import picto.com.photostore.repository.LocationInfoRepository;
-import picto.com.photostore.domain.Photo;
-import picto.com.photostore.domain.PhotoResponse;
-import picto.com.photostore.domain.PhotoUploadRequest;
-import picto.com.photostore.domain.GetKakaoLocationInfoResponse;
-import picto.com.photostore.domain.GetKakaoLocationInfoResponse.Address;
+import picto.com.photostore.domain.locationinfo.*;
 import picto.com.photostore.exception.PhotoUploadException;
-import picto.com.photostore.domain.User;
+import picto.com.photostore.domain.user.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,11 +34,15 @@ public class PhotoService {
     private final S3Service s3Service;
     private final PhotoRepository photoRepository;
     private final UserRepository userRepository;
+    private final FolderRepository folderRepository;
     private final LocationInfoRepository locationInfoRepository;
     private final SessionSchedulerClient sessionSchedulerClient;
 
     // 액자 개수 5개로 제한
     private static final int MAX_FRAME_PHOTOS_PER_USER = 5;
+
+    // 기본 폴더 이름 default로 설정
+    private static final String DEFAULT_FOLDER_NAME = "default";
 
     // 사진 업로드
     @Transactional
@@ -55,16 +62,30 @@ public class PhotoService {
             // 위치 정보 조회
             String location = getLocationInfo(request.getLng(), request.getLat());
 
-            // 일반 사진 or 액자 사진 저장
-            Photo savedPhoto = request.isFrameActive() ?
-                    saveFramePhoto(user, location, request) :
-                    saveRegularPhoto(file, user, location, request);
+            // 일반 사진인 경우
+            if (!request.isFrameActive()) {
+                // default 폴더 확인 후 없을 시 생성
+                Folder defaultFolder = folderRepository.findByGeneratorAndName(user, "default")
+                        .orElseGet(() -> createDefaultFolder(user));
+                return PhotoResponse.from(saveRegularPhoto(file, user, location, request, defaultFolder));
+            }
 
-            return PhotoResponse.from(savedPhoto);
+            // 액자 사진인 경우
+            return PhotoResponse.from(saveFramePhoto(user, location, request));
         } catch (Exception e) {
             log.error("사진 업로드 실패", e);
             throw new PhotoUploadException("사진 업로드 중 오류가 발생했습니다.", e);
         }
+    }
+
+    // default 폴더 생성
+    private Folder createDefaultFolder(User user) {
+        Folder defaultFolder = Folder.builder()
+                .generator(user)
+                .name(DEFAULT_FOLDER_NAME)
+                .content("기본 폴더")
+                .build();
+        return folderRepository.save(defaultFolder);
     }
 
     // 액자 사진 저장 처리
@@ -75,7 +96,6 @@ public class PhotoService {
         Photo framePhoto = Photo.builder()
                 .user(user)
                 .photoPath("temp_path")
-                .s3FileName("temp_file")
                 .lat(request.getLat())
                 .lng(request.getLng())
                 .location(location)
@@ -91,15 +111,14 @@ public class PhotoService {
     }
 
     // 일반 사진 저장 처리
-    private Photo saveRegularPhoto(MultipartFile file, User user, String location, PhotoUploadRequest request) {
-        // default 폴더 저장
-        String s3FileName = s3Service.uploadFile(file, user.getId(), null);
-        String photoPath = s3Service.getFileUrl(s3FileName);
+    private Photo saveRegularPhoto(MultipartFile file, User user, String location, PhotoUploadRequest request, Folder folder) {
+
+        String photoPath = s3Service.uploadFile(file, user.getId(),
+                folder.getName().equals("default") ? null : folder.getId());
 
         Photo regularPhoto = Photo.builder()
                 .user(user)
                 .photoPath(photoPath)
-                .s3FileName(s3FileName)
                 .lat(request.getLat())
                 .lng(request.getLng())
                 .location(location)
@@ -143,6 +162,12 @@ public class PhotoService {
         validateFile(file);
 
         try {
+            User user = photo.getUser();
+
+            // default 폴더 확인 후 없을 시 생성
+            Folder defaultFolder = folderRepository.findByGeneratorAndName(user, "default")
+                    .orElseGet(() -> createDefaultFolder(user));
+
             Photo updatedPhoto = updatePhotoWithNewImage(photo, file, request);
 
             if (request.isSharedActive()) {
@@ -158,16 +183,13 @@ public class PhotoService {
 
     // 액자 사진 새 데이터로 업데이트
     private Photo updatePhotoWithNewImage(Photo photo, MultipartFile file, FramePhotoUpdateRequest request) {
-        // default 폴더 저장
-        String s3FileName = s3Service.uploadFile(file, photo.getUser().getId(), null);
-        String photoPath = s3Service.getFileUrl(s3FileName);
+        String photoPath = s3Service.uploadFile(file, photo.getUser().getId(), null);
 
         photo.updatePhoto(
                 photo.getLat(),
                 photo.getLng(),
                 request.getTag(),
                 photoPath,
-                s3FileName,
                 false,
                 request.isSharedActive()
         );
@@ -204,7 +226,6 @@ public class PhotoService {
                 photo.getLng(),
                 photo.getTag(),
                 photo.getPhotoPath(),
-                photo.getS3FileName(),
                 photo.isFrameActive(),
                 shared
         );
@@ -240,8 +261,20 @@ public class PhotoService {
         }
 
         try {
-            s3Service.deleteFile(photo.getS3FileName());
+            s3Service.deleteFile(photo.getPhotoPath());
             photoRepository.delete(photo);
+
+            // 사용자 default 폴더 확인
+            Folder defaultFolder = folderRepository.findByGeneratorAndName(photo.getUser(), "default").orElse(null);
+
+            if (defaultFolder != null) {
+                long remainingPhotos = photoRepository.countByUserAndFrameActiveFalse(photo.getUser());
+
+                // default 폴더 내 사진이 없다면 삭제
+                if (remainingPhotos == 0) {
+                    folderRepository.delete(defaultFolder);
+                }
+            }
         } catch (Exception e) {
             log.error("사진 삭제 중 오류 발생", e);
             throw new FileDeleteException("사진 삭제 중 오류가 발생했습니다.", e);
@@ -318,10 +351,6 @@ public class PhotoService {
         String contentType = file.getContentType();
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new InvalidFileException("이미지 파일만 업로드 가능합니다.");
-        }
-
-        if (file.getSize() > 10 * 1024 * 1024) {
-            throw new InvalidFileException("파일 크기는 10MB를 초과할 수 없습니다.");
         }
     }
 
