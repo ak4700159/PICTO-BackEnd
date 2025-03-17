@@ -9,4 +9,6 @@ import java.util.List;
 public interface FolderRepository extends JpaRepository<Folder, Long> {
     @Query("select f from Folder f where f.user.userId = :userId")
     List<Folder> findByUserId(Long userId);
+
+    Folder findByFolderId(Long folderId);
 }
