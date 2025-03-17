@@ -1,18 +1,20 @@
-# JDK 17 이미지를 기반으로 설정
-FROM openjdk:17-jdk-slim
+FROM bellsoft/liberica-openjdk-alpine:18
+# or
+# FROM openjdk:8-jdk-alpine
+# FROM openjdk:11-jdk-alpine
 
-# 작업 디렉토리 설정
-WORKDIR /app
+CMD ["./gradlew", "clean", "build"]
+# or Maven
+# CMD ["./mvnw", "clean", "package"]
 
-# JAR 파일 복사 (./build/libs/에서 생성된 JAR 파일)
-COPY build/libs/*.jar app.jar
+VOLUME /tmp
 
-# 환경변수 설정
-ENV SERVER_PORT=8086
-ENV SPRING_PROFILES_ACTIVE=prod
+ARG JAR_FILE=build/libs/*.jar
+# or Maven
+# ARG JAR_FILE_PATH=target/*.jar
 
-# 컨테이너 포트 설정
-EXPOSE 8086
+COPY ${JAR_FILE} app.jar
 
-# 실행 명령어
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 8084
+
+ENTRYPOINT ["java","-jar","/app.jar"]
