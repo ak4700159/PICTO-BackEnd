@@ -31,7 +31,7 @@ jobs:
       photo-manager: ${{ steps.filter.outputs.photo }}
       user-manager: ${{ steps.filter.outputs.user }}
       session-handler: ${{ steps.filter.outputs.session }}
-      foler-manager: ${{ steps.filter.outputs.folder }}
+      folder-manager: ${{ steps.filter.outputs.folder }}
       photo-store: ${{ steps.filter.outputs.store }}
       genenrator: ${{ steps.filter.outputs.genenrator }}
     steps:
