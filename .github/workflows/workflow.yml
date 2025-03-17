@@ -6,11 +6,15 @@ on:
       - "SessionScheduler/**"
       - "PhotoManager/**"
       - "UserManager/**"
+      - "PhotoStore/**"
+      - "FolderManager/**"
   pull_request:
       paths:
       - "SessionScheduler/**"
       - "PhotoManager/**"
       - "UserManager/**"
+      - "PhotoStore/**"
+      - "FolderManager/**"
 
 # 환경 변수 설정
 
