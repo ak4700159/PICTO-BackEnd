@@ -8,6 +8,7 @@ on:
       - "UserManager/**"
       - "PhotoStore/**"
       - "FolderManager/**"
+      - "ChattingScheduler/**"
   pull_request:
       paths:
       - "SessionScheduler/**"
@@ -15,10 +16,8 @@ on:
       - "UserManager/**"
       - "PhotoStore/**"
       - "FolderManager/**"
+      - "ChattingScheduler/**"
 
-# 환경 변수 설정
-
-    
 # {소유자명}/{저장소명}@{참조자} 를 통해 다른 사용자가 만든 명령어 파이프라인을 사용할 수 있다.
 # ex) actions/checkout@v2는 실행 환경에서 현재 깃헙 레파지토리를 가지고 와서 main 브랜치로 checkout하는 동작을 수행
 
@@ -173,7 +172,7 @@ jobs:
           ssh_host: ${{ secrets.SSH_HOST }}
           ssh_username: ${{ secrets.SSH_USERNAME }}
           ssh_password: ${{ secrets.SSH_PASSWORD }}
-          
+
   # generator:
   #   needs: filter
   #   runs-on: ubuntu-latest
