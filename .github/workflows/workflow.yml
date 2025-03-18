@@ -163,7 +163,7 @@ jobs:
       - name: CI/CD ChatBrokder
         uses: ./.github/actions/picto-build-push
         with:
-          directory: "ChattingCheduler"
+          directory: "ChattingScheduler"
           docker-image: "ak47001/picto:chat-broker"
           application-yml: ${{ secrets.CHAT_BROKER_APPLICATION }}
           application-port: "8085"
