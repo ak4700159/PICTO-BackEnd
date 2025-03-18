@@ -102,7 +102,7 @@ public class PhotoManagerService {
             default: throw new Exception("식별할 수 없는 sort");
         }
 
-        //02-2 start_time 으로부터 period = 하루/일주일/한달/일년/ALL
+        //02-2 start_time 으로부터 period = 하루/일주일/한달/일년/전체
         String period = userFilter.getPeriod();
         System.out.println("period : " + period);
         long startDatetime = System.currentTimeMillis();
@@ -248,7 +248,6 @@ public class PhotoManagerService {
                 toList();
         return result;
     }
-
 
     // 사용자가 사진에 좋아요를 누른 경우
     public void ClickLike(Long photoId, Long userId){
