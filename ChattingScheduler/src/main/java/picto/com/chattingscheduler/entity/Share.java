@@ -1,4 +1,4 @@
-package picto.com.chattingscheduler.domain.session.entity;
+package picto.com.chattingscheduler.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

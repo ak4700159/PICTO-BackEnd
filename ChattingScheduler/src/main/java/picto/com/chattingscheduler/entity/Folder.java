@@ -1,4 +1,4 @@
-package picto.com.chattingscheduler.domain.session.entity;
+package picto.com.chattingscheduler.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -37,7 +37,8 @@ public class Folder {
     private String link;
 
     @Builder
-    public Folder(Long folderId, Long generatorId, String name, Long createdDatetime, String content, String link, User user) {
+    public Folder(Long folderId, Long generatorId, String name, Long createdDatetime, String content, String link,
+            User user) {
         this.folderId = folderId;
         this.generatorId = generatorId;
         this.user = user;

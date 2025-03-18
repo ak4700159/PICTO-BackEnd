@@ -1,5 +1,4 @@
-package picto.com.chattingscheduler.global.config.security;
-
+package picto.com.chattingscheduler.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -11,10 +10,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class WebSecurityConfig {
     // 스프링부트 보안인인증 무시 설정
     @Bean
-    public WebSecurityCustomizer configure(){
-        return (web ->
-                web.ignoring()
-                        .requestMatchers("/**"));
+    public WebSecurityCustomizer configure() {
+        return (web -> web.ignoring()
+                .requestMatchers("/**"));
     }
 
 }

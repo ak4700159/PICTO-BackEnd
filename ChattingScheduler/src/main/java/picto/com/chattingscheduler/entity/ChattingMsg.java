@@ -1,4 +1,4 @@
-package picto.com.chattingscheduler.domain.session.entity;
+package picto.com.chattingscheduler.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import java.util.Date;
 
 @Entity
 @Getter
@@ -23,8 +21,8 @@ public class ChattingMsg {
     @Column(name = "content", length = 100)
     private String content;
 
-    @Column(name = "send_datetime")
-    private Long sendDatetime;
+    @Column(name = "send_datetime", nullable = false)
+    private long sendDatetime;
 
     @Column(name = "folder_id", nullable = false)
     private Long folderId;
@@ -32,8 +30,11 @@ public class ChattingMsg {
     @Column(name = "sender_id", nullable = false)
     private Long senderId;
 
+    @Column(name = "generator_id", nullable = false)
+    private Long generatorId;
+
     @MapsId("folderId")
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "folder_id", nullable = false, referencedColumnName = "folder_id")
     private Folder folder;
@@ -45,9 +46,10 @@ public class ChattingMsg {
     private User user;
 
     @Builder
-    public ChattingMsg(String content, Folder folder, User user, Long sendDatetime) {
+    public ChattingMsg(String content, Folder folder, User user, long sendDatetime) {
         this.folderId = folder.getFolderId();
         this.senderId = user.getUserId();
+        this.generatorId = folder.getGeneratorId();
         this.content = content;
         this.sendDatetime = sendDatetime;
         this.user = user;

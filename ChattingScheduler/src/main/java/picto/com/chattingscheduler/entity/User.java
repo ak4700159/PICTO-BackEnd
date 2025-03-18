@@ -1,5 +1,4 @@
-package picto.com.chattingscheduler.domain.session.entity;
-
+package picto.com.chattingscheduler.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,7 +40,8 @@ public class User {
     String accountName;
 
     @Builder
-    public User(Long userId, String password, String name, String email, boolean profileActive, String profilePhotoPath, String intro, String accountName) {
+    public User(Long userId, String password, String name, String email, boolean profileActive, String profilePhotoPath,
+            String intro, String accountName) {
         this.userId = userId;
         this.name = name;
         this.email = email;

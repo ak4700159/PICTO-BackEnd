@@ -1,9 +1,9 @@
-package picto.com.chattingscheduler.domain.session.dao;
+package picto.com.chattingscheduler.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import picto.com.chattingscheduler.domain.session.entity.Share;
-import picto.com.chattingscheduler.domain.session.entity.ShareId;
+import picto.com.chattingscheduler.entity.Share;
+import picto.com.chattingscheduler.entity.ShareId;
 
 import java.util.List;
 
