@@ -33,6 +33,7 @@ jobs:
       session-handler: ${{ steps.filter.outputs.session }}
       folder-manager: ${{ steps.filter.outputs.folder }}
       photo-store: ${{ steps.filter.outputs.store }}
+      chat-broker: ${{ steps.filter.outputs.chat }}
       genenrator: ${{ steps.filter.outputs.genenrator }}
     steps:
       - uses: actions/checkout@v2
@@ -47,8 +48,8 @@ jobs:
             session: 'SessionScheduler/**'
             folder: 'FolderManager/**'
             store: 'PhotoStore/**'
+            chat: 'ChattingScheduler/**'
             generator: 'genenrator/**'
-            
 
   # 이후부터는 선택적으로 실행된다 -> 폴더 변화 유무에 따라 실행
   # 8080 : generator server
@@ -154,6 +155,25 @@ jobs:
           ssh_username: ${{ secrets.SSH_USERNAME }}
           ssh_password: ${{ secrets.SSH_PASSWORD }}
 
+  chat-broker:
+    needs: filter
+    runs-on: ubuntu-latest
+    if: ${{ needs.filter.outputs.chat-broker == 'true'}} 
+    steps:
+      - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+      - name: CI/CD ChatBrokder
+        uses: ./.github/actions/picto-build-push
+        with:
+          directory: "ChattingCheduler"
+          docker-image: "ak47001/picto:chat-broker"
+          application-yml: ${{ secrets.CHAT_BROKER_APPLICATION }}
+          application-port: "8085"
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          ssh_host: ${{ secrets.SSH_HOST }}
+          ssh_username: ${{ secrets.SSH_USERNAME }}
+          ssh_password: ${{ secrets.SSH_PASSWORD }}
+          
   # generator:
   #   needs: filter
   #   runs-on: ubuntu-latest
