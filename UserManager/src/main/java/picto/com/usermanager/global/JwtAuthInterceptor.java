@@ -39,7 +39,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
                 }
                 System.out.println("[INFO]token validated");
             } catch(Exception e) {
-                System.out.println("[WARN]JWT verification failed");
+                System.out.println("[WARN]JWT verification failed : " + e.getMessage());
                 response.setContentType("text/html; charset=utf-8");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 PrintWriter out = response.getWriter();
@@ -50,7 +50,7 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
                 return false;
             }
         } catch (NullPointerException e) {
-            System.out.println("[WARN]JWT verification failed");
+            System.out.println("[WARN]JWT verification failed : " + e.getMessage());
             response.setContentType("text/json; charset=utf-8");
             response.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
             PrintWriter out = response.getWriter();
