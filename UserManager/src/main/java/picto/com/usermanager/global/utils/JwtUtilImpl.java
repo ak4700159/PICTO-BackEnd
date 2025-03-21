@@ -23,16 +23,17 @@ public class JwtUtilImpl implements picto.com.usermanager.global.utils.JwtUtil {
     @Value("${jwt.refresh_secret}")
     private String REFRESH_SECRET_KEY;
 
-    // refresh token 유효 시간 : 일주일
-    final private Date REFRESH_EXPIRATION_TIME = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7);
-    // access token 유효 시간 : 12시간
-    final private Date ACCESS_EXPIRATION_TIME = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 12);
     final private String ISSUER = "picto.com";
     private Long userId;
     private boolean isAccess;
 
     @Override
     public String createToken() {
+        // refresh token 유효 시간 : 일주일
+        Date REFRESH_EXPIRATION_TIME = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7);
+        // access token 유효 시간 : 12시간
+        Date ACCESS_EXPIRATION_TIME = new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 12);
+
         Random rand = new Random();
         rand.setSeed(System.currentTimeMillis());
         return JWT.create()
@@ -69,7 +70,7 @@ public class JwtUtilImpl implements picto.com.usermanager.global.utils.JwtUtil {
             }
         } catch (Exception e) {
             if(!e.getMessage().contains("[Token]")) {
-                throw new Exception("[ERROR]refresh token error : " + e.getMessage());
+                throw new Exception("[ERROR]token error : " + e.getMessage());
             }
             throw new Exception(e.getMessage());
         }
