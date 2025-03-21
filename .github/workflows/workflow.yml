@@ -9,14 +9,6 @@ on:
       - "PhotoStore/**"
       - "FolderManager/**"
       - "ChattingScheduler/**"
-  pull_request:
-      paths:
-      - "SessionScheduler/**"
-      - "PhotoManager/**"
-      - "UserManager/**"
-      - "PhotoStore/**"
-      - "FolderManager/**"
-      - "ChattingScheduler/**"
 
 # {소유자명}/{저장소명}@{참조자} 를 통해 다른 사용자가 만든 명령어 파이프라인을 사용할 수 있다.
 # ex) actions/checkout@v2는 실행 환경에서 현재 깃헙 레파지토리를 가지고 와서 main 브랜치로 checkout하는 동작을 수행
@@ -36,6 +28,8 @@ jobs:
       genenrator: ${{ steps.filter.outputs.genenrator }}
     steps:
       - uses: actions/checkout@v2
+        with: 
+          ref: github.ref
       - name: Filter changed paths
         id: filter
         uses: dorny/paths-filter@v2
@@ -65,6 +59,8 @@ jobs:
     if: ${{ needs.filter.outputs.photo-manager == 'true' }}
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+        with: 
+          ref: github.ref
       - name: CI/CD PhotoManager
         uses: ./.github/actions/picto-build-push
         with:
@@ -84,6 +80,8 @@ jobs:
     if: ${{ needs.filter.outputs.user-manager == 'true' }}
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+        with: 
+          ref: github.ref
       - name: CI/CD UserManager
         uses: ./.github/actions/picto-build-push
         with:
@@ -103,6 +101,8 @@ jobs:
     if: ${{ needs.filter.outputs.session-handler == 'true'}} 
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+        with: 
+          ref: github.ref
       - name: CI/CD SessionScheduler
         uses: ./.github/actions/picto-build-push
         with:
@@ -122,6 +122,8 @@ jobs:
     if: ${{ needs.filter.outputs.folder-manager == 'true'}} 
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+        with: 
+          ref: github.ref
       - name: CI/CD FolderManager
         uses: ./.github/actions/picto-build-push
         with:
@@ -141,6 +143,8 @@ jobs:
     if: ${{ needs.filter.outputs.photo-store == 'true'}} 
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+        with: 
+          ref: github.ref
       - name: CI/CD PhotoStore
         uses: ./.github/actions/picto-build-push
         with:
@@ -160,6 +164,8 @@ jobs:
     if: ${{ needs.filter.outputs.chat-broker == 'true'}} 
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
+        with: 
+          ref: github.ref
       - name: CI/CD ChatBrokder
         uses: ./.github/actions/picto-build-push
         with:

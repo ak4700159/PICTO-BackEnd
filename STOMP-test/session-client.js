@@ -15,7 +15,7 @@ const rl = readline.createInterface({ input, output });
 const senderId = process.argv[2]
 
 // URL
-const ip = "bogota.iptime.org"
+const ip = "localhost"
 
 function askQuestion(query) {
     return new Promise((resolve) => {
