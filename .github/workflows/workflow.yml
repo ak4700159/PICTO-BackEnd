@@ -29,7 +29,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with: 
-          ref: github.ref
+          ref: ${{ github.ref }}
       - name: Filter changed paths
         id: filter
         uses: dorny/paths-filter@v2
@@ -59,8 +59,6 @@ jobs:
     if: ${{ needs.filter.outputs.photo-manager == 'true' }}
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
-        with: 
-          ref: github.ref
       - name: CI/CD PhotoManager
         uses: ./.github/actions/picto-build-push
         with:
@@ -80,8 +78,6 @@ jobs:
     if: ${{ needs.filter.outputs.user-manager == 'true' }}
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
-        with: 
-          ref: github.ref
       - name: CI/CD UserManager
         uses: ./.github/actions/picto-build-push
         with:
@@ -101,8 +97,6 @@ jobs:
     if: ${{ needs.filter.outputs.session-handler == 'true'}} 
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
-        with: 
-          ref: github.ref
       - name: CI/CD SessionScheduler
         uses: ./.github/actions/picto-build-push
         with:
@@ -122,8 +116,6 @@ jobs:
     if: ${{ needs.filter.outputs.folder-manager == 'true'}} 
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
-        with: 
-          ref: github.ref
       - name: CI/CD FolderManager
         uses: ./.github/actions/picto-build-push
         with:
@@ -143,8 +135,6 @@ jobs:
     if: ${{ needs.filter.outputs.photo-store == 'true'}} 
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
-        with: 
-          ref: github.ref
       - name: CI/CD PhotoStore
         uses: ./.github/actions/picto-build-push
         with:
@@ -164,8 +154,6 @@ jobs:
     if: ${{ needs.filter.outputs.chat-broker == 'true'}} 
     steps:
       - uses: actions/checkout@v3  # <- 반드시 먼저 체크아웃
-        with: 
-          ref: github.ref
       - name: CI/CD ChatBrokder
         uses: ./.github/actions/picto-build-push
         with:
