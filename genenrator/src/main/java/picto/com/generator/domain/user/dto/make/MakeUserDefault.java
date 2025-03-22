@@ -25,11 +25,15 @@ public class MakeUserDefault {
         int rightLimit = 122; // letter 'z'
         int targetStringLength = 10;
         Random random = new Random();
+
         String generatedString = random.ints(leftLimit, rightLimit + 1)
                 .limit(targetStringLength)
+                // IntStream을 문자열로 변환
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
+        // 비밀번호 암호화
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        // Long.toString(count) = count값을 문자열로 변환
         String hashedPwd = passwordEncoder.encode((Long.toString(count) + 1));
 
         return User.builder().
