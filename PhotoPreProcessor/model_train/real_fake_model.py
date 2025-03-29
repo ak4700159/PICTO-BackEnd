@@ -4,6 +4,7 @@ from PIL import Image
 from io import BytesIO
 import torchvision.transforms as transforms
 import os
+import time
 
 class SimpleCNN(nn.Module):
     def __init__(self, train_loader, val_loader, device):
@@ -13,11 +14,14 @@ class SimpleCNN(nn.Module):
         self.val_loader = val_loader
 
         self.net = nn.Sequential(
+            # 컨볼루션 계충
             nn.Conv2d(3, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(), nn.MaxPool2d(2),
             nn.Conv2d(32, 64, 3, padding=1), nn.BatchNorm2d(64), nn.ReLU(), nn.MaxPool2d(2),
             nn.AdaptiveAvgPool2d((7, 7)),
             nn.Flatten(),
+            # 완전 연결 계층
             nn.Linear(64 * 7 * 7, 128), nn.BatchNorm1d(128), nn.ReLU(),
+            # 최종적으로 2개의 라벨로 분류 -> Real(1) OR Fake(0)
             nn.Linear(128, 2)
         )
 
@@ -30,9 +34,10 @@ class SimpleCNN(nn.Module):
 
     def train_model(self, num_epochs=5):
         for epoch in range(num_epochs):
+            start_time = time.time()
             self.train()
             total_loss = 0
-            # 배치마다 가중치 업데이트 
+
             for images, labels in self.train_loader:
                 images, labels = images.to(self.device), labels.to(self.device)
 
@@ -45,9 +50,11 @@ class SimpleCNN(nn.Module):
 
                 total_loss += loss.item()
 
-            print(f"Epoch {epoch + 1}, Loss: {total_loss:.4f}")
+            elapsed_time = time.time() - start_time
+            minutes, seconds = divmod(elapsed_time, 60)  # 분:초 나누기
+
+            print(f"Epoch {epoch + 1}, Loss: {total_loss:.4f}, Time: {int(minutes)}m {int(seconds)}s")
             self.validate()
-        self.save_model()
 
     def save_model(self, path="real_fake_model.pth"):
         torch.save(self.state_dict(), path)
