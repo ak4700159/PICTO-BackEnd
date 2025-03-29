@@ -2,6 +2,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from real_fake_dataset import RealFakeDataset
 from real_fake_model import SimpleCNN
+from efficientnet_model import EfficientNetClassifier
 import torch
 from datasets import load_dataset
 
@@ -31,6 +32,11 @@ if __name__ == '__main__':
 
     print(f"Training samples: {len(train_loader.dataset)}")
     print(f"Validation samples: {len(val_loader.dataset)}")
-    
-    model = SimpleCNN(train_loader, val_loader, device)
+
+    # model = SimpleCNN(train_loader, val_loader, device)
+    # model.train_model(num_epochs=10)
+    model = EfficientNetClassifier(train_loader, val_loader, device)
     model.train_model(num_epochs=10)
+
+
+    

@@ -79,6 +79,7 @@ def predict(image_path):
   }
 
 # https://deeplearning.cms.waikato.ac.nz/user-guide/class-maps/IMAGENET/ 카테고리 내용 
+# 개, 고양이, 다람쥐, 햄스터, 새, 곤충, 파충류, 해양생물, 물고기, 돼지
 imagenet_categories = {
     '개': list(range(151, 269)),
     '고양이': [281, 282, 283, 284, 285],
@@ -92,11 +93,13 @@ imagenet_categories = {
     '돼지' : [338, 341]
 }
 
+
 # http://places2.csail.mit.edu/models_places365/categories_places365.txt 카테고리 내용
+# 산, 바다, 강, 들판, 숲, 하늘
 places_categories = {
     '산': [232, 233, 234],
     '바다': [243, 342, 357, 48, 97],
-    '호수, 강': [205, 271, 145],
+    '강': [205, 271, 145],
     '들판': [140, 141, 142, 138, 104, 359, 287, 258, 209],
     '숲': [150, 151, 152, 36, 279],
     '하늘': [306],
