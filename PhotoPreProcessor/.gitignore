@@ -1,0 +1,7 @@
+*.jpg
+*.pth
+*.tar
+
+
+__pycache__
+uploads

@@ -39,21 +39,35 @@ public class UserManagerGetService {
 
         // 폴더별 사진 조회
         List<Share> shares = shareRepository.findByUserId(userId);
-
         Map<Folder, List<Photo>> folderPhoto = new HashMap<>();
         for (Long folderId : shares.stream().map(share -> share.getId().getFolderId()).toList()) {
             List<Save> saves = saveRepsitory.getSaveByFolderId(folderId);
             List<Photo> photoList = new ArrayList<>();
             Folder folder = folderRepository.findByFolderId(folderId);
             for (Save save : saves) {
-                System.out.println("[INFO]photo list added");
-                photoList.add(photoRepository.getReferenceById(save.getId().getPhotoId()));
+                Photo photo = photoRepository.getReferenceById(save.getId().getPhotoId());
+                if (!photo.getUser().getId().equals(userId)) {
+                    System.out.println("[INFO] other people photo add");
+                    photoList.add(photo);
+                }
             }
             folderPhoto.put(folder, photoList);
         }
 
+        // 내 전체 사진 조회
+        List<Photo> myPhotos = new ArrayList<>();
+        myPhotos = photoRepository.findByUserId(userId);
+
         // Response entity 반환
-        return GetUserInfoResponse.builder().folderPhoto(folderPhoto).user(user).setting(setting).filter(filter).tags(tags).build();
+        return GetUserInfoResponse
+                .builder()
+                .folderPhoto(folderPhoto)
+                .user(user)
+                .setting(setting)
+                .filter(filter)
+                .tags(tags)
+                .myPhotos(myPhotos)
+                .build();
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 import easyocr
 
+# 결과값에 대해 더 자세히 알아봐야됨
 class TextDetector:
     def __init__(self):
         self.languages = ['en', 'ko']
