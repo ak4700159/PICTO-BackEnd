@@ -51,3 +51,7 @@ application-private.yml
 *.vhdx
 
 **/generated/**
+
+node_modules
+
+json.txt
