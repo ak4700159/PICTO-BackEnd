@@ -118,7 +118,7 @@ public class PhotoManagerService {
         System.out.println("endDatetime : " + sdf.format(endDate));
         photos = photos
                 .stream()
-                .filter((photo)-> (photo.getUploadDatetime() >= startDatetime && photo.getUploadDatetime() <= endDatetime))
+                .filter((photo)-> (photo.getUploadDatetime() <= startDatetime && photo.getUploadDatetime() >= endDatetime))
                 .toList();
         System.out.println("STEP 02 size[유저 설정 시간, 정렬에 맞는 사진 조회] : " + photos.size());
 
