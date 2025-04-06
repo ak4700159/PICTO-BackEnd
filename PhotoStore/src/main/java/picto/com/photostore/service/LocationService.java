@@ -5,12 +5,19 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import picto.com.photostore.domain.locationinfo.GetKakaoLocationInfoResponse;
+import org.springframework.beans.factory.annotation.Value;
 
+@Service
 @Slf4j
 public class LocationService {
-    static public GetKakaoLocationInfoResponse searchLocation(double lng, double lat) {
+
+    @Value("${kakao.api.key}")
+    private String kakaoApiKey;
+
+    public GetKakaoLocationInfoResponse searchLocation(double lng, double lat) {
         final RestTemplate restTemplate = new RestTemplate();
 
         String url = String.format(
@@ -19,7 +26,7 @@ public class LocationService {
         );
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "KakaoAK 88ec86565e1e0ba7d7cf88440d7621e6");
+        headers.set("Authorization", "KakaoAK " + kakaoApiKey);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
