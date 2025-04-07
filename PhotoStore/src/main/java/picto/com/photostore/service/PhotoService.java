@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PhotoService {
     private final S3Service s3Service;
+    private final LocationService locationService;
     private final PhotoRepository photoRepository;
     private final UserRepository userRepository;
     private final FolderRepository folderRepository;
@@ -286,7 +287,7 @@ public class PhotoService {
         if (lat == 0 && lng == 0) return null;
 
         try {
-            GetKakaoLocationInfoResponse locationResponse = LocationService.searchLocation(lng, lat);
+            GetKakaoLocationInfoResponse locationResponse = locationService.searchLocation(lng, lat);
             if (locationResponse.getDocuments() != null && !locationResponse.getDocuments().isEmpty()) {
                 return createLocationString(locationResponse.getDocuments().get(0));
             }
