@@ -69,7 +69,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 requestURI.startsWith("/api-docs") ||
                 requestURI.equals("/favicon.ico") ||
                 requestURI.equals("/error") ||
-                requestURI.startsWith("/user-manager/refresh-token")) {
+                requestURI.startsWith("/user-manager/refresh-token") ||
+                requestURI.startsWith("/user-manager/email")) {
             filterChain.doFilter(request, response);
             return;
         }

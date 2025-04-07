@@ -35,7 +35,7 @@ public class SecurityConfig {
                                 .requestMatchers("/user-manager/signin*", "/user-manager/signup*",
                                         "/user-manager/public*", "/user-manager/index*", "/swagger-ui/*", "/api-docs/*",
                                         "/signin*", "/signup*", "/public*", "/index*", "/api-docs", "/favicon.ico",
-                                        "/user-manager/refresh-token", "/error")
+                                        "/user-manager/refresh-token", "/error", "/user-manager/email/*")
                                 .permitAll()
                                 // .requestMatchers("/public", "/swagger-ui/index.html")
                                 .anyRequest()

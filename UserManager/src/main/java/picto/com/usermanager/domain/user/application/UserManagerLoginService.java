@@ -295,4 +295,12 @@ public class UserManagerLoginService {
             throw new RuntimeException("토큰 갱신에 실패했습니다: " + e.getMessage());
         }
     }
+
+    @Transactional
+    public void verifyDuplicatedUser(String userEmail) throws IllegalAccessException {
+        if (userRepository.getUserByEmail(userEmail) != null) {
+            System.out.println("중복된 유저");
+            throw new IllegalAccessException("Duplicated");
+        }
+    }
 }
