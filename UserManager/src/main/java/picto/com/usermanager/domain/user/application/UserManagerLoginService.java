@@ -209,9 +209,22 @@ public class UserManagerLoginService {
     public SignInResponse signIn(SignInRequest signInRequest) throws IllegalAccessException {
         try {
             // 존재하는 사용자인지 검증
-            User findUser = userRepository.getUserByAccountName(signInRequest.getUsername());
-            if (findUser == null) {
-                throw new IllegalAccessException("NotFoundUser");
+            String username;
+            User findUser;
+            if (signInRequest.getUsername() != null && !signInRequest.getUsername().isEmpty()) {
+                username = signInRequest.getUsername();
+                findUser = userRepository.getUserByAccountName(username);
+                if (findUser == null) {
+                    throw new IllegalAccessException("NotFoundUsername");
+                }
+            } else if (signInRequest.getEmail() != null && !signInRequest.getEmail().isEmpty()) {
+                username = signInRequest.getEmail();
+                findUser = userRepository.getUserByEmail(username);
+                if (findUser == null) {
+                    throw new IllegalAccessException("NotFoundEmail");
+                }
+            } else {
+                throw new IllegalAccessException("please enter username or email");
             }
 
             // Keycloak에서 토큰 발행
@@ -222,7 +235,7 @@ public class UserManagerLoginService {
                         .grantType("password")
                         .clientId(clientId)
                         .clientSecret(clientSecret)
-                        .username(signInRequest.getUsername())
+                        .username(username)
                         .password(signInRequest.getPassword())
                         .build();
 

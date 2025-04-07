@@ -1,11 +1,7 @@
 function signIn() {
   const username = $('#signin-username').val();
+  const email = $('#signin-email').val();
   const password = $('#signin-password').val();
-
-  if (!username || !password) {
-    alert('아이디와 비밀번호를 모두 입력해주세요.');
-    return;
-  }
 
   // 기존 토큰 삭제
   localStorage.removeItem('accessToken');
@@ -17,6 +13,7 @@ function signIn() {
     contentType: 'application/json',
     data: JSON.stringify({
       username: username,
+      email: email,
       password: password
     }),
     success: function (response) {
