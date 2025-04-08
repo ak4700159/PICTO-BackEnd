@@ -10,7 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Long> {
-    Optional<Folder> findByLink(String link);
     List<Folder> findAllByOrderByIdAsc();
     boolean existsByGeneratorAndName(User generator, String name);
 }

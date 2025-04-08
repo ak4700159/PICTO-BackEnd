@@ -34,17 +34,12 @@ public class Folder {
     @Column(name = "created_datetime", nullable = false)
     private Long createdDatetime;
 
-    // 폴더 초대 링크
-    @Column(name = "link", nullable = false, length = 30)
-    private String link;
-
     @Builder
     public Folder(User generator, String name, String content) {
         this.generator = generator;
         this.name = name;
         this.content = content;
         this.createdDatetime = System.currentTimeMillis();
-        this.link = UUID.randomUUID().toString().substring(0, 30);
     }
 
     public void update(String name, String content) {
