@@ -6,21 +6,19 @@ import lombok.Getter;
 @Getter
 @Builder
 public class FolderResponse {
-    private Long id;
-    private Long generatorId;
-    private String name;
+    private Long folderId;
+    private Long userId;
+    private String folderName;
     private String content;
-    private Long createdDatetime;
-    private String link;
+    private Long sharedDatetime;
 
     public static picto.com.foldermanager.domain.folder.FolderResponse from(Folder folder) {
-        return picto.com.foldermanager.domain.folder.FolderResponse.builder()
-                .id(folder.getId())
-                .generatorId(folder.getGenerator().getId())
-                .name(folder.getName())
+        return FolderResponse.builder()
+                .folderId(folder.getId())
+                .userId(folder.getGenerator().getId())
+                .folderName(folder.getName())
                 .content(folder.getContent())
-                .createdDatetime(folder.getCreatedDatetime())
-                .link(folder.getLink())
+                .sharedDatetime(folder.getCreatedDatetime())
                 .build();
     }
 }
