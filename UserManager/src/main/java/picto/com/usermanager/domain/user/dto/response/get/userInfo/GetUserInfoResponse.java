@@ -20,7 +20,7 @@ public class GetUserInfoResponse {
 
     @Builder
     public GetUserInfoResponse(User user, UserSetting setting, Filter filter,
-                               List<TagSelect> tags, Map<Folder, List<Photo>> folderPhoto) {
+                               List<TagSelect> tags, Map<Folder, List<Photo>> folderPhoto, List<Photo> myPhotos) {
         this.user = new GetUser(user);
         this.filter = new GetFilter(filter);
         this.userSetting = new GetSetting(setting);
@@ -30,12 +30,15 @@ public class GetUserInfoResponse {
             this.tags.add(tag.getTagSelectedId().getTag());
         }
 
-        //
         this.folderPhotos = new ArrayList<GetFolderPhoto>();
         for (Folder folder : folderPhoto.keySet()) {
             for (Photo photo : folderPhoto.get(folder)) {
                 folderPhotos.add(new GetFolderPhoto(folder, photo));
             }
+        }
+
+        for(Photo photo : myPhotos) {
+            folderPhotos.add(new GetFolderPhoto(null, photo));
         }
     }
 }

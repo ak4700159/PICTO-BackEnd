@@ -12,16 +12,17 @@ public class SignUpRequest {
     private String email;
     private String password;
     private String name;
+    private String accountName;
 
     private double lat;
     private double lng;
 
-
     @Builder
-    public SignUpRequest(String email, String password, String name, double lat, double lng) {
+    public SignUpRequest(String email, String password, String name, String accountName, double lat, double lng) {
         this.email = email;
         this.password = password;
         this.name = name;
+        this.accountName = accountName;
         this.lat = lat;
         this.lng = lng;
     }

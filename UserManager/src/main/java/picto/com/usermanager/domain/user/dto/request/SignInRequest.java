@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SignInRequest {
+    private String username;
     private String email;
     private String password;
 
     @Builder
-    public SignInRequest(String email, String password) {
+    public SignInRequest(String username, String email, String password) {
+        this.username = username;
         this.email = email;
         this.password = password;
     }

@@ -7,7 +7,7 @@ import picto.com.usermanager.domain.user.dao.BlockRepository;
 import picto.com.usermanager.domain.user.dao.MarkRepository;
 import picto.com.usermanager.domain.user.dao.UserRepository;
 import picto.com.usermanager.domain.user.dto.request.EventRequest;
-import picto.com.usermanager.domain.user.dto.request.USerRequest;
+import picto.com.usermanager.domain.user.dto.request.UserRequest;
 import picto.com.usermanager.domain.user.entity.*;
 
 @Service
@@ -18,7 +18,7 @@ public class UserManagerDeleteService {
     private final BlockRepository blockRepository;
 
     @Transactional
-    public void deleteUSer(USerRequest request){
+    public void deleteUSer(UserRequest request){
         try {
             userRepository.delete(userRepository.getReferenceById(request.getUserId()));
         }catch (IllegalArgumentException e){

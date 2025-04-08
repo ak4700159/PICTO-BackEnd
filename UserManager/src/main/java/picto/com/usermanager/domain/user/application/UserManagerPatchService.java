@@ -19,7 +19,7 @@ public class UserManagerPatchService {
     private final FilterRepository filterRepository;
 
     @Transactional
-    public void fetchUser(USerRequest request) throws IllegalAccessException {
+    public void fetchUser(UserRequest request) throws IllegalAccessException {
         User findUser = userRepository.getReferenceById(request.getUserId());
         if (findUser != null) {
             // 비밀번호 변경인 경우
