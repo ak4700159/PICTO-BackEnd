@@ -17,7 +17,7 @@ public class UserManagerPatchController {
 
     // 사용자 정보 변경 사항 저장
     @PatchMapping("/user-manager/user")
-    public ResponseEntity<?> modifyUser(@RequestBody USerRequest request) {
+    public ResponseEntity<?> modifyUser(@RequestBody UserRequest request) {
         try{
             userManagerPatchService.fetchUser(request);
 

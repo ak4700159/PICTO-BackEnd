@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 // 사용자 정보 수정 및 삭제
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class USerRequest {
+public class UserRequest {
     private Long userId;
     private String name;
     private String accountName;
