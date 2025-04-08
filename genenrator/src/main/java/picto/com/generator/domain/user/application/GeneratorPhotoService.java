@@ -2,6 +2,7 @@ package picto.com.generator.domain.user.application;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import picto.com.generator.domain.user.dao.*;
 import picto.com.generator.domain.user.dto.make.MakeDefaultLocationInfo;
@@ -9,7 +10,9 @@ import picto.com.generator.domain.user.dto.make.MakeDefaultPhoto;
 import picto.com.generator.domain.user.dto.response.GetKakaoLocationInfoResponse;
 import picto.com.generator.domain.user.entity.*;
 import picto.com.generator.global.utils.KakaoUtils;
+import picto.com.generator.global.utils.S3Uploader;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -25,6 +28,7 @@ public class GeneratorPhotoService {
     private final LocationInfoRepository locationInfoRepository;
 
     private final KakaoUtils kakaoUtils;
+    private final S3Uploader s3Uploader;
 
     @Transactional
     public Map<String, Object> createTestPhoto(Long userId, Long photoId){
@@ -39,6 +43,19 @@ public class GeneratorPhotoService {
         // 밑에 문장은 비용이 많이 들 것이다... --> static function 으로 변환
         GetKakaoLocationInfoResponse kakaoResponse = kakaoUtils.convertLocationFromPos(lng, lat);
         result = new MakeDefaultPhoto().toRandomPhoto(userId, photoId, user, kakaoResponse);
+
+        // S3 업로드
+        try {
+            ClassPathResource imageResource = new ClassPathResource("static/test_image.jpg");
+            InputStream inputStream = imageResource.getInputStream();
+            String imageUrl = s3Uploader.upload(inputStream, "test_image.jpg", "image/jpeg", imageResource.contentLength());
+
+            ((Photo) result.get("photo")).setPhotoPath(imageUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("S3 업로드 실패");
+        }
+
         result.put("kakaoResponse", kakaoResponse);
         photoRepository.save((Photo)result.get("photo"));
         return result;

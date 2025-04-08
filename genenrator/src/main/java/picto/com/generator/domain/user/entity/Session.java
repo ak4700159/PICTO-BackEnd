@@ -30,16 +30,12 @@ public class Session {
     @Column(name = "location", length = 50)
     private String location;
 
-    @Column(name = "active")
-    private Boolean active;
-
     @Builder
-    public Session(User user, Double currentLat, Double currentLng, String location, Boolean active) {
+    public Session(User user, Double currentLat, Double currentLng, String location) {
         this.user = user;
         this.currentLat = currentLat;
         this.currentLng = currentLng;
         this.location = location;
-        this.active = active;
     }
 
 }

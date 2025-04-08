@@ -40,6 +40,7 @@ public class GeneratorUserService {
     public void makeFilterN(ArrayList<User> users){
         System.out.println(users.get(0).getName());
         for(int i = 0; i < users.toArray().length; i++){
+            // getReferenceById : 데이터 조회 / 지연 로딩
             User user = userRepository.getReferenceById(users.get(i).getUserId());
             // 기본 필터 저장 [정렬 : 좋아요순] / [기간 : 한달] / [start_datetime : 생성기준 UTC]
             Filter filter = new MakeDefaultFilter().toEntity(user);

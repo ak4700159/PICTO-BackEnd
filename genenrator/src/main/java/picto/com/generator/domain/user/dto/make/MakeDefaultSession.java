@@ -17,7 +17,6 @@ public class MakeDefaultSession {
                 currentLat(lat).
                 currentLng(lng).
                 location(location).
-                active(false).
                 build();
     }
 }
