@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.List;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +31,6 @@ public class MessageController {
         private final UserRepository userRepository;
         private final ChattingMsgRepository chattingMsgRepository;
         private final FolderRepository folderRepository;
-        private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         public MessageController(UserRepository userRepository, ChattingMsgRepository chattingMsgRepository,
                         FolderRepository folderRepository) {
@@ -64,9 +62,8 @@ public class MessageController {
                                 .build();
                 chattingMsgRepository.save(message);
 
-                String formattedDateTime = Instant.ofEpochSecond(sendDatetime).atZone(ZoneId.of("Asia/Seoul"))
-                                .format(DATE_TIME_FORMATTER);
-                return new ChatMessageResponse(formattedDateTime + " " + user.getAccountName(), request.content());
+                return new ChatMessageResponse(sendDatetime, user.getAccountName(), user.getUserId(),
+                                request.content());
         }
 
         // 채팅내역 조회 함수 (어제부터 현재까지)
@@ -89,12 +86,9 @@ public class MessageController {
         public List<ChatMessageResponse> getChatHistory(@PathVariable Long folderId) {
                 return getPastMessages(folderId).stream()
                                 .map(msg -> {
-                                        String formattedDateTime = Instant.ofEpochSecond(msg.getSendDatetime())
-                                                        .atZone(ZoneId.of("Asia/Seoul"))
-                                                        .format(DATE_TIME_FORMATTER);
-                                        return new ChatMessageResponse(
-                                                        formattedDateTime + " " + msg.getUser().getAccountName(),
-                                                        msg.getContent());
+                                        return new ChatMessageResponse(msg.getSendDatetime(),
+                                                        msg.getUser().getAccountName(),
+                                                        msg.getSenderId(), msg.getContent());
                                 })
                                 .collect(Collectors.toList());
         }
@@ -103,12 +97,9 @@ public class MessageController {
         public List<ChatMessageResponse> getMessagesByFolderId(@PathVariable Long folderId) {
                 return chattingMsgRepository.findByfolderId(folderId).stream()
                                 .map(msg -> {
-                                        String formattedDateTime = Instant.ofEpochSecond(msg.getSendDatetime())
-                                                        .atZone(ZoneId.of("Asia/Seoul"))
-                                                        .format(DATE_TIME_FORMATTER);
-                                        return new ChatMessageResponse(
-                                                        formattedDateTime + " " + msg.getUser().getAccountName(),
-                                                        msg.getContent());
+                                        return new ChatMessageResponse(msg.getSendDatetime(),
+                                                        msg.getUser().getAccountName(),
+                                                        msg.getSenderId(), msg.getContent());
                                 })
                                 .collect(Collectors.toList());
         }
@@ -117,12 +108,9 @@ public class MessageController {
         public List<ChatMessageResponse> getMessagesBySenderId(@PathVariable Long senderId) {
                 return chattingMsgRepository.findBySenderId(senderId).stream()
                                 .map(msg -> {
-                                        String formattedDateTime = Instant.ofEpochSecond(msg.getSendDatetime())
-                                                        .atZone(ZoneId.of("Asia/Seoul"))
-                                                        .format(DATE_TIME_FORMATTER);
-                                        return new ChatMessageResponse(
-                                                        formattedDateTime + " " + msg.getUser().getAccountName(),
-                                                        msg.getContent());
+                                        return new ChatMessageResponse(msg.getSendDatetime(),
+                                                        msg.getUser().getAccountName(),
+                                                        msg.getSenderId(), msg.getContent());
                                 })
                                 .collect(Collectors.toList());
         }
@@ -132,12 +120,9 @@ public class MessageController {
                         @PathVariable Long senderId) {
                 return chattingMsgRepository.findByFolderIdAndSenderId(folderId, senderId).stream()
                                 .map(msg -> {
-                                        String formattedDateTime = Instant.ofEpochSecond(msg.getSendDatetime())
-                                                        .atZone(ZoneId.of("Asia/Seoul"))
-                                                        .format(DATE_TIME_FORMATTER);
-                                        return new ChatMessageResponse(
-                                                        formattedDateTime + " " + msg.getUser().getAccountName(),
-                                                        msg.getContent());
+                                        return new ChatMessageResponse(msg.getSendDatetime(),
+                                                        msg.getUser().getAccountName(),
+                                                        msg.getSenderId(), msg.getContent());
                                 })
                                 .collect(Collectors.toList());
         }
