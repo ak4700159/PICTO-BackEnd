@@ -64,7 +64,6 @@ public class UserManagerLoginService {
         double lng = signUpRequest.getLng();
         String location;
         GetKakaoLocationInfoResponse response = kakaoUtil.convertLocationFromPos(lat, lng);
-
         if (Objects.requireNonNull(response).getDocuments().isEmpty()) {
             location = "좌표 식별 불가";
         } else {

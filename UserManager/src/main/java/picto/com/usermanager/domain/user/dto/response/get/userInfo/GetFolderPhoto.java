@@ -6,9 +6,11 @@ import picto.com.usermanager.domain.user.entity.Photo;
 
 @Getter
 public class GetFolderPhoto extends GetPhoto{
-    private final Long folderId;
+    private Long folderId;
     public GetFolderPhoto(Folder folder, Photo photo) {
         super(photo);
-        this.folderId = folder.getFolderId();
+        if(folder != null) {
+            this.folderId = folder.getFolderId();
+        }
     }
 }

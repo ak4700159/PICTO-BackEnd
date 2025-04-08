@@ -78,6 +78,8 @@ def predict(image_path):
     'places': sorted(places_results, key=lambda x: x['probability'], reverse=True)
   }
 
+# https://deeplearning.cms.waikato.ac.nz/user-guide/class-maps/IMAGENET/ 카테고리 내용 
+# 개, 고양이, 다람쥐, 햄스터, 새, 곤충, 파충류, 해양생물, 물고기, 돼지
 imagenet_categories = {
     '개': list(range(151, 269)),
     '고양이': [281, 282, 283, 284, 285],
@@ -87,16 +89,20 @@ imagenet_categories = {
     '곤충': list(range(300, 327)),
     '파충류': [33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68],
     '해양생물': [107, 108, 109, 118, 119, 120, 121, 122, 123, 147, 148, 149, 150],
-    '물고기': [0, 1, 2, 3, 4, 5, 6, 389, 390, 391, 393, 394, 395, 396, 397]
+    '물고기': [0, 1, 2, 3, 4, 5, 6, 389, 390, 391, 393, 394, 395, 396, 397],
+    '돼지' : [338, 341]
 }
 
+
+# http://places2.csail.mit.edu/models_places365/categories_places365.txt 카테고리 내용
+# 산, 바다, 강, 들판, 숲, 하늘
 places_categories = {
     '산': [232, 233, 234],
     '바다': [243, 342, 357, 48, 97],
-    '호수, 강': [205, 271, 145],
+    '강': [205, 271, 145],
     '들판': [140, 141, 142, 138, 104, 359, 287, 258, 209],
     '숲': [150, 151, 152, 36, 279],
-    '하늘': [306]
+    '하늘': [306],
 }
 
 def tagging(image_path) :
@@ -122,33 +128,3 @@ def tagging(image_path) :
     return place_category
   else :
     return animal_category
-
-# def main() :
-#   print("예측 시작")
-
-#   # 모델 다운로드
-#   download_places365_model()
-
-#   image_path = '/content/drive/MyDrive/캡스톤 AI모델/test/ro.jpeg'
-
-#   results = predict(image_path)
-
-#   animal_category = 'other'
-#   animal_probability = 0
-#   place_category = 'other'
-#   place_probability = 0
-
-#   if results['animals']:
-#     for pred in results['animals']:
-#       animal_category = pred['category']
-#       animal_probability = pred['probability']
-
-#   if results['places']:
-#     for pred in results['places']:
-#       place_category = pred['category']
-#       place_probability = pred['probability']
-
-#   if place_probability > animal_probability:
-#     print(f"예측된 장소: {place_category}") #(확률: {place_probability:.2f})")
-#   else:
-#     print(f"예측된 동물: {animal_category}") # (확률: {animal_probability:.2f})")

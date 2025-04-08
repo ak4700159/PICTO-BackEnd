@@ -1,3 +1,7 @@
+# 메인 API 서버 파일
+# 가장 큰 문제점은 모델을 필요할 때만 다운로드하고 메모리에 로딩한다.
+# 상시 로딩 필수
+
 import io
 import json
 from flask import Flask, request, jsonify
@@ -6,10 +10,11 @@ import os
 import logging
 import requests
 import mimetypes
+# [사람, 유해사진, 텍스트] 탐지 모델, 태깅 기능 임포트
 from person_detector import PersonDetector
 from nsfw_detector import NSFWDetector
 from text_detector import TextDetector
-# from get_tag import tagging
+from get_tag import tagging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -21,7 +26,7 @@ UPLOAD_FOLDER = './uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-STORE_SERVER_URL = 'http://52.78.237.242:8084/photo-store/photos'
+STORE_SERVER_URL = 'http://bogota.iptime.org:8086/photo-store/photos'
 
 def validate(image_path):    
     nsfw_detector = NSFWDetector(threshold=0.5)
@@ -41,6 +46,7 @@ def validate(image_path):
     logger.info("Validation passed")
     return False
 
+# 사진 검증 api
 @app.route('/validate', methods=['POST'])
 def validate_image():
     logger.info("Image validation request received")
@@ -138,6 +144,7 @@ def validate_image():
             os.remove(temp_path)
         return jsonify({'error': str(e)}), 500
     
+# 태깅 부여
 @app.route('/tag', methods=['POST'])
 def process_image():
     logger.info("Image tagging request received")
@@ -150,13 +157,11 @@ def process_image():
     request_data = request.form.get('request', '{}')
     
     try:
-        # Process image for tagging
         image_data = file.read()
         image_stream = io.BytesIO(image_data)
         tag = tagging(image_stream)
         logger.info(f"Generated tags: {tag}")
 
-        # Update request data with tags
         try:
             data_dict = json.loads(request_data)
         except json.JSONDecodeError:
@@ -164,7 +169,6 @@ def process_image():
         
         data_dict['tag'] = tag
 
-        # Prepare multipart form data
         files = {
             'file': (file.filename, io.BytesIO(image_data), file.content_type or 'application/octet-stream')
         }
@@ -172,7 +176,6 @@ def process_image():
             'request': json.dumps(data_dict, ensure_ascii=False)
         }
         
-        # Forward to storage server
         response = requests.post(STORE_SERVER_URL, files=files, data=form_data)
         response.raise_for_status()
         
@@ -183,4 +186,4 @@ def process_image():
         return jsonify({'error': str(e)}), 500
     
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8083, debug=True)
+    app.run(host='localhost', port=8087, debug=True)

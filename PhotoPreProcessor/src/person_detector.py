@@ -18,6 +18,7 @@ class PersonDetectionModel(nn.Module):
   def forward(self, x):
     return self.model(x)
 
+# 사람 감지를 위한 모델(미리 저장된 모델의 가중치를 가지고 온다. ./person_detection.pth)
 class PersonDetector:
   def __init__(self, model_path):
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -46,7 +47,9 @@ class PersonDetector:
       probability = output.item()
 
     return probability > 0.5 #, probability
+  
 
+# 테스트 코드
 # def main():
 #   detector = PersonDetector('./person_detection.pth')
 
