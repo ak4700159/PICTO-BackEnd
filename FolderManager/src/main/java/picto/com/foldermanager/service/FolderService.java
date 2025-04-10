@@ -346,20 +346,37 @@ public class FolderService {
     public List<PhotoResponse> getFolderPhotos(Long folderId, Long userId) {
         Folder folder = getFolderWithAccessCheck(folderId, userId);
 
+        // Default 폴더의 경우
+        if (isDefaultFolder(folder)) {
+            return photoRepository.findByUser(folder.getGenerator()).stream()
+                    .map(PhotoResponse::from)
+                    .collect(Collectors.toList());
+        }
+
         return saveRepository.findAllByFolder(folder).stream()
                 .map(save -> PhotoResponse.from(save.getPhoto()))
                 .collect(Collectors.toList());
     }
 
+
     // 폴더별 특정 사진 조회
     @Transactional(readOnly = true)
     public PhotoResponse getSpecificPhotoInFolder(Long folderId, Long photoId, Long userId) {
         Folder folder = getFolderWithAccessCheck(folderId, userId);
+
+        // Default 폴더의 경우
+        if (isDefaultFolder(folder)) {
+            Photo photo = photoRepository.findById(photoId)
+                    .orElseThrow(() -> new PhotoNotFoundException("사진을 찾을 수 없습니다."));
+            return PhotoResponse.from(photo);
+        }
+
         Save save = saveRepository.findByFolderAndPhoto_PhotoId(folder, photoId)
                 .orElseThrow(() -> new PhotoNotFoundException("해당 폴더에 사진이 존재하지 않습니다."));
 
         return PhotoResponse.from(save.getPhoto());
     }
+
 
     // -----S3 관련 Method-----
 
