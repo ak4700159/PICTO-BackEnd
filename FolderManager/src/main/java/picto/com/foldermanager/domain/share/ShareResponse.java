@@ -2,6 +2,7 @@ package picto.com.foldermanager.domain.share;
 
 import lombok.Builder;
 import lombok.Getter;
+import picto.com.foldermanager.domain.folder.Folder;
 
 @Getter
 @Builder
@@ -19,6 +20,16 @@ public class ShareResponse {
                 .folderName(share.getFolder().getName())
                 .sharedDatetime(share.getSharedDatetime())
                 .content(share.getFolder().getContent())
+                .build();
+    }
+
+    public static picto.com.foldermanager.domain.share.ShareResponse from(Folder folder) {
+        return ShareResponse.builder()
+                .userId(folder.getGenerator().getId())
+                .folderId(folder.getId())
+                .folderName(folder.getName())
+                .sharedDatetime(folder.getCreatedDatetime())
+                .content(folder.getContent())
                 .build();
     }
 }

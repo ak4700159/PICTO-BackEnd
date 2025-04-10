@@ -223,7 +223,7 @@ public class FolderService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다."));
 
-        return shareRepository.findAllByUser(user).stream()
+        return folderRepository.findAllByGenerator(user).stream()
                 .map(ShareResponse::from)
                 .collect(Collectors.toList());
     }

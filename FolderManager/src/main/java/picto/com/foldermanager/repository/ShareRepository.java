@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ShareRepository extends JpaRepository<Share, Long> {
     List<Share> findAllByFolder(Folder folder);
-    List<Share> findAllByUser(User user);
     void deleteAllByFolder(Folder folder);
     boolean existsByUserAndFolder(User user, Folder folder);
     Optional<Share> findByUserAndFolder(User user, Folder folder);
