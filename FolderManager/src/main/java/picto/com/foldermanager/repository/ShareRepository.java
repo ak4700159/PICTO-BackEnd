@@ -15,4 +15,5 @@ public interface ShareRepository extends JpaRepository<Share, Long> {
     void deleteAllByFolder(Folder folder);
     boolean existsByUserAndFolder(User user, Folder folder);
     Optional<Share> findByUserAndFolder(User user, Folder folder);
+    List<Share> findAllByUser(User user);
 }

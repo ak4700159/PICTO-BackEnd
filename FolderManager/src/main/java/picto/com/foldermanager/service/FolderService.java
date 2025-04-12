@@ -26,6 +26,7 @@ import picto.com.foldermanager.repository.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -119,6 +120,10 @@ public class FolderService {
     public ShareResponse shareFolder(ShareRequest request) {
         Folder folder = getFolderWithAccessCheck(request.getFolderId(), request.getSenderId());
 
+        if (isDefaultFolder(folder)) {
+            throw new CustomException("기본 폴더는 공유할 수 없습니다.");
+        }
+
         User invitee = userRepository.findById(request.getReceiverId())
                 .orElseThrow(() -> new CustomException("초대받는 사용자를 찾을 수 없습니다."));
 
@@ -146,9 +151,7 @@ public class FolderService {
                 .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다."));
 
         List<Notice> notices = noticeRepository.findByReceiverOrderByCreatedDatetimeAsc(user);
-        if (notices.isEmpty()) {
-            throw new CustomException("받은 알림이 없습니다.");
-        }
+
         return notices.stream()
                 .map(NoticeResponse::from)
                 .collect(Collectors.toList());
@@ -223,8 +226,21 @@ public class FolderService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다."));
 
-        return folderRepository.findAllByGenerator(user).stream()
-                .map(ShareResponse::from)
+        List<Folder> myFolders = folderRepository.findAllByGenerator(user);
+        List<Share> sharedFolders = shareRepository.findAllByUser(user);
+
+        List<ShareResponse> responses = new ArrayList<>();
+        myFolders.forEach(folder -> responses.add(ShareResponse.from(folder)));
+        sharedFolders.forEach(share -> responses.add(ShareResponse.from(share)));
+
+        return responses.stream()
+                .collect(Collectors.toMap(
+                        ShareResponse::getFolderId,
+                        response -> response,
+                        (existing, replacement) -> existing
+                ))
+                .values()
+                .stream()
                 .collect(Collectors.toList());
     }
 
