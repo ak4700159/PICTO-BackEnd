@@ -5,6 +5,7 @@ from PIL import Image
 from io import BytesIO
 import os
 import time
+from utils import pad_to_square
 
 class EfficientNetClassifier(nn.Module):
     def __init__(self, train_loader, val_loader, device):
@@ -28,6 +29,8 @@ class EfficientNetClassifier(nn.Module):
         return self.model(x)
 
     def train_model(self, num_epochs=5):
+        best_loss = float('inf')  # 🔥 전역 최적 loss 저장
+
         for epoch in range(num_epochs):
             start_time = time.time()
             self.train()
@@ -48,11 +51,16 @@ class EfficientNetClassifier(nn.Module):
             elapsed_time = time.time() - start_time
             minutes, seconds = divmod(elapsed_time, 60)
             avg_loss = total_loss / len(self.train_loader)
+
+            # ✅ 최적 성능일 때만 저장
+            if avg_loss < best_loss:
+                best_loss = avg_loss
+                self.save_model()
+                print(f"🧠 Best model updated (Loss: {avg_loss:.4f})")
+
             print(f"Epoch {epoch + 1}, Loss: {avg_loss:.4f}, Time: {int(minutes)}m {int(seconds)}s")
             self.validate()
-
-        self.save_model()
-
+            
     def save_model(self, path="efficientnet_real_fake.pth"):
         torch.save(self.state_dict(), path)
         print(f"✅ Model saved to: {path}")
@@ -91,10 +99,11 @@ class EfficientNetClassifier(nn.Module):
             image = image.convert("RGB")
 
         transform = transforms.Compose([
-            transforms.Resize((224, 224)),
+            transforms.Lambda(pad_to_square),     # ⬅️ 종횡비 유지하면서 정사각형 패딩
+            transforms.Resize((224, 224)),        # 모델 입력 크기로 조정
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                 std=[0.229, 0.224, 0.225])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],  # EfficientNet 기준
+                                std=[0.229, 0.224, 0.225])
         ])
 
         image_tensor = transform(image).unsqueeze(0).to(self.device)
@@ -112,10 +121,11 @@ class EfficientNetClassifier(nn.Module):
                 image = image.convert("RGB")
 
             transform = transforms.Compose([
-                transforms.Resize((224, 224)),
+                transforms.Lambda(pad_to_square),     # ⬅️ 종횡비 유지하면서 정사각형 패딩
+                transforms.Resize((224, 224)),        # 모델 입력 크기로 조정
                 transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
+                transforms.Normalize(mean=[0.485, 0.456, 0.406],  # EfficientNet 기준
+                                    std=[0.229, 0.224, 0.225])
             ])
 
             image_tensor = transform(image).unsqueeze(0).to(self.device)
