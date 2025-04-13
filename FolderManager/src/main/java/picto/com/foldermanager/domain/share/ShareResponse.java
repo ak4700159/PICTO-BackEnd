@@ -15,7 +15,7 @@ public class ShareResponse {
 
     public static picto.com.foldermanager.domain.share.ShareResponse from(Share share) {
         return ShareResponse.builder()
-                .generatorId(share.getUser().getId())
+                .generatorId(share.getFolder().getGenerator().getId())
                 .folderId(share.getFolder().getId())
                 .folderName(share.getFolder().getName())
                 .sharedDatetime(share.getSharedDatetime())
