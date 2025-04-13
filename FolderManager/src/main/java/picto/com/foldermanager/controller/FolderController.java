@@ -11,6 +11,7 @@ import picto.com.foldermanager.domain.photo.PhotoResponse;
 import picto.com.foldermanager.domain.save.SaveResponse;
 import picto.com.foldermanager.domain.share.ShareRequest;
 import picto.com.foldermanager.domain.share.ShareResponse;
+import picto.com.foldermanager.domain.share.SharedUserResponse;
 import picto.com.foldermanager.exception.CustomException;
 import picto.com.foldermanager.service.FolderService;
 
@@ -78,7 +79,7 @@ public class FolderController {
 
     // 공유 폴더 사용자 목록 조회
     @GetMapping("/shares/{folderId}")
-    public ResponseEntity<List<ShareResponse>> getSharedUsers(
+    public ResponseEntity<List<SharedUserResponse>> getSharedUsers(
             @PathVariable Long folderId,
             @RequestParam Long userId) {
         return ResponseEntity.ok(folderService.getSharedUsers(folderId, userId));

@@ -246,11 +246,11 @@ public class FolderService {
 
     // 공유 폴더 사용자 목록 조회
     @Transactional(readOnly = true)
-    public List<ShareResponse> getSharedUsers(Long folderId, Long userId) {
+    public List<SharedUserResponse> getSharedUsers(Long folderId, Long userId) {
         Folder folder = getFolderWithAccessCheck(folderId, userId);
 
         return shareRepository.findAllByFolder(folder).stream()
-                .map(ShareResponse::from)
+                .map(SharedUserResponse::from)
                 .collect(Collectors.toList());
     }
 
