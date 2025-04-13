@@ -69,11 +69,11 @@ public class FolderController {
         return ResponseEntity.ok().build();
     }
 
-    // 공유 폴더 목록 조회
-    @GetMapping("/shares/users/{userId}")
+    // 폴더 목록 조회
+    @GetMapping("/shares/users/{generatorId}")
     public ResponseEntity<List<ShareResponse>> getSharedFolders(
-            @PathVariable Long userId) {
-        return ResponseEntity.ok(folderService.getSharedFolders(userId));
+            @PathVariable Long generatorId) {
+        return ResponseEntity.ok(folderService.getSharedFolders(generatorId));
     }
 
     // 공유 폴더 사용자 목록 조회

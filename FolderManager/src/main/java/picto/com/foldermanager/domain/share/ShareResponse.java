@@ -7,7 +7,7 @@ import picto.com.foldermanager.domain.folder.Folder;
 @Getter
 @Builder
 public class ShareResponse {
-    private Long userId;
+    private Long generatorId;
     private Long folderId;
     private String folderName;
     private Long sharedDatetime;
@@ -15,7 +15,7 @@ public class ShareResponse {
 
     public static picto.com.foldermanager.domain.share.ShareResponse from(Share share) {
         return ShareResponse.builder()
-                .userId(share.getUser().getId())
+                .generatorId(share.getUser().getId())
                 .folderId(share.getFolder().getId())
                 .folderName(share.getFolder().getName())
                 .sharedDatetime(share.getSharedDatetime())
@@ -25,7 +25,7 @@ public class ShareResponse {
 
     public static picto.com.foldermanager.domain.share.ShareResponse from(Folder folder) {
         return ShareResponse.builder()
-                .userId(folder.getGenerator().getId())
+                .generatorId(folder.getGenerator().getId())
                 .folderId(folder.getId())
                 .folderName(folder.getName())
                 .sharedDatetime(folder.getCreatedDatetime())

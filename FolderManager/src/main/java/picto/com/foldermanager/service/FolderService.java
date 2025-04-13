@@ -220,10 +220,10 @@ public class FolderService {
         }
     }
 
-    // 공유 폴더 목록 조회
+    // 폴더 목록 조회
     @Transactional(readOnly = true)
-    public List<ShareResponse> getSharedFolders(Long userId) {
-        User user = userRepository.findById(userId)
+    public List<ShareResponse> getSharedFolders(Long generatorId) {
+        User user = userRepository.findById(generatorId)
                 .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다."));
 
         List<Folder> myFolders = folderRepository.findAllByGenerator(user);
