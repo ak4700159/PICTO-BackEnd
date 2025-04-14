@@ -1,35 +1,47 @@
 const socket = new SockJS('http://bogota.iptime.org:8085/ws-connect', null, {
   transports: ['websocket', 'xhr-streaming', 'xhr-polling']
 });
-const stompClient = StompJs.Stomp.over(socket);
+
+const stompClient = new StompJs.Client({
+  webSocketFactory: () => socket,
+  reconnectDelay: 5000,
+  heartbeatIncoming: 4000,
+  heartbeatOutgoing: 4000
+});
 
 function connect() {
-  stompClient.connect({}, function (frame) {
-    setConnected(true);
-    console.log('Connected: ' + frame);
-
-    $.get('/chat/history/' + $("#folderId").val(), (messages) => {
-      messages.forEach((msg) => {
-        showChat(msg.username + ": " + msg.content);
-      });
-    });
-
-    stompClient.subscribe('/subscribe/chat.' + $("#folderId").val(), (message) => {
-      let body = JSON.parse(message.body);
-      let username = body.username;
-      let content = body.content;
-      showChat(username + ": " + content);
-    });
-  });
+  stompClient.activate();
 }
 
 function sendChat() {
-  stompClient.publish({
-    destination: "/publish/chat." + $("#folderId").val(),
-    body: JSON.stringify({ 'senderId': $("#senderId").val(), 'content': $("#content").val() })
-  });
-  document.getElementById('content').value = '';
+  if (stompClient.connected) {
+    stompClient.publish({
+      destination: "/publish/chat." + $("#folderId").val(),
+      body: JSON.stringify({ 'senderId': $("#senderId").val(), 'content': $("#content").val() })
+    });
+    document.getElementById('content').value = '';
+  } else {
+    console.error('Not connected to WebSocket');
+  }
 }
+
+stompClient.onConnect = (frame) => {
+  setConnected(true);
+  console.log('Connected: ' + frame);
+
+  $.get('/chat/history/' + $("#folderId").val(), (messages) => {
+    messages.forEach((msg) => {
+      showChat(msg.username + ": " + msg.content);
+    });
+  });
+
+  stompClient.subscribe('/subscribe/chat.' + $("#folderId").val(), (message) => {
+    let body = JSON.parse(message.body);
+    let username = body.username;
+    let content = body.content;
+    showChat(username + ": " + content);
+  });
+};
 
 stompClient.onWebSocketError = (error) => {
   console.error('Error with websocket', error);
@@ -53,9 +65,7 @@ function setConnected(connected) {
 }
 
 function disconnect() {
-  if (stompClient !== null) {
-    stompClient.disconnect();
-  }
+  stompClient.deactivate();
   setConnected(false);
   console.log("Disconnected");
 }
