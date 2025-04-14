@@ -3,23 +3,25 @@ const socket = new SockJS('http://bogota.iptime.org:8085/ws-connect', null, {
 });
 const stompClient = StompJs.Stomp.over(socket);
 
-stompClient.connect({}, function (frame) {
-  setConnected(true);
-  console.log('Connected: ' + frame);
+function connect() {
+  stompClient.connect({}, function (frame) {
+    setConnected(true);
+    console.log('Connected: ' + frame);
 
-  $.get('/chat/history/' + $("#folderId").val(), (messages) => {
-    messages.forEach((msg) => {
-      showChat(msg.username + ": " + msg.content);
+    $.get('/chat/history/' + $("#folderId").val(), (messages) => {
+      messages.forEach((msg) => {
+        showChat(msg.username + ": " + msg.content);
+      });
+    });
+
+    stompClient.subscribe('/subscribe/chat.' + $("#folderId").val(), (message) => {
+      let body = JSON.parse(message.body);
+      let username = body.username;
+      let content = body.content;
+      showChat(username + ": " + content);
     });
   });
-
-  stompClient.subscribe('/subscribe/chat.' + $("#folderId").val(), (message) => {
-    let body = JSON.parse(message.body);
-    let username = body.username;
-    let content = body.content;
-    showChat(username + ": " + content);
-  });
-});
+}
 
 function sendChat() {
   stompClient.publish({
@@ -48,13 +50,6 @@ function setConnected(connected) {
     $("#conversation").hide();
   }
   $("#greetings").html("");
-}
-
-function connect() {
-  stompClient.connect({}, function (frame) {
-    setConnected(true);
-    console.log('Connected: ' + frame);
-  });
 }
 
 function disconnect() {
