@@ -1,43 +1,18 @@
-const socket = new SockJS('http://bogota.iptime.org:8085/ws-connect', null, {
-  transports: ['websocket', 'xhr-streaming', 'xhr-polling']
-});
-
 const stompClient = new StompJs.Client({
-  webSocketFactory: () => socket,
-  reconnectDelay: 5000,
-  heartbeatIncoming: 4000,
-  heartbeatOutgoing: 4000,
-  debug: function(str) {
-    console.log('STOMP: ' + str);
-  }
+  brokerURL: 'http://bogota.iptime.org:8085/ws-connect'
 });
-
-function connect() {
-  console.log('Connecting to WebSocket...');
-  stompClient.activate();
-}
-
-function disconnect() {
-  console.log('Disconnecting from WebSocket...');
-  stompClient.deactivate();
-  setConnected(false);
-}
 
 stompClient.onConnect = (frame) => {
-  console.log('Connected: ' + frame);
   setConnected(true);
+  console.log('Connected: ' + frame);
 
-  // 채팅 기록 가져오기
   $.get('/chat/history/' + $("#folderId").val(), (messages) => {
-    console.log('Chat history loaded:', messages);
     messages.forEach((msg) => {
       showChat(msg.username + ": " + msg.content);
     });
   });
 
-  // 메시지 구독
-  const subscription = stompClient.subscribe('/subscribe/chat.' + $("#folderId").val(), (message) => {
-    console.log('Received message:', message);
+  stompClient.subscribe('/subscribe/chat.' + $("#folderId").val(), (message) => {
     let body = JSON.parse(message.body);
     let username = body.username;
     let content = body.content;
@@ -45,78 +20,61 @@ stompClient.onConnect = (frame) => {
   });
 };
 
+function sendChat() {
+  stompClient.publish({
+    destination: "/publish/chat." + $("#folderId").val(),
+    body: JSON.stringify({ 'senderId': $("#senderId").val(), 'content': $("#content").val() })
+  });
+  document.getElementById('content').value = '';
+}
+
 stompClient.onWebSocketError = (error) => {
-  console.error('WebSocket Error:', error);
-  setConnected(false);
+  console.error('Error with websocket', error);
 };
 
 stompClient.onStompError = (frame) => {
-  console.error('STOMP Error:', frame.headers['message']);
-  console.error('Additional details:', frame.body);
-  setConnected(false);
+  console.error('Broker reported error: ' + frame.headers['message']);
+  console.error('Additional details: ' + frame.body);
 };
 
 function setConnected(connected) {
-  console.log('Setting connected state:', connected);
   $("#connect").prop("disabled", connected);
   $("#disconnect").prop("disabled", !connected);
   if (connected) {
     $("#conversation").show();
-  } else {
+  }
+  else {
     $("#conversation").hide();
   }
   $("#greetings").html("");
 }
 
-function sendChat() {
-  if (!stompClient.connected) {
-    console.error('Not connected to WebSocket');
-    return;
-  }
-  
-  const folderId = $("#folderId").val();
-  const senderId = $("#senderId").val();
-  const content = $("#content").val();
-  
-  if (!folderId || !senderId || !content) {
-    console.error('Missing required fields');
-    return;
-  }
+function connect() {
+  stompClient.activate();
+}
 
-  console.log('Sending message:', { folderId, senderId, content });
-  stompClient.publish({
-    destination: "/publish/chat." + folderId,
-    body: JSON.stringify({ 'senderId': senderId, 'content': content })
-  });
-  document.getElementById('content').value = '';
+function disconnect() {
+  stompClient.deactivate();
+  setConnected(false);
+  console.log("Disconnected");
 }
 
 function showChat(message) {
-  console.log('Showing message:', message);
   $("#greetings").append("<tr><td>" + message + "</td></tr>");
+  console.log(message);
 }
 
 function deleteChat() {
-  if (!stompClient.connected) {
-    console.error('Not connected to WebSocket');
-    return;
-  }
-
   const messageId = prompt("삭제할 메시지 ID를 입력하세요:");
   if (messageId) {
-    const folderId = $("#folderId").val();
-    const senderId = $("#senderId").val();
-    
-    console.log('Deleting message:', { messageId, folderId, senderId });
     stompClient.publish({
-      destination: "/publish/chat/delete/" + folderId + "/" + messageId,
-      body: JSON.stringify({ 'senderId': senderId })
+      destination: "/publish/chat/delete/" + $("#folderId").val() + "/" + messageId,
+      body: JSON.stringify({ 'senderId': $("#senderId").val() })
     });
   }
 }
 
 $(function () {
-  console.log('Initializing WebSocket application...');
   $("form").on('submit', (e) => e.preventDefault());
   $("#connect").click(() => connect());
   $("#disconnect").click(() => disconnect());
