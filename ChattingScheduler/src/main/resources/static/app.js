@@ -1,4 +1,6 @@
-const socket = new SockJS('http://bogota.iptime.org:8085/ws-connect');
+const socket = new SockJS('http://bogota.iptime.org:8085/ws-connect', null, {
+  transports: ['websocket', 'xhr-streaming', 'xhr-polling']
+});
 const stompClient = StompJs.Stomp.over(socket);
 
 stompClient.connect({}, function (frame) {
