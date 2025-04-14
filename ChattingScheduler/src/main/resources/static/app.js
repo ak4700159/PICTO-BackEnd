@@ -1,8 +1,7 @@
-const stompClient = new StompJs.Client({
-  brokerURL: 'ws://bogota.iptime.org:8085/ws-connect'
-});
+const socket = new SockJS('http://bogota.iptime.org:8085/ws-connect');
+const stompClient = StompJs.Stomp.over(socket);
 
-stompClient.onConnect = (frame) => {
+stompClient.connect({}, function (frame) {
   setConnected(true);
   console.log('Connected: ' + frame);
 
@@ -18,7 +17,7 @@ stompClient.onConnect = (frame) => {
     let content = body.content;
     showChat(username + ": " + content);
   });
-};
+});
 
 function sendChat() {
   stompClient.publish({
@@ -50,11 +49,16 @@ function setConnected(connected) {
 }
 
 function connect() {
-  stompClient.activate();
+  stompClient.connect({}, function (frame) {
+    setConnected(true);
+    console.log('Connected: ' + frame);
+  });
 }
 
 function disconnect() {
-  stompClient.deactivate();
+  if (stompClient !== null) {
+    stompClient.disconnect();
+  }
   setConnected(false);
   console.log("Disconnected");
 }
