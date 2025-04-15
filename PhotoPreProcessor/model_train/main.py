@@ -1,10 +1,10 @@
 from torchvision import transforms
-from torch.utils.data import DataLoader
-from real_fake_dataset import RealFakeDataset
-from real_fake_model import SimpleCNN
 from efficientnet_model import EfficientNetClassifier
+from utils import pad_to_square
 import torch
-from datasets import load_dataset
+from create_data import train_single_dataset
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 if __name__ == '__main__':
@@ -12,31 +12,25 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
 
-    # 데이터셋 로딩
-    dataset = load_dataset("date3k2/raw_real_fake_images")
-
     # 전처리 정의 (사이즈 통일 + 텐서 변환)
-    # https://huggingface.co/datasets/date3k2/raw_real_fake_images/viewer
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),  # 고정 크기로 resize
-        transforms.ToTensor(),          # [0, 1] 범위로 변환
+        transforms.Lambda(pad_to_square),     # ⬅️ 종횡비 유지하면서 정사각형 패딩
+        transforms.Resize((224, 224)),        # 모델 입력 크기로 조정
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],  # EfficientNet 기준
+                            std=[0.229, 0.224, 0.225])
     ])
 
-
-    # DataLoader 구성
-    train_dataset = RealFakeDataset(dataset["train"], transform=transform)
-    val_dataset = RealFakeDataset(dataset["test"], transform=transform)
-
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=32)
-
-    print(f"Training samples: {len(train_loader.dataset)}")
-    print(f"Validation samples: {len(val_loader.dataset)}")
+    # 📤 DataLoader
+    train_loader,val_loader = train_single_dataset(transform=transform)
 
     # model = SimpleCNN(train_loader, val_loader, device)
     # model.train_model(num_epochs=10)
     model = EfficientNetClassifier(train_loader, val_loader, device)
-    model.train_model(num_epochs=10)
+    model.train_model(num_epochs=20)
+
+
+
 
 
     

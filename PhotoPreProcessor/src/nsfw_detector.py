@@ -10,7 +10,7 @@ class NSFWDetector:
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     model_name = "Falconsai/nsfw_image_detection"
-    self.processor = AutoImageProcessor.from_pretrained(model_name)
+    self.processor = AutoImageProcessor.from_pretrained(model_name, user_fast = True)
     self.model = AutoModelForImageClassification.from_pretrained(model_name)
     self.model.to(self.device)
     self.model.eval()
@@ -20,7 +20,7 @@ class NSFWDetector:
   def detect(self, image_path):
     try:
       image = Image.open(image_path).convert('RGB')
-      inputs = self.processor(images=image, return_tensors="pt").to(self.device)
+      inputs = self.processor(images=image, return_tensors="pt", user_fast = True).to(self.device)
 
       with torch.no_grad():
           outputs = self.model(**inputs)
