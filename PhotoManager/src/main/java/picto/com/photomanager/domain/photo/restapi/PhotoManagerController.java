@@ -90,4 +90,9 @@ public class PhotoManagerController {
         return ResponseEntity.ok().build();
     }
 
+
+    @GetMapping("/photo-manager/test")
+    public ResponseEntity<String> test(){
+        return ResponseEntity.ok().body("good");
+    }
 }

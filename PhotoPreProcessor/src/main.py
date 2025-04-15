@@ -1,7 +1,6 @@
 # 메인 API 서버 파일
 # 가장 큰 문제점은 모델을 필요할 때만 다운로드하고 메모리에 로딩한다.
 # 상시 로딩 필수
-
 import io
 import json
 from flask import Flask, request, jsonify
@@ -16,6 +15,11 @@ from nsfw_detector import NSFWDetector
 from text_detector import TextDetector
 from get_tag import tagging
 
+# 전역 모델 변수 (서버 기동 시 1회 로딩)
+nsfw_detector = None
+person_detector = None
+text_detector = None
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -29,16 +33,14 @@ if not os.path.exists(UPLOAD_FOLDER):
 STORE_SERVER_URL = 'http://bogota.iptime.org:8086/photo-store/photos'
 
 def validate(image_path):    
-    nsfw_detector = NSFWDetector(threshold=0.5)
-    person_detector = PersonDetector('./person_detection.pth')
-    text_detector = TextDetector()
+    global nsfw_detector, person_detector, text_detector
 
     if nsfw_detector.detect(image_path):
         logger.warning("NSFW content detected")
         return "nsfw"
-    elif text_detector.detect(image_path):
-        logger.warning("Text detected")
-        return "text"
+    # elif text_detector.detect(image_path):
+    #     logger.warning("Text detected")
+    #     return "text"
     elif person_detector.detect(image_path):
         logger.warning("Person detected")
         return "person"
@@ -186,4 +188,7 @@ def process_image():
         return jsonify({'error': str(e)}), 500
     
 if __name__ == '__main__':
-    app.run(host='localhost', port=8087, debug=True)
+    nsfw_detector = NSFWDetector(threshold=0.5)
+    person_detector = PersonDetector('./person_detection.pth')
+    text_detector = TextDetector()
+    app.run(host='0.0.0.0', port=8087, debug=True)
