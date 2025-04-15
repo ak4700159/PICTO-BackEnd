@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
+import picto.com.sessionscheduler.domain.session.dto.PhotoMsg;
 import picto.com.sessionscheduler.domain.session.dto.SessionInfo;
 import picto.com.sessionscheduler.utils.GeoDistance;
 import picto.com.sessionscheduler.domain.session.dao.*;
@@ -97,11 +98,9 @@ public class SessionService {
 
                     double distance = GeoDistance.calculateDistance(photoLat, photoLng, searchSessionLat, searchSessionLng);
                     // 5km 이내의 사용자들에게 알린다.
-                    System.out.println("distance : " + distance);
                     if(distance <= 5){
                         System.out.println("distance : " + distance + "| user : " + dbSession.getId());
-                        Optional<Photo> good = photoRepository.findById(photoId);
-                        messagingTemplate.convertAndSend("/session/" + dbSession.getId(), good);
+                        messagingTemplate.convertAndSend("/session/" + dbSession.getId(), PhotoMsg.fromEntity(photo));
                     }
                 }
             }

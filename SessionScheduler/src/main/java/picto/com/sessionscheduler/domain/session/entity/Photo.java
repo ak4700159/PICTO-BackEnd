@@ -1,5 +1,6 @@
 package picto.com.sessionscheduler.domain.session.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -27,6 +28,7 @@ public class Photo implements Serializable {
     @ManyToOne(cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    @JsonIgnore
     // user 내용만 제외한 정보들만을 serialize하게 된다. -> json 오류 방지
     private User user;
 
