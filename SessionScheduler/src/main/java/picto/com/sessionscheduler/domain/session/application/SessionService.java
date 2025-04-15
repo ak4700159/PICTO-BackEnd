@@ -100,7 +100,8 @@ public class SessionService {
                     System.out.println("distance : " + distance);
                     if(distance <= 5){
                         System.out.println("distance : " + distance + "| user : " + dbSession.getId());
-                        messagingTemplate.convertAndSend("/session/" + dbSession.getId(), message);
+                        Optional<Photo> good = photoRepository.findById(photoId);
+                        messagingTemplate.convertAndSend("/session/" + dbSession.getId(), good);
                     }
                 }
             }
