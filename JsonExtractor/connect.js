@@ -2,10 +2,7 @@ const mysql = require('mysql2');
 const fs = require('fs');
 
 const conn = mysql.createConnection({
-  host     : 'picto-mysql-db.cvs60i60ez7g.ap-northeast-2.rds.amazonaws.com',
-  user     : 'admin',
-  password : 'picto200!',
-  database : 'picto_schema',
+
   dateStrings : "date" // MySQL datetime 형식을 그대로 문자열로 반환
 });
 
