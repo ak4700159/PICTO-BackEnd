@@ -33,62 +33,76 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
 
     // 지역별 대표 사진 조회
     @Query(value = """
-    SELECT sub.photo_id, sub.user_id, sub.lat, sub.lng, sub.location,
-           sub.register_datetime, sub.upload_datetime,
-           sub.likes, sub.views, sub.tag, sub.shared_active,
-           sub.frame_active, sub.photo_path
-    FROM (
-        SELECT p.*, info.large_name,
-               RANK() OVER (
-                   PARTITION BY info.large_name
-                   ORDER BY p.likes DESC
-               ) AS ranking
-        FROM Photo p
-        JOIN LocationInfo info ON p.photo_id = info.photo_id
-        WHERE p.shared_active = 1
-          AND EXISTS (
-              SELECT 1
-              FROM TagSelect ts
-              WHERE ts.user_id = :userId
-                AND ts.tag = p.tag
-          )
-    ) sub
-    WHERE sub.ranking <= :count
-    """, nativeQuery = true)
+            SELECT sub.photo_id, sub.user_id, sub.lat, sub.lng, sub.location,
+                   sub.register_datetime, sub.upload_datetime,
+                   sub.likes, sub.views, sub.tag, sub.shared_active,
+                   sub.frame_active, sub.photo_path
+            FROM (
+                SELECT p.*, info.large_name,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY info.large_name
+                           ORDER BY p.likes DESC
+                       ) AS ranking
+                FROM picto_schema.Photo p
+                JOIN picto_schema.LocationInfo info ON p.photo_id = info.photo_id
+                WHERE p.shared_active = 1
+                  AND EXISTS (
+                      SELECT 1
+                      FROM picto_schema.TagSelect ts
+                      WHERE ts.user_id = :userId
+                        AND ts.tag = p.tag
+                  )
+            ) sub
+            WHERE sub.ranking <= :count
+            """, nativeQuery = true)
     List<Photo> findByTypeTopLargePhoto(
             @Param("userId") Long userId,
             @Param("count") int count
     );
 
     @Query(value = """
-    SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
-    FROM (
-        SELECT p.*,
-            RANK() OVER (
-                PARTITION BY info.middle_name
-                ORDER BY p.likes DESC, info.middle_name DESC
-            ) as ranking
-        FROM Photo p
-        JOIN LocationInfo info ON p.photo_id = info.photo_id
-    ) sub
-    WHERE sub.ranking <= :count
-    """, nativeQuery = true)
-    List<Photo> findByTypeTopMiddlePhoto(@Param("count") int count);
+            SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
+            FROM (
+                SELECT p.*, info.middle_name,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY info.middle_name
+                           ORDER BY p.likes DESC
+                       ) AS ranking
+                FROM picto_schema.Photo p
+                JOIN picto_schema.LocationInfo info ON p.photo_id = info.photo_id
+                WHERE p.shared_active = 1
+                  AND EXISTS (
+                      SELECT 1
+                      FROM picto_schema.TagSelect ts
+                      WHERE ts.user_id = :userId
+                        AND ts.tag = p.tag
+                  )
+            ) sub
+            WHERE sub.ranking <= :count
+            """, nativeQuery = true)
+    List<Photo> findByTypeTopMiddlePhoto(@Param("userId") Long userId, @Param("count") int count);
 
     @Query(value = """
-    SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
-    FROM (
-        SELECT p.*,
-            RANK() OVER (
-                PARTITION BY info.small_name
-                ORDER BY p.likes DESC, info.small_name DESC
-            ) as ranking
-        FROM Photo p
-        JOIN LocationInfo info ON p.photo_id = info.photo_id
-    ) sub
-    WHERE sub.ranking <= :count
-    """, nativeQuery = true)
-    List<Photo> findByTypeTopSmallPhoto(@Param("count") int count);
+            SELECT sub.photo_id,sub.user_id, sub.lat, sub.lng, sub.location, sub.register_datetime, sub.upload_datetime, sub.likes, sub.views, sub.tag, sub.shared_active, sub.frame_active, sub.photo_path
+            FROM (
+                SELECT p.*, info.small_name,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY info.small_name
+                           ORDER BY p.likes DESC
+                       ) AS ranking
+                FROM picto_schema.Photo p
+                JOIN picto_schema.LocationInfo info ON p.photo_id = info.photo_id
+                WHERE p.shared_active = 1
+                  AND EXISTS (
+                      SELECT 1
+                      FROM picto_schema.TagSelect ts
+                      WHERE ts.user_id = :userId
+                        AND ts.tag = p.tag
+                  )
+            ) sub
+            WHERE sub.ranking <= :count
+            """, nativeQuery = true)
+    List<Photo> findByTypeTopSmallPhoto(@Param("userId") Long userId, @Param("count") int count);
 
     // 특정 지역에 대한 대표사진들 조회
     @Query("select p " +
