@@ -29,7 +29,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-connect")
-                .setAllowedOrigins("http://bogota.iptime.org:8085")
+                .setAllowedOrigins("http://bogota.iptime.org:8085/")
                 .withSockJS();
     }
 }

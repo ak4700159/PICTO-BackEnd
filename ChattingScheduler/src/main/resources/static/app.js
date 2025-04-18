@@ -1,5 +1,5 @@
 const stompClient = new StompJs.Client({
-  brokerURL: 'http://bogota.iptime.org:8085/ws-connect'
+  webSocketFactory: () => new SockJS('http://bogota.iptime.org:8085/ws-connect')
 });
 
 stompClient.onConnect = (frame) => {
