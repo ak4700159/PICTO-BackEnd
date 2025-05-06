@@ -36,7 +36,6 @@ import java.util.HashSet;
 @Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
     private String issuerUri;
 
