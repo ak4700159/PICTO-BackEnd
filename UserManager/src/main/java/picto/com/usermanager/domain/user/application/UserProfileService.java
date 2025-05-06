@@ -56,4 +56,10 @@ public class UserProfileService {
                 .findFirst()
                 .ifPresent(userProfileRepository::delete);
     }
+
+    public Long getProfilePhoto(Long userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
+        return userProfileRepository.getUserProfileByUserId(userId);
+    }
 }

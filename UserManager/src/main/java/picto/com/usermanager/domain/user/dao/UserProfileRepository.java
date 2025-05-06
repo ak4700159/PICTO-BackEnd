@@ -7,5 +7,5 @@ import picto.com.usermanager.domain.user.entity.UserProfileId;
 
 @Repository
 public interface UserProfileRepository extends JpaRepository<UserProfile, UserProfileId> {
-
+    Long getUserProfileByUserId(Long userId);
 }

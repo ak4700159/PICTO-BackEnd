@@ -2,10 +2,7 @@ package picto.com.usermanager.domain.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import picto.com.usermanager.domain.user.application.UserProfileService;
 
 @RestController
@@ -34,6 +31,18 @@ public class UserProfileController {
             return ResponseEntity
                     .status(404)
                     .body("프로필 사진 삭제 실패: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/user-manager/profile/photo")
+    public ResponseEntity<String> getUserProfilePhoto(@RequestParam("userId") Long userId) {
+        try {
+            userProfileService.getProfilePhoto(userId);
+            return ResponseEntity.ok("Profile photoId get successfully");
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(404)
+                    .body("프로필 사진 식별번호 조회 실패: " + e.getMessage());
         }
     }
 }
