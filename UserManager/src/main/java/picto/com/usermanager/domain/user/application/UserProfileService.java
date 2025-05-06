@@ -8,6 +8,8 @@ import picto.com.usermanager.domain.user.dao.UserRepository;
 import picto.com.usermanager.domain.user.entity.UserProfile;
 import picto.com.usermanager.domain.user.entity.UserProfileId;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserProfileService {
@@ -60,6 +62,13 @@ public class UserProfileService {
     public Long getProfilePhoto(Long userId) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자가 존재하지 않습니다."));
-        return userProfileRepository.getUserProfileByUserId(userId);
+        List<UserProfile> result = userProfileRepository.getUserProfileByUserId(userId);
+        if(result.isEmpty()) {
+            throw new IllegalArgumentException("존재하는 프로필이 없습니다.");
+        }
+        if(result.size() > 1) {
+            throw new IllegalArgumentException("서버 로직 에러 발생");
+        }
+        return result.get(0).getId().getPhotoId();
     }
 }

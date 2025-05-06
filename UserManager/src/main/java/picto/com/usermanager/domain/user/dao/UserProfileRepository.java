@@ -5,7 +5,9 @@ import org.springframework.stereotype.Repository;
 import picto.com.usermanager.domain.user.entity.UserProfile;
 import picto.com.usermanager.domain.user.entity.UserProfileId;
 
+import java.util.List;
+
 @Repository
 public interface UserProfileRepository extends JpaRepository<UserProfile, UserProfileId> {
-    Long getUserProfileByUserId(Long userId);
+    List<UserProfile> getUserProfileByUserId(Long userId);
 }

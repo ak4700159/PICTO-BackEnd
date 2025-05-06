@@ -37,8 +37,8 @@ public class UserProfileController {
     @GetMapping("/user-manager/profile/photo")
     public ResponseEntity<String> getUserProfilePhoto(@RequestParam("userId") Long userId) {
         try {
-            userProfileService.getProfilePhoto(userId);
-            return ResponseEntity.ok("Profile photoId get successfully");
+            Long photoId = userProfileService.getProfilePhoto(userId);
+            return ResponseEntity.ok(photoId.toString());
         } catch (Exception e) {
             return ResponseEntity
                     .status(404)
