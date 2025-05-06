@@ -1,7 +1,6 @@
 from PIL import Image
 
 
-
 # 모든 이미지를 정사각형 사이즈로 만들기 
 def pad_to_square(image):
     w, h = image.size

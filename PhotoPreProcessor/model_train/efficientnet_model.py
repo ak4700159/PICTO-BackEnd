@@ -5,6 +5,7 @@ from PIL import Image
 from io import BytesIO
 import os
 import time
+from datetime import datetime
 from utils import pad_to_square
 
 class EfficientNetClassifier(nn.Module):
@@ -14,16 +15,17 @@ class EfficientNetClassifier(nn.Module):
         self.train_loader = train_loader
         self.val_loader = val_loader
 
-        # Load pretrained EfficientNet
-        self.model = models.efficientnet_b0(weights=models.EfficientNet_B0_Weights.DEFAULT)
-
-        # Replace the classifier head for binary classification
+        # ✅ EfficientNet B2로 변경
+        self.model = models.efficientnet_b2(weights=models.EfficientNet_B2_Weights.DEFAULT)
         in_features = self.model.classifier[1].in_features
         self.model.classifier[1] = nn.Linear(in_features, 2)
 
         self.to(self.device)
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.parameters(), lr=1e-4)
+
+        # ✅ ReduceLROnPlateau 스케줄러 추가
+        self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, mode='min', factor=0.5, patience=2)
 
     def forward(self, x):
         return self.model(x)
@@ -32,6 +34,9 @@ class EfficientNetClassifier(nn.Module):
         best_loss = float('inf')  # 🔥 전역 최적 loss 저장
 
         for epoch in range(num_epochs):
+            # ✅ 현재 시간 출력
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print(f"\n🕒 Epoch {epoch + 1} 시작 - 현재 시간: {now}")
             start_time = time.time()
             self.train()
             total_loss = 0
@@ -59,8 +64,9 @@ class EfficientNetClassifier(nn.Module):
                 print(f"🧠 Best model updated (Loss: {avg_loss:.4f})")
 
             print(f"Epoch {epoch + 1}, Loss: {avg_loss:.4f}, Time: {int(minutes)}m {int(seconds)}s")
-            self.validate()
-            
+            val_loss = self.validate()
+            self.scheduler.step(val_loss)
+
     def save_model(self, path="efficientnet_real_fake.pth"):
         torch.save(self.state_dict(), path)
         print(f"✅ Model saved to: {path}")
@@ -69,7 +75,7 @@ class EfficientNetClassifier(nn.Module):
         if not os.path.exists(path):
             raise FileNotFoundError(f"❌ Model file '{path}' not found.")
 
-        state_dict = torch.load(path, map_location=map_location or self.device)
+        state_dict = torch.load(path, map_location=map_location or self.device, weights_only = True)
         self.load_state_dict(state_dict)
         self.to(self.device)
         print(f"📦 Model loaded from: {path}")
@@ -90,7 +96,10 @@ class EfficientNetClassifier(nn.Module):
                 total += labels.size(0)
 
         acc = correct / total
-        print(f"Validation Accuracy: {acc:.4f}, Loss: {val_loss / len(self.val_loader):.4f}")
+        avg_val_loss = val_loss / len(self.val_loader)
+        print(f"Validation Accuracy: {acc:.4f}, Loss: {avg_val_loss:.4f}")
+        return avg_val_loss
+
 
     def predict_image(self, image_path):
         self.eval()
@@ -98,15 +107,18 @@ class EfficientNetClassifier(nn.Module):
         if image.mode != "RGB":
             image = image.convert("RGB")
 
-        transform = transforms.Compose([
-            transforms.Lambda(pad_to_square),     # ⬅️ 종횡비 유지하면서 정사각형 패딩
-            transforms.Resize((224, 224)),        # 모델 입력 크기로 조정
+        transform_train = transforms.Compose([
+            transforms.Lambda(pad_to_square),
+            transforms.Resize((224, 224)),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomRotation(10),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406],  # EfficientNet 기준
+            transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                 std=[0.229, 0.224, 0.225])
         ])
 
-        image_tensor = transform(image).unsqueeze(0).to(self.device)
+        image_tensor = transform_train(image).unsqueeze(0).to(self.device)
         with torch.no_grad():
             output = self(image_tensor)
             pred = torch.argmax(output, dim=1).item()
@@ -120,15 +132,18 @@ class EfficientNetClassifier(nn.Module):
             if image.mode != "RGB":
                 image = image.convert("RGB")
 
-            transform = transforms.Compose([
-                transforms.Lambda(pad_to_square),     # ⬅️ 종횡비 유지하면서 정사각형 패딩
-                transforms.Resize((224, 224)),        # 모델 입력 크기로 조정
+            transform_train = transforms.Compose([
+                transforms.Lambda(pad_to_square),
+                transforms.Resize((224, 224)),
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomRotation(10),
+                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
                 transforms.ToTensor(),
-                transforms.Normalize(mean=[0.485, 0.456, 0.406],  # EfficientNet 기준
+                transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                     std=[0.229, 0.224, 0.225])
             ])
 
-            image_tensor = transform(image).unsqueeze(0).to(self.device)
+            image_tensor = transform_train(image).unsqueeze(0).to(self.device)
             with torch.no_grad():
                 output = self(image_tensor)
                 pred = torch.argmax(output, dim=1).item()

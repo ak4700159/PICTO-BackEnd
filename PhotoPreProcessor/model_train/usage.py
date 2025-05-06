@@ -4,7 +4,7 @@ from efficientnet_model import EfficientNetClassifier
 
 from PIL import Image
 
-def detect_from_folder(folder_path="./sample"):
+def detect_from_folder(folder_path="./"):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
 
@@ -45,4 +45,4 @@ def detect_from_folder(folder_path="./sample"):
     print(f"\n📊 전체 정확도: {correct} / {total} ({accuracy:.2f}%)")
 
 if __name__ == "__main__":
-    detect_from_folder("./sample")
+    detect_from_folder("./sample/ai_generated")
