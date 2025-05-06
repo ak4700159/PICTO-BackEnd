@@ -1,5 +1,6 @@
 package picto.com.usermanager.domain.user.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -8,8 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 import picto.com.usermanager.domain.user.application.UserProfileService;
 
 @RestController
+@RequiredArgsConstructor
 public class UserProfileController {
-    private UserProfileService userProfileService;
+    private final UserProfileService userProfileService;
 
     @PutMapping("/user-manager/profile/photo")
     public ResponseEntity<String> updateUserProfile(@RequestParam("userId") Long userId, @RequestParam("photoId") Long photoId) {
