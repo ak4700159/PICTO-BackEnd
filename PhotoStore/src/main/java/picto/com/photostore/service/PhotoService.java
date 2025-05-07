@@ -112,13 +112,13 @@ public class PhotoService {
         return photoRepository.save(framePhoto);
     }
 
-    // 테스트를 위한 임시 likes / views 값
-    private int[] generateRandomLikesAndViews() {
-        Random random = new Random();
-        int likes = random.nextInt(5000);
-        int views = (likes > 0) ? random.nextInt(likes * 2) + likes : random.nextInt(12000);
-        return new int[]{likes, views};
-    }
+//    // 테스트를 위한 임시 likes / views 값
+//    private int[] RandomLikesAndViews() {
+//        Random random = new Random();
+//        int likes = random.nextInt(5000);
+//        int views = (likes > 0) ? random.nextInt(likes * 2) + likes : random.nextInt(12000);
+//        return new int[]{likes, views};
+//    }
 
     // 일반 사진 저장 처리
     private Photo saveRegularPhoto(MultipartFile file, User user, String location, PhotoUploadRequest request, Folder folder) {
@@ -126,7 +126,7 @@ public class PhotoService {
         String photoPath = s3Service.uploadFile(file, user.getId(),
                 folder.getName().equals("default") ? null : folder.getId());
 
-        int[] likeView = generateRandomLikesAndViews();
+//        int[] likeView = RandomLikesAndViews();
 
         Photo regularPhoto = Photo.builder()
                 .user(user)
@@ -135,10 +135,10 @@ public class PhotoService {
                 .lng(request.getLng())
                 .location(location)
                 .tag(request.getTag())
-//                .likes(0)
-//                .views(0)
-                .likes(likeView[0])
-                .views(likeView[1])
+                .likes(0)
+                .views(0)
+//                .likes(likeView[0])
+//                .views(likeView[1])
                 .registerDatetime(request.getRegisterTime())
                 .frameActive(false)
                 .sharedActive(request.isSharedActive())

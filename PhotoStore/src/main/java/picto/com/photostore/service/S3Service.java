@@ -3,6 +3,7 @@ package picto.com.photostore.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.util.IOUtils;
+import net.coobird.thumbnailator.Thumbnails;
 import picto.com.photostore.exception.FileDeleteException;
 import picto.com.photostore.exception.FileUploadException;;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +15,18 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.AmazonServiceException;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.UUID;
+import java.io.ByteArrayOutputStream;
 
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import picto.com.photostore.exception.FileDownloadException;
 import picto.com.photostore.exception.InvalidFileException;
+
+import javax.imageio.ImageIO;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +71,8 @@ public class S3Service {
         }
     }
 
-    public byte[] downloadFile(String photoPath) {
+    // 원본 사진 조회
+    public byte[] downloadOriginalFile(String photoPath) {
         try {
             S3Object s3Object = s3client.getObject(new GetObjectRequest(bucket, photoPath));
             S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
@@ -75,8 +81,29 @@ public class S3Service {
                 return IOUtils.toByteArray(objectInputStream);
             }
         } catch (Exception e) {
-            log.error("파일 다운로드 실패: {}", e.getMessage());
-            throw new FileDownloadException("파일 다운로드 중 오류가 발생했습니다.", e);
+            log.error("원본 사진 다운로드 실패: {}", e.getMessage());
+            throw new FileDownloadException("사진 다운로드 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    // 리사이징 사진 조회
+    public byte[] downloadResizeFile(String photoPath, int width, int height) {
+        try {
+            S3Object s3Object = s3client.getObject(new GetObjectRequest(bucket, photoPath));
+            try (S3ObjectInputStream objectInputStream = s3Object.getObjectContent()) {
+                BufferedImage originalImage = ImageIO.read(objectInputStream);
+
+                BufferedImage resizedImage = Thumbnails.of(originalImage)
+                        .size(width, height)
+                        .asBufferedImage();
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(resizedImage, "jpg", baos);
+                return baos.toByteArray();
+            }
+        } catch (Exception e) {
+            log.error("리사이징 사진 다운로드 실패: {}", e.getMessage());
+            throw new FileDownloadException("사진 다운로드 중 오류가 발생했습니다.", e);
         }
     }
 

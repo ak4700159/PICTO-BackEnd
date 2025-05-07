@@ -1,7 +1,5 @@
 package picto.com.photostore.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -13,9 +11,8 @@ import picto.com.photostore.domain.photo.*;
 import picto.com.photostore.exception.InvalidFileException;
 import picto.com.photostore.service.PhotoService;
 import picto.com.photostore.service.S3Service;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("photo-store/photos")
@@ -70,12 +67,12 @@ public class PhotoController {
         return ResponseEntity.ok().build();
     }
 
-    // 사진 조회
-    @GetMapping("/download/{photoId}")
+    // 원본 사진 조회
+    @GetMapping("/original/{photoId}")
     public ResponseEntity<byte[]> downloadPhoto(@PathVariable(name = "photoId") Long photoId) {
         try {
             Photo photo = photoService.getPhotoById(photoId);
-            byte[] imageBytes = s3Service.downloadFile(photo.getPhotoPath());
+            byte[] imageBytes = s3Service.downloadOriginalFile(photo.getPhotoPath());
             String fileName = photo.getPhotoPath();
             String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
 
@@ -91,8 +88,30 @@ public class PhotoController {
                     .contentLength(imageBytes.length)
                     .body(imageBytes);
         } catch (Exception e) {
-            log.error("이미지 다운로드 중 오류 발생: {}", e.getMessage());
-            throw new RuntimeException("이미지 다운로드 실패", e);
+            log.error("사진 다운로드 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("사진 다운로드 실패", e);
+        }
+    }
+
+    // 리사이징 사진 조회
+    @GetMapping("/resize/{photoId}")
+    public ResponseEntity<byte[]> downloadResizedPhoto(
+            @PathVariable(name = "photoId") Long photoId,
+            @RequestParam int width,
+            @RequestParam int height) {
+
+        try {
+            Photo photo = photoService.getPhotoById(photoId);
+            byte[] imageBytes = s3Service.downloadResizeFile(photo.getPhotoPath(), width, height);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"resized_" + photo.getPhotoPath() + "\"")
+                    .contentLength(imageBytes.length)
+                    .body(imageBytes);
+        } catch (Exception e) {
+            log.error("사진 다운로드 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("사진 다운로드 실패", e);
         }
     }
 
