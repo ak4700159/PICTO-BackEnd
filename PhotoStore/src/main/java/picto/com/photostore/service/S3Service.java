@@ -72,13 +72,22 @@ public class S3Service {
     }
 
     // 원본 사진 조회
-    public byte[] downloadOriginalFile(String photoPath) {
+    public byte[] downloadFile(String photoPath) {
         try {
             S3Object s3Object = s3client.getObject(new GetObjectRequest(bucket, photoPath));
             S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
 
             try (objectInputStream) {
-                return IOUtils.toByteArray(objectInputStream);
+                BufferedImage image = ImageIO.read(objectInputStream);
+                int width = image.getWidth();
+                int height = image.getHeight();
+                log.info("원본 사진 크기: {} x {}", width, height);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(image, "jpg", baos);
+                byte[] imageBytes = baos.toByteArray();
+                log.info("원본 사진 용량: {} bytes (약 {} KB)", imageBytes.length, imageBytes.length / 1024);
+                return imageBytes;
             }
         } catch (Exception e) {
             log.error("원본 사진 다운로드 실패: {}", e.getMessage());
@@ -87,19 +96,32 @@ public class S3Service {
     }
 
     // 리사이징 사진 조회
-    public byte[] downloadResizeFile(String photoPath, int width, int height) {
+    public byte[] downloadResizeFile(String photoPath, double scale) {
         try {
             S3Object s3Object = s3client.getObject(new GetObjectRequest(bucket, photoPath));
             try (S3ObjectInputStream objectInputStream = s3Object.getObjectContent()) {
                 BufferedImage originalImage = ImageIO.read(objectInputStream);
 
+                int originalWidth = originalImage.getWidth();
+                int originalHeight = originalImage.getHeight();
+                log.info("원본 사진 크기: {} x {}", originalWidth, originalHeight);
+
+                int newWidth = (int) (originalWidth * scale);
+                int newHeight = (int) (originalHeight * scale);
+                log.info("리사이징 사진 크기: {} x {}", newWidth, newHeight);
+
                 BufferedImage resizedImage = Thumbnails.of(originalImage)
-                        .size(width, height)
+                        .size(newWidth, newHeight)
+                        .keepAspectRatio(true)
                         .asBufferedImage();
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(resizedImage, "jpg", baos);
-                return baos.toByteArray();
+                byte[] imageBytes = baos.toByteArray();
+
+                log.info("리사이징 사진 용량: {} bytes (약 {} KB)", imageBytes.length, imageBytes.length / 1024);
+
+                return imageBytes;
             }
         } catch (Exception e) {
             log.error("리사이징 사진 다운로드 실패: {}", e.getMessage());

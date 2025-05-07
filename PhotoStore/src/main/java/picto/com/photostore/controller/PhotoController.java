@@ -67,12 +67,21 @@ public class PhotoController {
         return ResponseEntity.ok().build();
     }
 
-    // 원본 사진 조회
-    @GetMapping("/original/{photoId}")
-    public ResponseEntity<byte[]> downloadPhoto(@PathVariable(name = "photoId") Long photoId) {
+    // 사진 조회
+    @GetMapping("/download/{photoId}")
+    public ResponseEntity<byte[]> downloadPhoto(
+            @PathVariable(name = "photoId") Long photoId,
+            @RequestParam(name = "scale", defaultValue = "1.0") double scale) {
         try {
             Photo photo = photoService.getPhotoById(photoId);
-            byte[] imageBytes = s3Service.downloadOriginalFile(photo.getPhotoPath());
+            byte[] imageBytes;
+
+            if (scale == 1.0) {
+                imageBytes = s3Service.downloadFile(photo.getPhotoPath());
+            } else {
+                imageBytes = s3Service.downloadResizeFile(photo.getPhotoPath(), scale);
+            }
+
             String fileName = photo.getPhotoPath();
             String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
 
@@ -84,31 +93,10 @@ public class PhotoController {
 
             return ResponseEntity.ok()
                     .contentType(mediaType)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                     .contentLength(imageBytes.length)
                     .body(imageBytes);
-        } catch (Exception e) {
-            log.error("사진 다운로드 중 오류 발생: {}", e.getMessage());
-            throw new RuntimeException("사진 다운로드 실패", e);
-        }
-    }
 
-    // 리사이징 사진 조회
-    @GetMapping("/resize/{photoId}")
-    public ResponseEntity<byte[]> downloadResizedPhoto(
-            @PathVariable(name = "photoId") Long photoId,
-            @RequestParam int width,
-            @RequestParam int height) {
-
-        try {
-            Photo photo = photoService.getPhotoById(photoId);
-            byte[] imageBytes = s3Service.downloadResizeFile(photo.getPhotoPath(), width, height);
-
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_JPEG)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"resized_" + photo.getPhotoPath() + "\"")
-                    .contentLength(imageBytes.length)
-                    .body(imageBytes);
         } catch (Exception e) {
             log.error("사진 다운로드 중 오류 발생: {}", e.getMessage());
             throw new RuntimeException("사진 다운로드 실패", e);
