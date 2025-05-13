@@ -39,15 +39,6 @@ runs:
     - name: Check out code
       uses: actions/checkout@v3
 
-    - name: Optionally create firebase.json
-      if: ${{ inputs.firebase-json != '' }}
-      run: |
-        cd ${{ inputs.directory }}
-        echo '${{ inputs.firebase-json }}' > src/main/resources/firebase.json
-        echo "[INFO] firebase.json created:"
-        cat src/main/resources/firebase.json
-      shell: bash
-
     - name: Set application.yml
       run: |
         cd ${{ inputs.directory }}
@@ -55,6 +46,15 @@ runs:
         touch ./src/main/resources/application.yml
         echo "${{ inputs.application-yml }}" | sudo tee ./src/main/resources/application.yml
         cat ./src/main/resources/application.yml
+      shell: bash
+
+    - name: Optionally create firebase.json
+      if: ${{ inputs.firebase-json != '' }}
+      run: |
+        cd ${{ inputs.directory }}
+        echo '${{ inputs.firebase-json }}' > src/main/resources/firebase.json
+        echo "[INFO] firebase.json created:"
+        cat src/main/resources/firebase.json
       shell: bash
 
     - name: Change wrapper permissions
