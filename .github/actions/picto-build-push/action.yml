@@ -53,7 +53,7 @@ runs:
       run: |
         cd ${{ inputs.directory }}
         touch ./src/main/resources/firebase.json
-        echo '${{ inputs.firebase-json }}' > src/main/resources/firebase.json
+        echo "${{ inputs.firebase-json }}" | base64 -d > src/main/resources/firebase.json
         echo "[INFO] firebase.json created:"
         cat src/main/resources/firebase.json
       shell: bash
