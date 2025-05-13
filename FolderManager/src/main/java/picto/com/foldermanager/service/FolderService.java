@@ -42,6 +42,7 @@ public class FolderService {
     private final UserRepository userRepository;
     private final NoticeRepository noticeRepository;
     private final AmazonS3 s3client;
+    private final FCMService fcmService;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -141,6 +142,16 @@ public class FolderService {
 
         noticeRepository.save(notice);
 
+        // FCM 푸시 알림 전송
+        if (invitee.getFcmToken() != null && !invitee.getFcmToken().isEmpty()) {
+            String title = "폴더 초대 알림";
+            String body = String.format("%s(%s)님이 '%s' 폴더에 초대했습니다.", notice.getSender().getName(),
+                    notice.getSender().getAccountName(), folder.getName());
+            fcmService.sendPushNotification(invitee.getFcmToken(), title, body);
+        } else if (invitee.getFcmToken() == null || invitee.getFcmToken().isEmpty()) {
+            log.info("FCM 토큰을 찾을 수 없습니다. 토큰 정보를 업데이트 해주세요.");
+        }
+
         return null;
     }
 
@@ -237,8 +248,7 @@ public class FolderService {
                 .collect(Collectors.toMap(
                         ShareResponse::getFolderId,
                         response -> response,
-                        (existing, replacement) -> existing
-                ))
+                        (existing, replacement) -> existing))
                 .values()
                 .stream()
                 .collect(Collectors.toList());
@@ -453,7 +463,7 @@ public class FolderService {
     private void copyS3File(String sourceKey, String targetKey) {
         try {
             CopyObjectRequest copyRequest = new CopyObjectRequest(bucket, sourceKey, bucket, targetKey);
-            // 파일 복사 
+            // 파일 복사
             s3client.copyObject(copyRequest);
             log.info("Copied file from {} to {}", sourceKey, targetKey);
         } catch (AmazonS3Exception e) {
@@ -537,8 +547,7 @@ public class FolderService {
         boolean isSharedUser = shareRepository.existsByUserAndFolder(
                 userRepository.findById(userId)
                         .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.")),
-                folder
-        );
+                folder);
 
         if (!isSharedUser) {
             throw new CustomException("해당 폴더에 대한 접근 권한이 없습니다.");

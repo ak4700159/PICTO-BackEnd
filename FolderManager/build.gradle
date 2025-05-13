@@ -67,6 +67,9 @@ dependencies {
 	implementation 'com.github.ben-manes.caffeine:caffeine'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// FCM
+	implementation 'com.google.firebase:firebase-admin:9.2.0'
 }
 
 tasks.named('test') {

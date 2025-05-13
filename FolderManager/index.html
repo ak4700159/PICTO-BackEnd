@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>FCM Token 발급 테스트</title>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+</head>
+
+<body>
+    <h2>FCM Token 발급</h2>
+    <button onclick="getToken()">토큰 발급</button>
+    <p id="token"></p>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                    .then(function (registration) {
+                        console.log('Service Worker 등록 성공:', registration.scope);
+                    }).catch(function (err) {
+                        console.log('Service Worker 등록 실패:', err);
+                    });
+            });
+        }
+
+        // 1. Firebase 설정 (본인 프로젝트 정보로 교체)
+        const firebaseConfig = {
+            apiKey: "AIzaSyAY9fTA-g9DF46Scr8IU0eaAYYRoRjnl_I",
+            authDomain: "picto-push.firebaseapp.com",
+            projectId: "picto-push",
+            messagingSenderId: "314952144440",
+            appId: "1:314952144440:web:62a74e7b635c6353fef8cd"
+        };
+        firebase.initializeApp(firebaseConfig);
+
+        // 2. FCM Messaging 객체 생성
+        const messaging = firebase.messaging();
+
+        // 3. 토큰 발급 함수
+        function getToken() {
+            messaging.getToken({
+                vapidKey: "BLJmV1KcZ5IN0aCEIJVbG5IzwfMyPio-kmdiYul4DKJ3or78sfjJhQ6RM62WSfS9EU0h4wHlZV2phaBydt_g-ps" // 본인 VAPID 공개키로 교체
+            }).then((currentToken) => {
+                if (currentToken) {
+                    document.getElementById('token').innerText = currentToken;
+                } else {
+                    document.getElementById('token').innerText = "토큰을 가져올 수 없습니다.";
+                }
+            }).catch((err) => {
+                document.getElementById('token').innerText = "에러: " + err;
+            });
+        }
+    </script>
+</body>
+
+</html>
