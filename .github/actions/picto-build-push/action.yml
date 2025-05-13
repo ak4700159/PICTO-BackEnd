@@ -29,12 +29,24 @@ inputs:
   ssh_password:
     description: "PICTO ssh password"
     requried: true
+  push_firebase:
+    description: "firebase configuration
+    required: false
 
 runs:
   using: "composite"
   steps:
     - name: Check out code
       uses: actions/checkout@v3
+      
+    - name: Optionally create firebase.json
+      if: ${{ inputs.push_firebase != '' }}
+      run: |
+        cd ${{ inputs.directory }}
+        echo '${{ inputs.push_firebase }}' > src/main/resources/firebase.json
+        echo "[INFO] firebase.json created:"
+        cat src/main/resources/firebase.json
+      shell: bash
 
     - name: Set application.yml
       run: |

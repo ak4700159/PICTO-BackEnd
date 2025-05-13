@@ -122,6 +122,7 @@ jobs:
           directory: "FolderManager"
           docker-image: "ak47001/picto:folder-manager"
           application-yml: ${{ secrets.FOLDER_MANAGER_APPLICATION }}
+          firebase-json : ${{ secrets.PUSH_FIREBASE }}
           application-port: "8082"
           dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
