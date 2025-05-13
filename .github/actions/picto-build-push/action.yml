@@ -30,7 +30,7 @@ inputs:
     description: "PICTO ssh password"
     requried: true
   firebase-json:
-    description: "firebase configuration
+    description: "firebase configuration"
     required: false
 
 runs:
