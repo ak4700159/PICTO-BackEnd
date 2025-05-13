@@ -167,4 +167,5 @@ public class FolderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("HTML 파일을 읽을 수 없습니다.");
         }
     }
+
 }
