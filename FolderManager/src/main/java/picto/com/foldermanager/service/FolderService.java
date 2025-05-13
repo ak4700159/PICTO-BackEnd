@@ -26,6 +26,7 @@ import picto.com.foldermanager.repository.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,6 +42,7 @@ public class FolderService {
     private final UserRepository userRepository;
     private final NoticeRepository noticeRepository;
     private final AmazonS3 s3client;
+    private final FCMService fcmService;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -119,6 +121,10 @@ public class FolderService {
     public ShareResponse shareFolder(ShareRequest request) {
         Folder folder = getFolderWithAccessCheck(request.getFolderId(), request.getSenderId());
 
+        if (isDefaultFolder(folder)) {
+            throw new CustomException("기본 폴더는 공유할 수 없습니다.");
+        }
+
         User invitee = userRepository.findById(request.getReceiverId())
                 .orElseThrow(() -> new CustomException("초대받는 사용자를 찾을 수 없습니다."));
 
@@ -136,6 +142,16 @@ public class FolderService {
 
         noticeRepository.save(notice);
 
+        // FCM 푸시 알림 전송
+        if (invitee.getFcmToken() != null && !invitee.getFcmToken().isEmpty()) {
+            String title = "폴더 초대 알림";
+            String body = String.format("%s(%s)님이 '%s' 폴더에 초대했습니다.", notice.getSender().getName(),
+                    notice.getSender().getAccountName(), folder.getName());
+            fcmService.sendPushNotification(invitee.getFcmToken(), title, body);
+        } else if (invitee.getFcmToken() == null || invitee.getFcmToken().isEmpty()) {
+            log.info("FCM 토큰을 찾을 수 없습니다. 토큰 정보를 업데이트 해주세요.");
+        }
+
         return null;
     }
 
@@ -146,9 +162,7 @@ public class FolderService {
                 .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다."));
 
         List<Notice> notices = noticeRepository.findByReceiverOrderByCreatedDatetimeAsc(user);
-        if (notices.isEmpty()) {
-            throw new CustomException("받은 알림이 없습니다.");
-        }
+
         return notices.stream()
                 .map(NoticeResponse::from)
                 .collect(Collectors.toList());
@@ -217,24 +231,36 @@ public class FolderService {
         }
     }
 
-    // 공유 폴더 목록 조회
+    // 폴더 목록 조회
     @Transactional(readOnly = true)
     public List<ShareResponse> getSharedFolders(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다."));
 
-        return shareRepository.findAllByUser(user).stream()
-                .map(ShareResponse::from)
+        List<Folder> myFolders = folderRepository.findAllByGenerator(user);
+        List<Share> sharedFolders = shareRepository.findAllByUser(user);
+
+        List<ShareResponse> responses = new ArrayList<>();
+        myFolders.forEach(folder -> responses.add(ShareResponse.from(folder)));
+        sharedFolders.forEach(share -> responses.add(ShareResponse.from(share)));
+
+        return responses.stream()
+                .collect(Collectors.toMap(
+                        ShareResponse::getFolderId,
+                        response -> response,
+                        (existing, replacement) -> existing))
+                .values()
+                .stream()
                 .collect(Collectors.toList());
     }
 
     // 공유 폴더 사용자 목록 조회
     @Transactional(readOnly = true)
-    public List<ShareResponse> getSharedUsers(Long folderId, Long userId) {
+    public List<SharedUserResponse> getSharedUsers(Long folderId, Long userId) {
         Folder folder = getFolderWithAccessCheck(folderId, userId);
 
         return shareRepository.findAllByFolder(folder).stream()
-                .map(ShareResponse::from)
+                .map(SharedUserResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -346,8 +372,18 @@ public class FolderService {
     public List<PhotoResponse> getFolderPhotos(Long folderId, Long userId) {
         Folder folder = getFolderWithAccessCheck(folderId, userId);
 
+        // Default 폴더의 경우
+        if (isDefaultFolder(folder)) {
+            return photoRepository.findByUser(folder.getGenerator()).stream()
+                    .filter(photo -> !photo.isFrameActive())
+                    .map(PhotoResponse::from)
+                    .collect(Collectors.toList());
+        }
+
         return saveRepository.findAllByFolder(folder).stream()
-                .map(save -> PhotoResponse.from(save.getPhoto()))
+                .map(Save::getPhoto)
+                .filter(photo -> !photo.isFrameActive())
+                .map(PhotoResponse::from)
                 .collect(Collectors.toList());
     }
 
@@ -355,9 +391,24 @@ public class FolderService {
     @Transactional(readOnly = true)
     public PhotoResponse getSpecificPhotoInFolder(Long folderId, Long photoId, Long userId) {
         Folder folder = getFolderWithAccessCheck(folderId, userId);
+
+        // Default 폴더의 경우
+        if (isDefaultFolder(folder)) {
+            Photo photo = photoRepository.findById(photoId)
+                    .orElseThrow(() -> new PhotoNotFoundException("사진을 찾을 수 없습니다."));
+            if (photo.isFrameActive()) {
+                throw new CustomException("액자 사진입니다.");
+            }
+            return PhotoResponse.from(photo);
+        }
+
         Save save = saveRepository.findByFolderAndPhoto_PhotoId(folder, photoId)
                 .orElseThrow(() -> new PhotoNotFoundException("해당 폴더에 사진이 존재하지 않습니다."));
 
+        Photo photo = save.getPhoto();
+        if (photo.isFrameActive()) {
+            throw new CustomException("액자 사진입니다.");
+        }
         return PhotoResponse.from(save.getPhoto());
     }
 
@@ -412,7 +463,7 @@ public class FolderService {
     private void copyS3File(String sourceKey, String targetKey) {
         try {
             CopyObjectRequest copyRequest = new CopyObjectRequest(bucket, sourceKey, bucket, targetKey);
-            // 파일 복사 
+            // 파일 복사
             s3client.copyObject(copyRequest);
             log.info("Copied file from {} to {}", sourceKey, targetKey);
         } catch (AmazonS3Exception e) {
@@ -496,8 +547,7 @@ public class FolderService {
         boolean isSharedUser = shareRepository.existsByUserAndFolder(
                 userRepository.findById(userId)
                         .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.")),
-                folder
-        );
+                folder);
 
         if (!isSharedUser) {
             throw new CustomException("해당 폴더에 대한 접근 권한이 없습니다.");

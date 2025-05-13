@@ -1,7 +1,5 @@
 package picto.com.photostore.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -13,9 +11,8 @@ import picto.com.photostore.domain.photo.*;
 import picto.com.photostore.exception.InvalidFileException;
 import picto.com.photostore.service.PhotoService;
 import picto.com.photostore.service.S3Service;
-import java.util.HashMap;
+
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("photo-store/photos")
@@ -72,10 +69,19 @@ public class PhotoController {
 
     // 사진 조회
     @GetMapping("/download/{photoId}")
-    public ResponseEntity<byte[]> downloadPhoto(@PathVariable(name = "photoId") Long photoId) {
+    public ResponseEntity<byte[]> downloadPhoto(
+            @PathVariable(name = "photoId") Long photoId,
+            @RequestParam(name = "scale", defaultValue = "1.0") double scale) {
         try {
             Photo photo = photoService.getPhotoById(photoId);
-            byte[] imageBytes = s3Service.downloadFile(photo.getPhotoPath());
+            byte[] imageBytes;
+
+            if (scale == 1.0) {
+                imageBytes = s3Service.downloadFile(photo.getPhotoPath());
+            } else {
+                imageBytes = s3Service.downloadResizeFile(photo.getPhotoPath(), scale);
+            }
+
             String fileName = photo.getPhotoPath();
             String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
 
@@ -87,12 +93,13 @@ public class PhotoController {
 
             return ResponseEntity.ok()
                     .contentType(mediaType)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileName + "\"")
                     .contentLength(imageBytes.length)
                     .body(imageBytes);
+
         } catch (Exception e) {
-            log.error("이미지 다운로드 중 오류 발생: {}", e.getMessage());
-            throw new RuntimeException("이미지 다운로드 실패", e);
+            log.error("사진 다운로드 중 오류 발생: {}", e.getMessage());
+            throw new RuntimeException("사진 다운로드 실패", e);
         }
     }
 

@@ -24,6 +24,7 @@ import picto.com.photostore.domain.user.User;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -111,11 +112,21 @@ public class PhotoService {
         return photoRepository.save(framePhoto);
     }
 
+//    // 테스트를 위한 임시 likes / views 값
+//    private int[] RandomLikesAndViews() {
+//        Random random = new Random();
+//        int likes = random.nextInt(5000);
+//        int views = (likes > 0) ? random.nextInt(likes * 2) + likes : random.nextInt(12000);
+//        return new int[]{likes, views};
+//    }
+
     // 일반 사진 저장 처리
     private Photo saveRegularPhoto(MultipartFile file, User user, String location, PhotoUploadRequest request, Folder folder) {
 
         String photoPath = s3Service.uploadFile(file, user.getId(),
                 folder.getName().equals("default") ? null : folder.getId());
+
+//        int[] likeView = RandomLikesAndViews();
 
         Photo regularPhoto = Photo.builder()
                 .user(user)
@@ -126,6 +137,8 @@ public class PhotoService {
                 .tag(request.getTag())
                 .likes(0)
                 .views(0)
+//                .likes(likeView[0])
+//                .views(likeView[1])
                 .registerDatetime(request.getRegisterTime())
                 .frameActive(false)
                 .sharedActive(request.isSharedActive())
@@ -134,9 +147,9 @@ public class PhotoService {
         Photo savedPhoto = photoRepository.saveAndFlush(regularPhoto);
 
         if (request.isSharedActive()) {
+            saveLocationInfo(savedPhoto, location);
             scheduleSessionAfterCommit(savedPhoto);
         }
-
         return savedPhoto;
     }
 
@@ -172,6 +185,7 @@ public class PhotoService {
             Photo updatedPhoto = updatePhotoWithNewImage(photo, file, request);
 
             if (request.isSharedActive()) {
+                saveLocationInfo(updatedPhoto, updatedPhoto.getLocation());
                 scheduleSession(updatedPhoto);
             }
 
@@ -231,14 +245,20 @@ public class PhotoService {
                 shared
         );
 
-        LocationInfo locationInfo = locationInfoRepository.findById(photoId).orElse(null);
-
         if (shared) {
+            LocationInfo locationInfo = locationInfoRepository.findById(photoId).orElse(null);
+            if (locationInfo == null) {
+                saveLocationInfo(photo, photo.getLocation());
+            }
             try {
                 scheduleSession(photo);
             } catch (Exception e) {
                 log.error("공유 상태 변경 중 세션 스케줄러 호출 실패", e);
                 throw new SessionSchedulerException("세션 스케줄링 실패", e);
+            }
+        } else {
+            if (locationInfoRepository.existsById(photoId)) {
+                locationInfoRepository.deleteById(photoId);
             }
         }
 
@@ -341,6 +361,23 @@ public class PhotoService {
             log.error("Session scheduler call failed", e);
             throw new SessionSchedulerException("세션 스케줄링 실패", e);
         }
+    }
+
+    private void saveLocationInfo(Photo photo, String location) {
+        LocationInfo locationInfo = LocationInfo.builder()
+                .photoId(photo.getPhotoId())
+                .photo(photo)
+                .largeName(getAddressComponent(location, 0))
+                .middleName(getAddressComponent(location, 1))
+                .smallName(getAddressComponent(location, 2))
+                .build();
+        locationInfoRepository.save(locationInfo);
+    }
+
+    private String getAddressComponent(String location, int index) {
+        if (location == null) return null;
+        String[] parts = location.split(" ");
+        return (index < parts.length) ? parts[index] : null;
     }
 
     // 파일 유효성 검사

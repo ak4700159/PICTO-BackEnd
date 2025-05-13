@@ -3,6 +3,13 @@ package picto.com.photostore.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.util.IOUtils;
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import net.coobird.thumbnailator.Thumbnails;
 import picto.com.photostore.exception.FileDeleteException;
 import picto.com.photostore.exception.FileUploadException;;
 import lombok.RequiredArgsConstructor;
@@ -14,14 +21,22 @@ import org.springframework.web.multipart.MultipartFile;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.AmazonServiceException;
 
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
+import java.io.ByteArrayOutputStream;
 
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import picto.com.photostore.exception.FileDownloadException;
 import picto.com.photostore.exception.InvalidFileException;
+
+import javax.imageio.ImageIO;
 
 @Service
 @RequiredArgsConstructor
@@ -66,21 +81,125 @@ public class S3Service {
         }
     }
 
+    public BufferedImage correctOrientation(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        inputStream.transferTo(baos);
+        byte[] bytes = baos.toByteArray();
+
+        try {
+            Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(bytes));
+            Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
+
+            if (directory != null && directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                try {
+                    int orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+                    return rotateImageByExif(image, orientation);
+                } catch (MetadataException e) {
+                    throw new IOException("EXIF 방향 정보를 읽는 중 오류 발생", e);
+                }
+            }
+
+            return image;
+        } catch (ImageProcessingException e) {
+            throw new IOException("이미지 메타데이터 처리 중 오류 발생", e);
+        }
+    }
+
+
+    public BufferedImage rotateImageByExif(BufferedImage image, int orientation) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+        AffineTransform transform = new AffineTransform();
+
+        switch (orientation) {
+            case 6: // 90도 회전
+                transform.translate(height, 0);
+                transform.rotate(Math.toRadians(90));
+                break;
+            case 3: // 180도 회전
+                transform.translate(width, height);
+                transform.rotate(Math.toRadians(180));
+                break;
+            case 8: // 270도 회전
+                transform.translate(0, width);
+                transform.rotate(Math.toRadians(270));
+                break;
+            default:
+                return image; // 회전 불필요
+        }
+
+        BufferedImage rotatedImage = new BufferedImage(
+                (orientation == 6 || orientation == 8) ? height : width,
+                (orientation == 6 || orientation == 8) ? width : height,
+                image.getType());
+
+        Graphics2D g = rotatedImage.createGraphics();
+        g.setTransform(transform);
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return rotatedImage;
+    }
+
+    // 원본 사진 조회
     public byte[] downloadFile(String photoPath) {
         try {
             S3Object s3Object = s3client.getObject(new GetObjectRequest(bucket, photoPath));
             S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
 
             try (objectInputStream) {
-                return IOUtils.toByteArray(objectInputStream);
+                BufferedImage image = correctOrientation(objectInputStream);
+                int width = image.getWidth();
+                int height = image.getHeight();
+                log.info("원본 사진 크기: {} x {}", width, height);
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(image, "jpg", baos);
+                byte[] imageBytes = baos.toByteArray();
+                log.info("원본 사진 용량: {} bytes (약 {} KB)", imageBytes.length, imageBytes.length / 1024);
+                return imageBytes;
             }
         } catch (Exception e) {
-            log.error("파일 다운로드 실패: {}", e.getMessage());
-            throw new FileDownloadException("파일 다운로드 중 오류가 발생했습니다.", e);
+            log.error("원본 사진 다운로드 실패: {}", e.getMessage());
+            throw new FileDownloadException("사진 다운로드 중 오류가 발생했습니다.", e);
         }
     }
 
-    public void deleteFile(String photoPath) {
+    // 리사이징 사진 조회
+    public byte[] downloadResizeFile(String photoPath, double scale) {
+        try {
+            S3Object s3Object = s3client.getObject(new GetObjectRequest(bucket, photoPath));
+            try (S3ObjectInputStream objectInputStream = s3Object.getObjectContent()) {
+                BufferedImage originalImage = correctOrientation(objectInputStream);
+
+                int originalWidth = originalImage.getWidth();
+                int originalHeight = originalImage.getHeight();
+                log.info("원본 사진 크기: {} x {}", originalWidth, originalHeight);
+
+                int newWidth = (int) (originalWidth * scale);
+                int newHeight = (int) (originalHeight * scale);
+                log.info("리사이징 사진 크기: {} x {}", newWidth, newHeight);
+
+                BufferedImage resizedImage = Thumbnails.of(originalImage)
+                        .size(newWidth, newHeight)
+                        .keepAspectRatio(true)
+                        .asBufferedImage();
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(resizedImage, "jpg", baos);
+                byte[] imageBytes = baos.toByteArray();
+
+                log.info("리사이징 사진 용량: {} bytes (약 {} KB)", imageBytes.length, imageBytes.length / 1024);
+
+                return imageBytes;
+            }
+        } catch (Exception e) {
+            log.error("리사이징 사진 다운로드 실패: {}", e.getMessage());
+            throw new FileDownloadException("사진 다운로드 중 오류가 발생했습니다.", e);
+        }
+    }
+
+        public void deleteFile(String photoPath) {
         try {
             s3client.deleteObject(bucket, photoPath);
         } catch (AmazonServiceException e) {

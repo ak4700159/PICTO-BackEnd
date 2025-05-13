@@ -35,10 +35,13 @@ public class User implements Persistable<Long> {
     @Column(name = "account_name", nullable = false, length = 20)
     private String accountName;
 
+    @Column(name = "fcm_token", length = 255)
+    private String fcmToken;
+
     @Builder
     public User(Long userId, String password, String name, String email,
-                boolean profileActive, String profilePhotoPath,
-                String intro, String accountName) {
+            boolean profileActive, String profilePhotoPath,
+            String intro, String accountName, String fcmToken) {
         this.userId = userId;
         this.password = password;
         this.name = name;
@@ -47,6 +50,7 @@ public class User implements Persistable<Long> {
         this.profilePhotoPath = profilePhotoPath;
         this.intro = intro;
         this.accountName = accountName;
+        this.fcmToken = fcmToken;
     }
 
     @Override
@@ -57,5 +61,13 @@ public class User implements Persistable<Long> {
     @Override
     public boolean isNew() {
         return userId == null;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 }
