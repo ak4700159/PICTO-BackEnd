@@ -52,7 +52,7 @@ runs:
       if: ${{ inputs.firebase-json != '' }}
       run: |
         cd ${{ inputs.directory }}
-        echo '${{ inputs.firebase-json }}' > src/main/resources/firebase.json
+        echo "${{ inputs.firebase-json }}" | base64 -d > src/main/resources/firebase.json
         echo "[INFO] firebase.json created:"
         cat src/main/resources/firebase.json
       shell: bash
@@ -93,13 +93,13 @@ runs:
       shell: bash
 
     - name: Connect SSH-Server
-      uses: appleboy/ssh-action@v0.1.4   
+      uses: appleboy/ssh-action@v0.1.4
       with:
-        host: ${{ inputs.ssh_host }}          
+        host: ${{ inputs.ssh_host }}
         username: ${{ inputs.ssh_username }}
         password: ${{ inputs.ssh_password }}
         port: 22
-        timeout: 40s  # 30초 기본        
+        timeout: 40s # 30초 기본
         script: |
           export PATH=/usr/local/bin:$PATH
           docker stop ${{ inputs.directory }}
