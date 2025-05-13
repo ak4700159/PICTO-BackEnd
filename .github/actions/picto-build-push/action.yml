@@ -52,6 +52,7 @@ runs:
       if: ${{ inputs.firebase-json != '' }}
       run: |
         cd ${{ inputs.directory }}
+        touch ./src/main/resources/firebase.json
         echo "${{ inputs.firebase-json }}" | base64 -d > src/main/resources/firebase.json
         echo "[INFO] firebase.json created:"
         cat src/main/resources/firebase.json
