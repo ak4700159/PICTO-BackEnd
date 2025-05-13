@@ -18,12 +18,6 @@ import picto.com.foldermanager.service.FolderService;
 import picto.com.foldermanager.service.FCMService;
 
 import java.util.List;
-import java.io.IOException;
-import java.nio.file.Files;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("folder-manager/folders")
@@ -153,19 +147,4 @@ public class FolderController {
         fcmService.sendPushNotification(request.getToken(), request.getTitle(), request.getBody());
         return ResponseEntity.ok().build();
     }
-
-    // FCM token 발급 웹페이지 (테스트 용)
-    @GetMapping("/fcm_token")
-    public ResponseEntity<String> getFcmToken() {
-        try {
-            Resource resource = new ClassPathResource("index.html");
-            String htmlContent = new String(Files.readAllBytes(resource.getFile().toPath()));
-            return ResponseEntity.ok()
-                    .contentType(MediaType.TEXT_HTML)
-                    .body(htmlContent);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("HTML 파일을 읽을 수 없습니다.");
-        }
-    }
-
 }
