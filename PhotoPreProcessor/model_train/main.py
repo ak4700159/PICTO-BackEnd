@@ -23,15 +23,15 @@ if __name__ == '__main__':
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                             std=[0.229, 0.224, 0.225])
     ])
-
+    transform_val = transforms.Compose([
+        transforms.Lambda(pad_to_square),
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                            std=[0.229, 0.224, 0.225])
+    ])
     # 📤 DataLoader
-    train_loader,val_loader = train_tampering_single_dataset(transform=transform_train)
+    train_loader,val_loader = train_tampering_single_dataset(train_transform=transform_train, val_transform=transform_val)
     model = EfficientNetClassifier(train_loader, val_loader, device)
-    # model.load_model("efficientnet_real_fake_v4.pth")
+    model.load_model("tampering.pth")
     model.train_model(num_epochs=50)
-
-
-
-
-
-    

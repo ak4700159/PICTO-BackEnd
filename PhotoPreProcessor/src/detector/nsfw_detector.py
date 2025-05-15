@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoModelForImageClassification, AutoImageProcessor
+from transformers import AutoModelForImageClassification, AutoImageProcessor,AutoProcessor
 from PIL import Image
 
 # https://huggingface.co/Falconsai/nsfw_image_detection 허깅 페이스에서 가져온 모델
@@ -10,7 +10,7 @@ class NSFWDetector:
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     model_name = "Falconsai/nsfw_image_detection"
-    self.processor = AutoImageProcessor.from_pretrained(model_name, user_fast = True)
+    self.processor = AutoProcessor.from_pretrained(model_name, user_fast = True)
     self.model = AutoModelForImageClassification.from_pretrained(model_name)
     self.model.to(self.device)
     self.model.eval()

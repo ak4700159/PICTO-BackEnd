@@ -4,6 +4,9 @@ from PIL import Image, ImageChops, ImageEnhance
 import numpy as np
 import os
 
+# 실패 이미지 경로 저장용
+FAILED_ELA_PATHS = []
+
 def convert_to_ela_image(path, quality=90):
     try:
         temp_filename = 'temp_ela.jpg'
@@ -25,20 +28,25 @@ def convert_to_ela_image(path, quality=90):
 
     except Exception as e:
         print(f"❌ ELA 변환 실패: {path} / {e}")
-        return Image.new("RGB", (128, 128), (0, 0, 0))  # 실패 시 검은 이미지 반환
+        FAILED_ELA_PATHS.append(path)
+        return None
+        # return Image.new("RGB", (128, 128), (0, 0, 0))  # 실패 시 검은 이미지 반환
 
 class ELADataset(Dataset):
     def __init__(self, image_paths, labels, transform=None):
-        self.image_paths = image_paths
-        self.labels = labels
+        self.data = []
         self.transform = transform
-        
+
+        for path, label in zip(image_paths, labels):
+            ela_img = convert_to_ela_image(path)
+            if ela_img is not None:
+                self.data.append((ela_img, label))
+
     def __len__(self):
-        return len(self.image_paths)
+        return len(self.data)
 
     def __getitem__(self, idx):
-        image = convert_to_ela_image(self.image_paths[idx])
+        image, label = self.data[idx]
         if self.transform:
             image = self.transform(image)
-        label = self.labels[idx]
         return image, label

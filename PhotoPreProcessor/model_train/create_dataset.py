@@ -79,7 +79,7 @@ def train_combined_dataset(transform):
     print(f"전체 검증용 샘플 수: {len(val_dataset)}")
     return train_loader, val_loader
 
-def train_tampering_single_dataset(transform, batch_size=32, num_workers=1):
+def train_tampering_single_dataset(train_transform, val_transform, batch_size=32, num_workers=1):
     # 데이터셋 기본 경로 설정 (사용자 환경에 맞게 수정 가능)
     base_path = r"C:\Users\cn120\.cache\kagglehub\datasets\divg07\casia-20-image-tampering-detection-dataset\versions\1\CASIA2"
     au_dir = os.path.join(base_path, "Au")
@@ -104,8 +104,8 @@ def train_tampering_single_dataset(transform, batch_size=32, num_workers=1):
     X_train, X_val, y_train, y_val = train_test_split(all_paths, all_labels, test_size=0.2, random_state=42)
 
     # 커스텀 Dataset 구성
-    train_dataset = ELADataset(X_train, y_train, transform=transform)
-    val_dataset = ELADataset(X_val, y_val, transform=transform)
+    train_dataset = ELADataset(X_train, y_train, transform=train_transform)
+    val_dataset = ELADataset(X_val, y_val, transform=val_transform)
 
     # DataLoader 구성
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)

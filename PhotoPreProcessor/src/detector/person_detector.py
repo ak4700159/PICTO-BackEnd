@@ -24,7 +24,7 @@ class PersonDetector:
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     self.model = PersonDetectionModel()
 
-    checkpoint = torch.load(model_path, map_location=self.device, weights_only=True)
+    checkpoint = torch.load(model_path, map_location=self.device)
     self.model.load_state_dict(checkpoint['model_state_dict'])
     self.model.to(self.device)
     self.model.eval()
