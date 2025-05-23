@@ -69,7 +69,7 @@ public class PhotoManagerController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/phtoo-manager/photos/like")
+    @GetMapping("/photo-manager/photos/like")
     public ResponseEntity<Boolean> getLike(@RequestBody PhotoEventDTO eventDTO){
         try {
             photoManagerService.checkPhotoList(eventDTO.getPhotoId(), eventDTO.getUserId());
