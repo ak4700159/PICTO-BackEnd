@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
 import torch
-from efficientnet_model import EfficientNetClassifier
+from model_train.tampering_efficientnet import TamperingEfficientNetClassifier
 from torchvision import transforms
 from PIL import Image
 from utils import pad_to_square
@@ -81,7 +81,7 @@ def exec(image_path):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
     dummy_loader = []  # 추론에선 DataLoader 필요 없음
-    model = EfficientNetClassifier(dummy_loader, dummy_loader, device)
+    model = TamperingEfficientNetClassifier(dummy_loader, dummy_loader, device)
     model.load_model("./model_weight/efficientnet_real_fake_v1.pth")
     # Grad-CAM 실행
     cam = apply_gradcam(model, tensor, device)

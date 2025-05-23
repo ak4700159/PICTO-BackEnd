@@ -10,7 +10,7 @@ class NSFWDetector:
     self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     model_name = "Falconsai/nsfw_image_detection"
-    self.processor = AutoProcessor.from_pretrained(model_name, user_fast = True)
+    self.processor = AutoProcessor.from_pretrained(model_name, use_fast = True)
     self.model = AutoModelForImageClassification.from_pretrained(model_name)
     self.model.to(self.device)
     self.model.eval()
@@ -20,7 +20,7 @@ class NSFWDetector:
   def detect(self, image_path):
     try:
       image = Image.open(image_path).convert('RGB')
-      inputs = self.processor(images=image, return_tensors="pt", user_fast = True).to(self.device)
+      inputs = self.processor(images=image, return_tensors="pt").to(self.device)
 
       with torch.no_grad():
           outputs = self.model(**inputs)
@@ -29,7 +29,7 @@ class NSFWDetector:
       nsfw_prob = probs[0][1].item()
       is_nsfw = nsfw_prob > self.threshold
 
-      return is_nsfw #, nsfw_prob
+      return nsfw_prob #, nsfw_prob
 
     except Exception as e:
       print(f"이미지 처리 중 오류 발생: {str(e)}")

@@ -7,6 +7,5 @@ import picto.com.usermanager.domain.user.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     User getUserByEmail(String email);
-
     User getUserByAccountName(String accountName);
 }

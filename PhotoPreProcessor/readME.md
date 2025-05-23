@@ -12,26 +12,30 @@
 - requirements.txt 파일 참고 
 
 
-## 테스트 환경 구축한
+## 테스트 환경 구축 
 - 총 120장 준비: 라벨링 작업 
 
-        실제 사진(real_00.jpg), 
-        유해 사진(nfsw_00.jpg), 
-        AI 생성 사진(generation_00.jpg), 
-        합성 사진(tampering_00.jpg), 
-        사람 사진(person_00.jpg) 
-        텍스트 사진(text_00.jpg)
-        각 20장 씩 준비
-### 테스트 방식
-    output 안 총 5개의 폴더 준비 
-    output/real
-        /nfsw
-        /tampering
-        /person
-        /generation
-        /text
+        1. 실제 사진(real_00.jpg), 
+        2. 유해 사진(nsfw_00.jpg), 
+        3. AI 생성 사진(generation_00.jpg), 
+        4. 합성 사진(tampering_00.jpg), 
+        5. 사람 사진(person_00.jpg) 
+        6. 텍스트 사진(text_00.jpg)
+        각 20장씩 총 120장 준비
 
-    input -> 120장 사진 저장
+        ├── test/
+        │   ├── input/    ⬅️ 120장 원본 이미지
+        │   └── output/   ⬅️ 결과 분류 저장
+        │       ├── gen/
+        │       ├── nsfw/
+        │       ├── tampering/
+        │       ├── person/
+        │       ├── text/
+        │       └── real/
+ 
+
+
+### 테스트 방식
 
     테스트 프로그램은 각 모델에 대한 detector를 구현하고 detect함수를 실형시켜 그 정도(검출 정도)를 확인한다.
     output에 들어간 사진들은 라벨과 동일하지 않을 수 있다. 그 경우 제대로 탐지하지 못한 경우일 수도 있다.
@@ -42,3 +46,8 @@
     Detector 클래스의 요구사항은 다음과 같다
     - def detect(self, image_path): 구현
         - 검출 정도를 반환(0~1)
+
+
+### 테스트 모듈 기능
+1. output에 있는 데이터 모두 비우기
+2. 모델을 선택해 동작

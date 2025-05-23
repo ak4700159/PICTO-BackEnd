@@ -1,6 +1,6 @@
 import os
 import torch
-from efficientnet_model import EfficientNetClassifier
+from model_train.tampering_efficientnet import TamperingEfficientNetClassifier
 
 from PIL import Image
 
@@ -9,7 +9,7 @@ def detect_from_folder(folder_path="./"):
     print("Using device:", device)
 
     dummy_loader = []  # 추론에선 DataLoader 필요 없음
-    model = EfficientNetClassifier(dummy_loader, dummy_loader, device)
+    model = TamperingEfficientNetClassifier(dummy_loader, dummy_loader, device)
     model.load_model("./tampering.pth")
     image_files = [f for f in os.listdir(folder_path) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
 

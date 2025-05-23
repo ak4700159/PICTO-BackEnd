@@ -1,64 +1,31 @@
-import torch
-from torchvision import models, transforms
+from ultralytics import YOLO
 from PIL import Image
-import torch.nn as nn
 
-class PersonDetectionModel(nn.Module):
-  def __init__(self):
-    super(PersonDetectionModel, self).__init__()
-    self.model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
-
-    num_ftrs = self.model.fc.in_features
-    self.model.fc = nn.Sequential(
-        nn.Dropout(0.5),
-        nn.Linear(num_ftrs, 1),
-        nn.Sigmoid()
-    )
-  
-  def forward(self, x):
-    return self.model(x)
-
-# 사람 감지를 위한 모델(미리 저장된 모델의 가중치를 가지고 온다. ./person_detection.pth)
 class PersonDetector:
-  def __init__(self, model_path):
-    self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    self.model = PersonDetectionModel()
+    def __init__(self, model_path="./person_detection.pt", threshold=0.5):
+        self.model = YOLO(model_path)
+        self.threshold = threshold  # 필요 시 설정
 
-    checkpoint = torch.load(model_path, map_location=self.device)
-    self.model.load_state_dict(checkpoint['model_state_dict'])
-    self.model.to(self.device)
-    self.model.eval()
+    def detect(self, image_path):
+        try:
+            results = self.model.predict(source=image_path, imgsz=640, conf=0.25, save=False, verbose=False)
 
-    self.transform = transforms.Compose([
-      transforms.Resize((224, 224)),
-      transforms.ToTensor(),
-      transforms.Normalize(
-        mean=[0.485, 0.456, 0.406],
-        std=[0.229, 0.224, 0.225]
-        )
-      ])
+            # 결과에서 'person' 클래스 탐지 개수 추출 (클래스 ID가 0)
+            person_count = 0
+            max_conf = 0.0
 
-  def detect(self, image_path):
-    image = Image.open(image_path).convert('RGB')
-    image_tensor = self.transform(image).unsqueeze(0).to(self.device)
+            for result in results:
+                if hasattr(result, 'boxes'):
+                    for box in result.boxes:
+                        cls_id = int(box.cls[0].item()) if hasattr(box.cls[0], 'item') else int(box.cls[0])
+                        conf = float(box.conf[0]) if hasattr(box.conf[0], 'item') else float(box.conf[0])
+                        if cls_id == 0:  # 클래스 0은 'person'
+                            person_count += 1
+                            max_conf = max(max_conf, conf)
 
-    with torch.no_grad():
-      output = self.model(image_tensor)
-      probability = output.item()
+            # 감지된 사람 중 가장 높은 confidence 반환 (없으면 0.0)
+            return max_conf
 
-    return probability > 0.5 #, probability
-  
-
-# 테스트 코드
-# def main():
-#   detector = PersonDetector('./person_detection.pth')
-
-#   image_path = './test/persons.jpeg'
-#   is_person, confidence = detector.detect(image_path)
-
-#   return is_person
-# #   print(f"사람 감지 결과: {is_person}")
-# #   print(f"확률: {confidence:.2%}")
-
-# if __name__ == '__main__':
-#   main()
+        except Exception as e:
+            print(f"[PersonDetector] 오류 발생: {str(e)}")
+            return 0.0

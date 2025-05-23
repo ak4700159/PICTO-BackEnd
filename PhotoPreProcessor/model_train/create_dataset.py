@@ -28,8 +28,8 @@ from sklearn.model_selection import train_test_split
 
 # 합성 사진 분류 모델 학습 데이터 
 # 데이터셋 출처 : https://www.kaggle.com/datasets/divg07/casia-20-image-tampering-detection-dataset/data
-path = kagglehub.dataset_download("divg07/casia-20-image-tampering-detection-dataset")
-print("Path to dataset files:", path)
+# path = kagglehub.dataset_download("divg07/casia-20-image-tampering-detection-dataset")
+# print("Path to dataset files:", path)
 # Path to dataset files: C:\Users\cn120\.cache\kagglehub\datasets\divg07\casia-20-image-tampering-detection-dataset\versions\1
 
 def train_real_fake_single_dataset(transform):
