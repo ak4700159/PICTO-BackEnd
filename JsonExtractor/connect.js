@@ -16,7 +16,7 @@ conn.connect((err) => {
   // 필요한 컬럼만 선택하여 쿼리
   const query = `
     SELECT tag, location, upload_datetime, photo_id, user_id, lng, lat, likes, views
-    FROM Photo
+    FROM Photo WHERE Photo.photo_id > 6780
   `;
   
   conn.query(query, (err, results) => {
@@ -33,7 +33,7 @@ conn.connect((err) => {
     }));
     
     // 결과를 JSON 문자열로 변환하여 파일에 저장 (가독성을 위해 들여쓰기 2칸)
-    fs.writeFile('./json.txt', JSON.stringify(modifiedResults, null, 2), (err) => {
+    fs.writeFile('./json2.txt', JSON.stringify(modifiedResults, null, 2), (err) => {
       if (err) {
         console.error('파일 저장 중 에러:', err);
       } else {

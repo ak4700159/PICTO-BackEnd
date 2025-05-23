@@ -1,17 +1,16 @@
 import os
 import torch
-from efficientnet_model import EfficientNetClassifier
+from model_train.tampering_efficientnet import TamperingEfficientNetClassifier
 
 from PIL import Image
 
-def detect_from_folder(folder_path="./sample"):
+def detect_from_folder(folder_path="./"):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device:", device)
 
     dummy_loader = []  # 추론에선 DataLoader 필요 없음
-    model = EfficientNetClassifier(dummy_loader, dummy_loader, device)
-    model.load_model("efficientnet_real_fake.pth")
-
+    model = TamperingEfficientNetClassifier(dummy_loader, dummy_loader, device)
+    model.load_model("./tampering.pth")
     image_files = [f for f in os.listdir(folder_path) if f.lower().endswith((".jpg", ".jpeg", ".png"))]
 
     total = 0
@@ -23,9 +22,9 @@ def detect_from_folder(folder_path="./sample"):
 
         # 이름 기반 정답 추정: 'real' or 'fake' 포함 여부 (대소문자 무시)
         lower_name = fname.lower()
-        if "real" in lower_name:
+        if "real" in lower_name or "au_" in lower_name:
             label = "Real"
-        elif "fake" in lower_name or "합성" in lower_name:
+        elif "fake" in lower_name or "합성" in lower_name or "tp_" in lower_name:
             label = "Fake"
         else:
             print(f"⚠️ 파일명에 라벨 키워드 없음: {fname}")
@@ -33,6 +32,7 @@ def detect_from_folder(folder_path="./sample"):
 
         is_correct = (result == label)
         print(f"🖼️ {fname} → 예측: {result}, 정답: {label} ✅" if is_correct else f"🖼️ {fname} → 예측: {result}, 정답: {label} ❌")
+        # print(f"🖼️ {fname} → 예측: {result}")
 
         total += 1
         correct += int(is_correct)
@@ -45,4 +45,4 @@ def detect_from_folder(folder_path="./sample"):
     print(f"\n📊 전체 정확도: {correct} / {total} ({accuracy:.2f}%)")
 
 if __name__ == "__main__":
-    detect_from_folder("./sample")
+    detect_from_folder("./sample/tampering2")
