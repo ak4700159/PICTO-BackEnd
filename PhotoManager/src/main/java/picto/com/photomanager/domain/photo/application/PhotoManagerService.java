@@ -197,9 +197,7 @@ public class PhotoManagerService {
         photoRecordRepository.save(record);
     }
 
-    // 사용자가 선택한 기간
-    public List<Photo> adaptPeriod(List<Photo> photos, Filter filter) {
-
-        return photos;
+    public Boolean checkPhotoList(Long photoId, Long userId) {
+        return photoRecordRepository.existsById(new PhotoRecordId(photoId, userId));
     }
 }
