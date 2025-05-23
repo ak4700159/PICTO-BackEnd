@@ -197,7 +197,7 @@ public class PhotoManagerService {
         photoRecordRepository.save(record);
     }
 
-    public Boolean checkPhotoList(Long photoId, Long userId) {
+    public boolean checkPhotoList(Long photoId, Long userId) {
         return photoRecordRepository.existsById(new PhotoRecordId(photoId, userId));
     }
 }

@@ -55,7 +55,6 @@ public class PhotoManagerController {
             System.out.println(e.getMessage());
             return ResponseEntity.badRequest().body(photos);
         }
-
         return ResponseEntity.ok().body(photos);
     }
 
@@ -71,12 +70,13 @@ public class PhotoManagerController {
 
     @GetMapping("/photo-manager/photos/like")
     public ResponseEntity<Boolean> getLike(@RequestBody PhotoEventDTO eventDTO){
+        boolean result;
         try {
-            photoManagerService.checkPhotoList(eventDTO.getPhotoId(), eventDTO.getUserId());
+            result = photoManagerService.checkPhotoList(eventDTO.getPhotoId(), eventDTO.getUserId());
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(false);
         }
-        return ResponseEntity.ok().body(true);
+        return ResponseEntity.ok().body(result);
     }
 
 
