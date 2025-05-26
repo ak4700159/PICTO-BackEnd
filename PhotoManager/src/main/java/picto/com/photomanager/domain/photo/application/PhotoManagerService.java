@@ -168,13 +168,28 @@ public class PhotoManagerService {
 
     // 사용자가 사진에 좋아요를 누른 경우
     public void ClickLike(Long photoId, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow();
         Photo photo = photoRepository.findById(photoId).orElseThrow();
-        photo.setLikes(photo.getLikes() + 1);
+        User user = userRepository.findById(userId).orElseThrow();
+        PhotoRecordId recordId = new PhotoRecordId(userId, photoId);
+        boolean alreadyLiked = photoRecordRepository.existsById(recordId);
+        if (alreadyLiked) {
+            // 좋아요 취소 처리
+            photo.setLikes(photo.getLikes() - 1);
+            PhotoRecord existingRecord = photoRecordRepository.getReferenceById(recordId);
+            photoRecordRepository.delete(existingRecord);
+        } else {
+            // 좋아요 추가 처리
+            photo.setLikes(photo.getLikes() + 1);
+            PhotoRecord newRecord = PhotoRecord.builder()
+                    .eventDatetime(System.currentTimeMillis())
+                    .agent(user)
+                    .photo(photo)
+                    .type("like")
+                    .id(recordId)
+                    .build();
+            photoRecordRepository.save(newRecord);
+        }
         photoRepository.save(photo);
-
-        PhotoRecord record = PhotoRecord.builder().eventDatetime(System.currentTimeMillis()).agent(user).photo(photo).type("like").id(new PhotoRecordId(userId, photoId)).build();
-        photoRecordRepository.save(record);
     }
 
     // 사용자가 사진에 좋아요를 해제한 경우
