@@ -174,10 +174,12 @@ public class PhotoManagerService {
         boolean alreadyLiked = photoRecordRepository.existsById(recordId);
         if (alreadyLiked) {
             // 좋아요 취소 처리
+            System.out.println("[INFO] duplicate photo like detected");
             photo.setLikes(photo.getLikes() - 1);
             PhotoRecord existingRecord = photoRecordRepository.getReferenceById(recordId);
             photoRecordRepository.delete(existingRecord);
         } else {
+            System.out.println("[INFO] new photo like added");
             // 좋아요 추가 처리
             photo.setLikes(photo.getLikes() + 1);
             PhotoRecord newRecord = PhotoRecord.builder()
@@ -213,7 +215,7 @@ public class PhotoManagerService {
     }
 
     public boolean checkPhotoList(Long photoId, Long userId) {
-        return photoRecordRepository.existsById(new PhotoRecordId(photoId, userId));
+        return photoRecordRepository.existsById(new PhotoRecordId(userId, photoId));
     }
 
     public List<Long> getPhotoLikes(Long userId) {
