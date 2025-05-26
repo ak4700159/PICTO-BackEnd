@@ -79,6 +79,17 @@ public class PhotoManagerController {
         return ResponseEntity.ok().body(result);
     }
 
+    @GetMapping("/photo-manager/photos/likes")
+    public ResponseEntity<List<Long>> getLikeList(@RequestParam Long userId){
+        List<Long> result;
+        try {
+            result = photoManagerService.getPhotoLikes(userId);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ArrayList<Long>());
+        }
+        return ResponseEntity.ok().body(result);
+    }
+
 
     @DeleteMapping("/photo-manager/photos/unlike")
     public ResponseEntity<?> unClickLike(@RequestBody PhotoEventDTO eventDTO){
@@ -106,5 +117,4 @@ public class PhotoManagerController {
     public ResponseEntity<String> test(){
         return ResponseEntity.ok().body("good");
     }
-
 }

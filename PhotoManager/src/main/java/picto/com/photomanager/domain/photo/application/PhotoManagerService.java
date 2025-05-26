@@ -200,4 +200,9 @@ public class PhotoManagerService {
     public boolean checkPhotoList(Long photoId, Long userId) {
         return photoRecordRepository.existsById(new PhotoRecordId(photoId, userId));
     }
+
+    public List<Long> getPhotoLikes(Long userId) {
+        List<PhotoRecord> records = photoRecordRepository.findByUserId(userId);
+        return records.stream().map((record) -> record.getId().getAgentId()).toList();
+    }
 }
