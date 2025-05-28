@@ -220,6 +220,6 @@ public class PhotoManagerService {
 
     public List<Long> getPhotoLikes(Long userId) {
         List<PhotoRecord> records = photoRecordRepository.findByUserId(userId);
-        return records.stream().map((record) -> record.getId().getAgentId()).toList();
+        return records.stream().map((record) -> record.getId().getPhotoId()).toList();
     }
 }
