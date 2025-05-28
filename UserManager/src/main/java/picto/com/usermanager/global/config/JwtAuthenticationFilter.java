@@ -69,7 +69,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 requestURI.equals("/favicon.ico") ||
                 requestURI.equals("/error") ||
                 requestURI.startsWith("/user-manager/refresh-token") ||
-                requestURI.startsWith("/user-manager/email")) {
+                requestURI.startsWith("/user-manager/email") ||
+                requestURI.startsWith("/user-manager/send-verify-email") ||
+                requestURI.startsWith("/user-manager/is-verify-email")) {
             filterChain.doFilter(request, response);
             return;
         }

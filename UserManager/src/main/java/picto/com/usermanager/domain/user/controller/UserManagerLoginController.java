@@ -140,4 +140,16 @@ public class UserManagerLoginController {
     public String test() {
         return "test success";
     }
+
+    @PostMapping("/user-manager/send-verify-email/{email}")
+    public ResponseEntity<String> sendVerifyEmail(@PathVariable("email") String email) {
+        userManagerLoginService.sendVerifyEmail(email);
+        return ResponseEntity.ok("이메일 인증 메일이 발송되었습니다.");
+    }
+
+    @GetMapping("/user-manager/is-verify-email/{email}")
+    public ResponseEntity<Boolean> isVerifyEmail(@PathVariable("email") String email) {
+        boolean isVerified = userManagerLoginService.isVerifyEmail(email);
+        return ResponseEntity.ok(isVerified);
+    }
 }
