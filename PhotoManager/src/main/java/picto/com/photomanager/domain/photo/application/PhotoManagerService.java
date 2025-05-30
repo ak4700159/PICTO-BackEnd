@@ -139,7 +139,7 @@ public class PhotoManagerService {
         // 지역명에 대해 명시되어 있으면 해당 지역에 대해 random 또는 대표 사진을 조회
         else {
             if (eventType.equals("random")) {
-                photos = photoRepository.findByRandomPhoto(locationName, count);
+                photos = photoRepository.findByRandomPhoto(locationName, count, request.getSenderId());
             } else if (eventType.equals("top")) {
                 photos = switch (locationType) {
                     case "large" -> photoRepository.findByNameLargePhoto(locationName, count);

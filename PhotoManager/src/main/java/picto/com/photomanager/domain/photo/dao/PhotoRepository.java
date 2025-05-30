@@ -17,18 +17,30 @@ public interface PhotoRepository extends JpaRepository<Photo, Long> {
     List<Photo> findByUser(@Param("userId") Long photoId);
 
     // 랜덤 사진 조회
-    @Query("select p from Photo p where p.location like %:location order by RAND() limit :count ")
-    List<Photo> findByRandomPhoto(@Param("location") String location, @Param("count") int count);
+    @Query(value = """
+            select p.*
+            from (
+                select p2.*
+                FROM Photo p2
+                WHERE p2.shared_active = 1
+                  AND EXISTS (
+                      SELECT 1
+                      FROM TagSelect ts
+                      WHERE ts.user_id = :userId AND ts.tag = p2.tag)
+            ) p
+            where p.location like CONCAT('%', :location, '%') order by RAND() limit :count
+            """, nativeQuery = true)
+    List<Photo> findByRandomPhoto(@Param("location") String location, @Param("count") int count, @Param("userId") Long userId);
 
     // 반경 3km 이내의 사진 조회
     @Query(value = """
-    SELECT p.*
-    FROM Photo p
-    WHERE ST_Distance_Sphere(
-        point(p.lng, p.lat),
-        point(:longitude, :latitude)
-    ) <= 3000  -- 미터 단위
-""", nativeQuery = true)
+                SELECT p.*
+                FROM Photo p
+                WHERE ST_Distance_Sphere(
+                    point(p.lng, p.lat),
+                    point(:longitude, :latitude)
+                ) <= 3000  -- 미터 단위
+            """, nativeQuery = true)
     List<Photo> findByLocationInfo(@Param("latitude") double latitude, @Param("longitude") double longitude);
 
     // 지역별 대표 사진 조회
