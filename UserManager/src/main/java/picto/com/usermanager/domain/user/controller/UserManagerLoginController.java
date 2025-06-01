@@ -79,20 +79,6 @@ public class UserManagerLoginController {
         }
     }
 
-    // 이메일 중복 여부
-    @GetMapping("/user-manager/email/{email}")
-    public ResponseEntity<String> duplicatedEmail(@PathVariable String email) {
-        try {
-            userManagerLoginService.verifyDuplicatedUser(email);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.out.println(e.getLocalizedMessage());
-            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).header("message", e.getMessage()).build();
-        }
-        String result = "true";
-        return ResponseEntity.ok(result);
-    }
-
     // 비밀번호 찾기
     @GetMapping("/user-manager/passwd")
     public String restorePasswd() {
@@ -139,17 +125,5 @@ public class UserManagerLoginController {
     @PostMapping("/test")
     public String test() {
         return "test success";
-    }
-
-    @PostMapping("/user-manager/send-verify-email/{email}")
-    public ResponseEntity<String> sendVerifyEmail(@PathVariable("email") String email) {
-        userManagerLoginService.sendVerifyEmail(email);
-        return ResponseEntity.ok("이메일 인증 메일이 발송되었습니다.");
-    }
-
-    @GetMapping("/user-manager/is-verify-email/{email}")
-    public ResponseEntity<Boolean> isVerifyEmail(@PathVariable("email") String email) {
-        boolean isVerified = userManagerLoginService.isVerifyEmail(email);
-        return ResponseEntity.ok(isVerified);
     }
 }

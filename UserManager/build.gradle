@@ -23,7 +23,7 @@ configurations {
 
 repositories {
 	mavenCentral()
-	maven { url 'https://repo.spring.io/milestone' }
+	maven { url = uri("https://repo.spring.io/milestone") }
 }
 
 dependencies {
@@ -89,6 +89,9 @@ dependencies {
 
 	// Apache HttpClient 5
 	implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
+
+	// Spring Boot Mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {
