@@ -22,7 +22,6 @@ import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import java.util.stream.Collectors;
 import java.util.Objects;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -294,53 +293,5 @@ public class UserManagerLoginService {
             }
             throw new RuntimeException("토큰 갱신에 실패했습니다: " + e.getMessage());
         }
-    }
-
-    @Transactional
-    public void verifyDuplicatedUser(String userEmail) throws IllegalAccessException {
-        if (userRepository.getUserByEmail(userEmail) != null) {
-            System.out.println("중복된 유저");
-            throw new IllegalAccessException("Duplicated");
-        }
-    }
-
-    public void sendVerifyEmail(String email) {
-        // 1. Keycloak에서 email로 유저 조회
-        Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl(getKeycloakServerUrl())
-                .realm(realm)
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .grantType("client_credentials")
-                .build();
-
-        List<UserRepresentation> users = keycloak.realm(realm).users().search(null, null, null, email, 0, 1);
-        if (users.isEmpty()) {
-            throw new RuntimeException("Keycloak에서 해당 이메일의 유저를 찾을 수 없습니다.");
-        }
-        String keycloakUserId = users.get(0).getId();
-
-        // 2. Keycloak userId로 인증 메일 발송
-        keycloak.realm(realm).users().get(keycloakUserId).sendVerifyEmail();
-    }
-
-    public boolean isVerifyEmail(String email) {
-        // 1. Keycloak에서 email로 유저 조회
-        Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl(getKeycloakServerUrl())
-                .realm(realm)
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .grantType("client_credentials")
-                .build();
-
-        List<UserRepresentation> users = keycloak.realm(realm).users().search(null, null, null, email, 0, 1);
-        if (users.isEmpty()) {
-            throw new RuntimeException("Keycloak에서 해당 이메일의 유저를 찾을 수 없습니다.");
-        }
-        UserRepresentation keycloakUser = users.get(0);
-
-        // 2. emailVerified 값 반환
-        return Boolean.TRUE.equals(keycloakUser.isEmailVerified());
     }
 }
