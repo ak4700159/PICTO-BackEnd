@@ -51,4 +51,10 @@ public class UserManagerVerificationController {
         EmailVerificationResponse isVerified = userManagerVerificationService.isVerifiedEmail(email);
         return ResponseEntity.ok(isVerified);
     }
+
+    @PostMapping("/user-manager/send-temporary-password/{email}")
+    public ResponseEntity<String> sendTemporaryPassword(@PathVariable("email") String email) {
+        userManagerVerificationService.sendTemporaryPassword(email);
+        return ResponseEntity.ok("임시 비밀번호 발송 완료");
+    }
 }

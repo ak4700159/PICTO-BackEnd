@@ -15,12 +15,23 @@ import picto.com.usermanager.domain.user.dto.request.*;
 public class UserManagerPatchController {
     final UserManagerPatchService userManagerPatchService;
 
-    // 사용자 정보 변경 사항 저장
+    // 사용자 정보 변경
     @PatchMapping("/user-manager/user")
-    public ResponseEntity<?> modifyUser(@RequestBody UserRequest request) {
-        try{
-            userManagerPatchService.fetchUser(request);
+    public ResponseEntity<?> modifyUser(@RequestBody UserPatchRequest request) {
+        try {
+            userManagerPatchService.patchUser(request);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok("success");
+    }
 
+    // 사용자 비밀번호 변경
+    @PatchMapping("/user-manager/password")
+    public ResponseEntity<?> modifyPassword(@RequestBody PasswordPatchRequest request) {
+        try {
+            userManagerPatchService.patchUserPassword(request);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -31,9 +42,9 @@ public class UserManagerPatchController {
     // 세팅값 변경
     @PatchMapping("/user-manager/setting")
     public ResponseEntity<?> modifySetting(@RequestBody SettingRequest request) {
-        try{
-            userManagerPatchService.fetchUserSetting(request);
-        }catch(Exception e) {
+        try {
+            userManagerPatchService.patchUserSetting(request);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -43,10 +54,10 @@ public class UserManagerPatchController {
     // 태그 전체 업데이트
     @PutMapping("/user-manager/tag")
     public ResponseEntity<?> modifyTag(@RequestBody TagRequest request) {
-        try{
+        try {
             System.out.println(request.getTagNames());
-            userManagerPatchService.fetchTag(request);
-        }catch(Exception e) {
+            userManagerPatchService.patchTag(request);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -56,9 +67,9 @@ public class UserManagerPatchController {
     // 필터 변경
     @PatchMapping("/user-manager/filter")
     public ResponseEntity<?> modifyFilter(@RequestBody FilterRequest request) {
-        try{
-            userManagerPatchService.fetchFilter(request);
-        }catch(Exception e) {
+        try {
+            userManagerPatchService.patchFilter(request);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -68,9 +79,9 @@ public class UserManagerPatchController {
     // 즐겨찾기 추가
     @PatchMapping("/user-manager/mark")
     public ResponseEntity<?> modifyMark(@RequestBody EventRequest request) {
-        try{
-            userManagerPatchService.fetchMark(request);
-        }catch(Exception e) {
+        try {
+            userManagerPatchService.patchMark(request);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -80,9 +91,9 @@ public class UserManagerPatchController {
     // 차단목록 추가
     @PatchMapping("/user-manager/block")
     public ResponseEntity<?> modifyBlock(@RequestBody EventRequest request) {
-        try{
-            userManagerPatchService.fetchBlock(request);
-        }catch(Exception e) {
+        try {
+            userManagerPatchService.patchBlock(request);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

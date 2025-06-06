@@ -72,7 +72,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 requestURI.startsWith("/user-manager/email") ||
                 requestURI.startsWith("/user-manager/send-verify-email") ||
                 requestURI.startsWith("/user-manager/is-verified-email") ||
-                requestURI.equals("/user-manager/verify-email")) {
+                requestURI.equals("/user-manager/verify-email") ||
+                requestURI.startsWith("/user-manager/send-temporary-password")) {
             filterChain.doFilter(request, response);
             return;
         }
