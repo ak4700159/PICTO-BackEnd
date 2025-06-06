@@ -20,7 +20,18 @@ public class UserManagerPatchController {
     public ResponseEntity<?> modifyUser(@RequestBody UserPatchRequest request) {
         try {
             userManagerPatchService.patchUser(request);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return ResponseEntity.ok("success");
+    }
 
+    // 사용자 비밀번호 변경
+    @PatchMapping("/user-manager/password")
+    public ResponseEntity<?> modifyPassword(@RequestBody PasswordPatchRequest request) {
+        try {
+            userManagerPatchService.patchUserPassword(request);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
