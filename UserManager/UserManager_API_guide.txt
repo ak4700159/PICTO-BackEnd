@@ -1,0 +1,81 @@
+# 06/06 UserManager API 변경사항
+
+## 1. 임시 비밀번호 발송 (토큰 검증 필요없음)
+- URL: POST /user-manager/send-temporary-password/{email}
+- 설명: 사용자의 이메일로 임시 비밀번호 발송
+- Request Body: 없음
+- Response:
+  - 성공: 200 OK, body: "임시 비밀번호 발송 완료"
+  - 실패: 500 에러 등 (서버 내부 오류)
+
+---
+
+## 2. 사용자 정보 수정
+- URL: PATCH /user-manager/user
+- 설명: 사용자 정보(닉네임, 이메일, 비밀번호 등) 또는 비밀번호를 수정
+- Request Body:
+  - userId: Long (필수)
+  - name: String (닉네임, type이 info일 때)
+  - accountName: String (계정명, type이 info일 때)
+  - email: String (이메일, type이 info일 때)
+  - password: String (현재 비밀번호, type이 password일 때는 변경할 비밀번호)
+  - profileActive: Boolean (프로필 공개 여부, type이 info일 때)
+  - profilePhotoPath: String (프로필 사진 경로, type이 info일 때)
+  - intro: String (소개글, type이 info일 때)
+  - type: String ("info" 또는 "password")
+
+- Request 예시 (정보 변경):
+```
+{
+  "userId": 1,
+  "name": "홍길동",
+  "accountName": "hong123",
+  "email": "hong@sample.com",
+  "password": "현재비밀번호",
+  "profileActive": true,
+  "profilePhotoPath": "/profile/hong.jpg",
+  "intro": "안녕하세요!",
+  "type": "info"
+}
+```
+- Request 예시 (비밀번호 변경):
+```
+{
+  "userId": 1,
+  "accountName": "hong123",
+  "email": "hong@sample.com",
+  "password": "새비밀번호",
+  "type": "password"
+}
+```
+- Response:
+  - 성공: 200 OK, body: "success"
+  - 실패: 400 BAD REQUEST, body: 에러 메시지(예: "비밀번호가 일치하지 않습니다.")
+
+---
+
+## 3. 회원 탈퇴
+- URL: DELETE /user-manager/user
+- 설명: 사용자가 본인 계정을 탈퇴(삭제)합니다.
+- Request Body (JSON):
+  - accountName: String (계정명)
+  - email: String (이메일)
+  - password: String (현재 비밀번호)
+- Request 예시:
+```
+{
+  "accountName": "hong123",
+  "email": "hong@sample.com",
+  "password": "현재비밀번호"
+}
+```
+- Response:
+  - 성공: 200 OK, body: "success"
+  - 실패: 400 BAD REQUEST, body: 에러 메시지(예: "비밀번호가 일치하지 않습니다.")
+
+---
+
+## 참고사항
+- 모든 API는 인증(토큰 등)이 필요할 수 있습니다.
+- 에러 메시지는 body에 문자열로 반환됩니다.
+- 프론트엔드에서는 요청/응답 예시를 참고하여 구현하면 됩니다. 

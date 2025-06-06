@@ -41,8 +41,8 @@ public class UserManagerPatchService {
     }
 
     @Transactional
-    public void patchUser(UserRequest request) throws IllegalAccessException {
-        User findUser = userRepository.getReferenceById(request.getUserId());
+    public void patchUser(UserPatchRequest request) throws IllegalAccessException {
+        User findUser = userRepository.getUserByEmail(request.getEmail());
         if (findUser != null) {
             // Keycloak 연결 설정
             Keycloak keycloak = KeycloakBuilder.builder()
@@ -64,33 +64,55 @@ public class UserManagerPatchService {
                 throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
             }
 
-            // 비밀번호 변경인 경우
-            if (request.getType().equals("password")) {
-                findUser.setPassword(request.getPassword());
-
-                // Keycloak 비밀번호 업데이트
-                CredentialRepresentation credential = new CredentialRepresentation();
-                credential.setType(CredentialRepresentation.PASSWORD);
-                credential.setValue(request.getPassword());
-                credential.setTemporary(false);
-                keycloak.realm(realm).users().get(user.getId()).resetPassword(credential);
-            }
             // 사용자 정보 변경
-            else if (request.getType().equals("info")) {
-                findUser.setAccountName(request.getAccountName());
-                findUser.setEmail(request.getEmail());
-                findUser.setName(request.getName());
-                findUser.setIntro(request.getIntro());
-                findUser.setProfileActive(request.getProfileActive());
-                findUser.setProfilePhotoPath(request.getProfilePhotoPath());
+            findUser.setAccountName(request.getAccountName());
+            findUser.setEmail(request.getEmail());
+            findUser.setName(request.getName());
+            findUser.setIntro(request.getIntro());
+            findUser.setProfileActive(request.getProfileActive());
+            findUser.setProfilePhotoPath(request.getProfilePhotoPath());
 
-                // Keycloak 사용자 정보 업데이트
-                user.setUsername(request.getAccountName());
-                user.setEmail(request.getEmail());
-                user.setAttributes(Collections.singletonMap("name", Collections.singletonList(request.getName())));
-                keycloak.realm(realm).users().get(user.getId()).update(user);
-            }
+            // Keycloak 사용자 정보 업데이트
+            user.setUsername(request.getAccountName());
+            user.setEmail(request.getEmail());
+            user.setAttributes(Collections.singletonMap("name", Collections.singletonList(request.getName())));
+            keycloak.realm(realm).users().get(user.getId()).update(user);
+
             userRepository.save(findUser);
+        } else {
+            throw new IllegalAccessException("NOT FOUND USER");
+        }
+    }
+
+    @Transactional
+    public void patchUserPassword(PasswordPatchRequest request) throws IllegalAccessException {
+        // Keycloak 연결 설정
+        Keycloak keycloak = KeycloakBuilder.builder()
+                .serverUrl(getKeycloakServerUrl())
+                .realm(realm)
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .grantType("client_credentials")
+                .build();
+
+        List<UserRepresentation> users = keycloak.realm(realm).users().search(null, null, null,
+                request.getEmail(),
+                0, 1);
+        UserRepresentation user = users.get(0);
+
+        if (user != null) {
+            // 비밀번호 검증
+            if (!keycloak.realm(realm).users().get(user.getId()).credentials().stream()
+                    .anyMatch(credential -> credential.getValue().equals(request.getPassword()))) {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+
+            // Keycloak 비밀번호 업데이트
+            CredentialRepresentation credential = new CredentialRepresentation();
+            credential.setType(CredentialRepresentation.PASSWORD);
+            credential.setValue(request.getNewPassword());
+            credential.setTemporary(false);
+            keycloak.realm(realm).users().get(user.getId()).resetPassword(credential);
         } else {
             throw new IllegalAccessException("NOT FOUND USER");
         }
