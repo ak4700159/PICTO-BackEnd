@@ -37,7 +37,7 @@ public class SecurityConfig {
                                         "/signin*", "/signup*", "/public*", "/index*", "/api-docs", "/favicon.ico",
                                         "/user-manager/refresh-token", "/error", "/user-manager/email/*",
                                         "/user-manager/send-verify-email/*", "/user-manager/is-verified-email/*",
-                                        "/user-manager/verify-email")
+                                        "/user-manager/verify-email", "/user-manager/send-temporary-password/*")
                                 .permitAll()
                                 // .requestMatchers("/public", "/swagger-ui/index.html")
                                 .anyRequest()
