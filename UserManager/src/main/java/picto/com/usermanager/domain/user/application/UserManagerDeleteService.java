@@ -69,7 +69,7 @@ public class UserManagerDeleteService {
             }
 
             // DB에서 사용자 삭제
-            userRepository.delete(userRepository.getReferenceById(request.getUserId()));
+            userRepository.delete(userRepository.getUserByEmail(request.getEmail()));
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("회원 탈퇴 실패: " + e.getMessage());
         }
