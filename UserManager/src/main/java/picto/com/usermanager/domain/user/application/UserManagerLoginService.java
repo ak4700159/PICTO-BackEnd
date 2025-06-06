@@ -101,6 +101,7 @@ public class UserManagerLoginService {
             user.setAttributes(Collections.singletonMap("name",
                     Collections.singletonList(signUpRequest.getName())));
             user.setEnabled(true);
+            user.setEmailVerified(true);
 
             CredentialRepresentation credential = new CredentialRepresentation();
             credential.setType(CredentialRepresentation.PASSWORD);
@@ -189,7 +190,7 @@ public class UserManagerLoginService {
 
             // MySQL에 user 생성 후 저장
             User newUser = User.toMakeEntity(signUpRequest.getName(), signUpRequest.getEmail(),
-                    signUpRequest.getPassword(), signUpRequest.getAccountName());
+                    "", signUpRequest.getAccountName());
             try {
                 newUser = userRepository.save(newUser);
             } catch (Exception e) {

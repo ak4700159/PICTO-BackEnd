@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import picto.com.usermanager.domain.user.application.UserManagerDeleteService;
 import picto.com.usermanager.domain.user.dto.request.EventRequest;
-import picto.com.usermanager.domain.user.dto.request.UserRequest;
+import picto.com.usermanager.domain.user.dto.request.UserDeleteRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,7 +18,7 @@ public class UserManagerDeleteController {
     // DELETE METHOD
     // 회원 탈퇴
     @DeleteMapping("/user-manager/user")
-    public ResponseEntity<?> deleteUser(@RequestBody UserRequest request) {
+    public ResponseEntity<?> deleteUser(@RequestBody UserDeleteRequest request) {
         try {
             userManagerDeleteService.deleteUSer(request);
         } catch (Exception e) {

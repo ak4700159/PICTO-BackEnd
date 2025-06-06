@@ -41,7 +41,7 @@ public class UserManagerPatchService {
     }
 
     @Transactional
-    public void fetchUser(UserRequest request) throws IllegalAccessException {
+    public void patchUser(UserRequest request) throws IllegalAccessException {
         User findUser = userRepository.getReferenceById(request.getUserId());
         if (findUser != null) {
             // Keycloak 연결 설정
@@ -57,6 +57,12 @@ public class UserManagerPatchService {
                     request.getEmail(),
                     0, 1);
             UserRepresentation user = users.get(0);
+
+            // 비밀번호 검증
+            if (!keycloak.realm(realm).users().get(user.getId()).credentials().stream()
+                    .anyMatch(credential -> credential.getValue().equals(request.getPassword()))) {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
 
             // 비밀번호 변경인 경우
             if (request.getType().equals("password")) {
@@ -91,7 +97,7 @@ public class UserManagerPatchService {
     }
 
     @Transactional
-    public void fetchUserSetting(SettingRequest request) throws IllegalAccessException {
+    public void patchUserSetting(SettingRequest request) throws IllegalAccessException {
         try {
             UserSetting findSetting = userSettingRepositroy.getReferenceById(request.getUserId());
             findSetting.setAroundAlert(request.isAroundAlert());
@@ -105,7 +111,7 @@ public class UserManagerPatchService {
     }
 
     @Transactional
-    public void fetchMark(EventRequest request) throws IllegalAccessException {
+    public void patchMark(EventRequest request) throws IllegalAccessException {
         try {
             User sourceUser = userRepository.getReferenceById(request.getSourceId());
             User targetUser = userRepository.getReferenceById(request.getTargetId());
@@ -119,7 +125,7 @@ public class UserManagerPatchService {
     }
 
     @Transactional
-    public void fetchBlock(EventRequest request) throws IllegalAccessException {
+    public void patchBlock(EventRequest request) throws IllegalAccessException {
         try {
             User sourceUser = userRepository.getReferenceById(request.getSourceId());
             User targetUser = userRepository.getReferenceById(request.getTargetId());
@@ -135,7 +141,7 @@ public class UserManagerPatchService {
 
     // tagNames : List<String> 형식
     @Transactional
-    public void fetchTag(TagRequest request) throws IllegalAccessException {
+    public void patchTag(TagRequest request) throws IllegalAccessException {
         try {
             User findUser = userRepository.getReferenceById(request.getUserId());
             tagSelectRepositroy.deleteByUserId(request.getUserId());
@@ -149,7 +155,7 @@ public class UserManagerPatchService {
     }
 
     @Transactional
-    public void fetchFilter(FilterRequest request) throws IllegalAccessException {
+    public void patchFilter(FilterRequest request) throws IllegalAccessException {
         try {
             Filter filter = filterRepository.getReferenceById(request.getUserId());
             filter.setSort(request.getSort());

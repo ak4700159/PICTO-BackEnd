@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.Random;
 import picto.com.usermanager.domain.user.entity.EmailVerification;
 import picto.com.usermanager.domain.user.dto.response.EmailVerificationResponse;
+import org.keycloak.representations.idm.CredentialRepresentation;
 
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
@@ -108,25 +109,6 @@ public class UserManagerVerificationService {
         // 인증 성공 시 인증 정보 삭제
         emailVerificationRepository.delete(verification);
 
-        // Keycloak emailVerified true로 업데이트
-        try {
-            Keycloak keycloak = KeycloakBuilder.builder()
-                    .serverUrl(getKeycloakServerUrl())
-                    .realm(realm)
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
-                    .grantType("client_credentials")
-                    .build();
-            List<UserRepresentation> users = keycloak.realm(realm).users().search(null, null, null, email, 0, 1);
-            if (!users.isEmpty()) {
-                UserRepresentation user = users.get(0);
-                user.setEmailVerified(true);
-                keycloak.realm(realm).users().get(user.getId()).update(user);
-            }
-        } catch (Exception e) {
-            log.error("Keycloak emailVerified 업데이트 실패: {}", e.getMessage());
-            return new EmailVerificationResponse("이메일 인증에 실패했습니다.", false);
-        }
         return new EmailVerificationResponse("이메일 인증에 성공했습니다.", true);
     }
 
@@ -154,6 +136,55 @@ public class UserManagerVerificationService {
         } catch (Exception e) {
             log.error("Keycloak 이메일 인증 상태 확인 실패: {}", e.getMessage());
             return new EmailVerificationResponse("이메일 인증 상태 확인 실패", false);
+        }
+    }
+
+    private String generateRandomPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder code = new StringBuilder();
+        Random rnd = new Random();
+        for (int i = 0; i < 10; i++) {
+            code.append(chars.charAt(rnd.nextInt(chars.length())));
+        }
+        return code.toString();
+    }
+
+    @Transactional
+    public void sendTemporaryPassword(String email) {
+        // 인증 코드 생성 (알파벳 대문자, 숫자 섞어서 10자리)
+        String password = generateRandomPassword();
+
+        try {
+            // Keycloak에서 사용자 검색 및 비밀번호 업데이트
+            Keycloak keycloak = KeycloakBuilder.builder()
+                    .serverUrl(getKeycloakServerUrl())
+                    .realm(realm)
+                    .clientId(clientId)
+                    .clientSecret(clientSecret)
+                    .grantType("client_credentials")
+                    .build();
+
+            List<UserRepresentation> users = keycloak.realm(realm).users().search(null, null, null, email, 0, 1);
+            if (!users.isEmpty()) {
+                UserRepresentation user = users.get(0);
+                CredentialRepresentation credential = new CredentialRepresentation();
+                credential.setType(CredentialRepresentation.PASSWORD);
+                credential.setValue(password);
+                credential.setTemporary(true);
+
+                keycloak.realm(realm).users().get(user.getId()).resetPassword(credential);
+            }
+
+            // 이메일 전송
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setFrom("PICTO ADMIN <" + this.email + ">");
+            message.setSubject("Picto 어플리케이션 임시 비밀번호입니다.");
+            message.setText("로그인 후 비밀번호를 변경해주세요.\n" + password);
+            mailSender.send(message);
+        } catch (Exception e) {
+            log.error("비밀번호 재설정 실패: {}", e.getMessage());
+            throw new RuntimeException("비밀번호 재설정에 실패했습니다.");
         }
     }
 }

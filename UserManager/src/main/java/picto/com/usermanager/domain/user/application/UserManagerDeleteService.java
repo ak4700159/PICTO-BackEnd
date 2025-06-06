@@ -7,7 +7,7 @@ import picto.com.usermanager.domain.user.dao.BlockRepository;
 import picto.com.usermanager.domain.user.dao.MarkRepository;
 import picto.com.usermanager.domain.user.dao.UserRepository;
 import picto.com.usermanager.domain.user.dto.request.EventRequest;
-import picto.com.usermanager.domain.user.dto.request.UserRequest;
+import picto.com.usermanager.domain.user.dto.request.UserDeleteRequest;
 import picto.com.usermanager.domain.user.entity.*;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -42,7 +42,7 @@ public class UserManagerDeleteService {
     }
 
     @Transactional
-    public void deleteUSer(UserRequest request) {
+    public void deleteUSer(UserDeleteRequest request) {
         try {
             // Keycloak에서 사용자 삭제
             Keycloak keycloak = KeycloakBuilder.builder()
@@ -58,13 +58,20 @@ public class UserManagerDeleteService {
                     0, 1);
             if (!users.isEmpty()) {
                 UserRepresentation user = users.get(0);
+
+                // 비밀번호 검증
+                if (!keycloak.realm(realm).users().get(user.getId()).credentials().stream()
+                        .anyMatch(credential -> credential.getValue().equals(request.getPassword()))) {
+                    throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+                }
+
                 keycloak.realm(realm).users().delete(user.getId());
             }
 
             // DB에서 사용자 삭제
             userRepository.delete(userRepository.getReferenceById(request.getUserId()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("회원 탈퇴 실패");
+            throw new IllegalArgumentException("회원 탈퇴 실패: " + e.getMessage());
         }
     }
 
