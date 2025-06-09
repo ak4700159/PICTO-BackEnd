@@ -170,7 +170,7 @@ public class UserManagerVerificationService {
                 CredentialRepresentation credential = new CredentialRepresentation();
                 credential.setType(CredentialRepresentation.PASSWORD);
                 credential.setValue(password);
-                credential.setTemporary(true);
+                credential.setTemporary(false);
 
                 keycloak.realm(realm).users().get(user.getId()).resetPassword(credential);
             }
