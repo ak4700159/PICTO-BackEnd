@@ -13,7 +13,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import java.util.Collections;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserManagerPatchService {
@@ -37,7 +43,7 @@ public class UserManagerPatchService {
     private String clientSecret;
 
     private String getKeycloakServerUrl() {
-        return baseUrl;
+        return baseUrl.substring(0, baseUrl.indexOf("/realms/"));
     }
 
     @Transactional
@@ -86,7 +92,13 @@ public class UserManagerPatchService {
 
     @Transactional
     public void patchUserPassword(PasswordPatchRequest request) throws IllegalAccessException {
-        // Keycloak 연결 설정
+        // 1. 비밀번호 검증
+        boolean isValid = verifyPasswordWithKeycloak(request.getEmail(), request.getPassword());
+        if (!isValid) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // 2. Keycloak 연결 및 비밀번호 변경
         Keycloak keycloak = KeycloakBuilder.builder()
                 .serverUrl(getKeycloakServerUrl())
                 .realm(realm)
@@ -98,24 +110,18 @@ public class UserManagerPatchService {
         List<UserRepresentation> users = keycloak.realm(realm).users().search(null, null, null,
                 request.getEmail(),
                 0, 1);
-        UserRepresentation user = users.get(0);
 
-        if (user != null) {
-            // 비밀번호 검증
-            if (!keycloak.realm(realm).users().get(user.getId()).credentials().stream()
-                    .anyMatch(credential -> credential.getValue().equals(request.getPassword()))) {
-                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-            }
-
-            // Keycloak 비밀번호 업데이트
-            CredentialRepresentation credential = new CredentialRepresentation();
-            credential.setType(CredentialRepresentation.PASSWORD);
-            credential.setValue(request.getNewPassword());
-            credential.setTemporary(false);
-            keycloak.realm(realm).users().get(user.getId()).resetPassword(credential);
-        } else {
+        if (users.isEmpty()) {
+            log.info("NOT FOUND USER");
             throw new IllegalAccessException("NOT FOUND USER");
         }
+        UserRepresentation user = users.get(0);
+
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(request.getNewPassword());
+        credential.setTemporary(false);
+        keycloak.realm(realm).users().get(user.getId()).resetPassword(credential);
     }
 
     @Transactional
@@ -185,6 +191,32 @@ public class UserManagerPatchService {
             filterRepository.save(filter);
         } catch (Exception e) {
             throw new IllegalAccessException(e.getMessage());
+        }
+    }
+
+    private boolean verifyPasswordWithKeycloak(String email, String password) {
+        String tokenUrl = baseUrl + "/protocol/openid-connect/token";
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "password");
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+        params.add("username", email);
+        params.add("password", password);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(tokenUrl, request, String.class);
+            // 200 OK면 비밀번호 일치
+            return response.getStatusCode() == HttpStatus.OK;
+        } catch (Exception e) {
+            // 400 Bad Request 등은 비밀번호 불일치
+            return false;
         }
     }
 }
