@@ -7,17 +7,16 @@ import picto.com.foldermanager.domain.folder.FolderCreateRequest;
 import picto.com.foldermanager.domain.folder.FolderResponse;
 import picto.com.foldermanager.domain.notice.NoticeActionRequest;
 import picto.com.foldermanager.domain.notice.NoticeResponse;
-import picto.com.foldermanager.domain.notice.FcmTokenRequest;
-import picto.com.foldermanager.domain.notice.PushNotificationRequest;
 import picto.com.foldermanager.domain.photo.PhotoResponse;
 import picto.com.foldermanager.domain.save.SaveResponse;
 import picto.com.foldermanager.domain.share.ShareRequest;
 import picto.com.foldermanager.domain.share.ShareResponse;
 import picto.com.foldermanager.domain.share.SharedUserResponse;
+import picto.com.foldermanager.exception.CustomException;
 import picto.com.foldermanager.service.FolderService;
-import picto.com.foldermanager.service.FCMService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("folder-manager/folders")
@@ -25,7 +24,6 @@ import java.util.List;
 @CrossOrigin(origins = "*")
 public class FolderController {
     private final FolderService folderService;
-    private final FCMService fcmService;
 
     // 폴더 생성
     @PostMapping
@@ -39,16 +37,15 @@ public class FolderController {
             @PathVariable Long folderId,
             @RequestParam Long generatorId,
             @RequestBody FolderCreateRequest request) {
-        return ResponseEntity.ok(folderService.updateFolder(folderId, generatorId,
-                request));
+        return ResponseEntity.ok(folderService.updateFolder(folderId, generatorId, request));
     }
 
-    // 폴더 삭제
+    // 폴더 삭제 및 나가기
     @DeleteMapping("/{folderId}")
     public ResponseEntity<Void> deleteFolder(
             @PathVariable Long folderId,
-            @RequestParam Long generatorId) {
-        folderService.deleteFolder(folderId, generatorId);
+            @RequestParam Long userId) {
+        folderService.deleteFolder(folderId, userId);
         return ResponseEntity.ok().build();
     }
 
@@ -101,8 +98,7 @@ public class FolderController {
             @PathVariable Long folderId,
             @RequestParam Long photoId,
             @RequestParam Long userId) {
-        return ResponseEntity.ok(folderService.savePhotoToFolder(folderId, photoId,
-                userId));
+        return ResponseEntity.ok(folderService.savePhotoToFolder(folderId, photoId, userId));
     }
 
     // 폴더 사진 삭제
@@ -129,22 +125,6 @@ public class FolderController {
             @PathVariable Long folderId,
             @PathVariable Long photoId,
             @RequestParam Long userId) {
-        return ResponseEntity.ok(folderService.getSpecificPhotoInFolder(folderId,
-                photoId, userId));
-    }
-
-    // FCM 토큰 저장
-    @PatchMapping("/fcm_token")
-    public ResponseEntity<Void> FcmToken(@RequestBody FcmTokenRequest request) {
-        fcmService.saveFcmToken(request.getUserId(), request.getFcmToken());
-        return ResponseEntity.ok().build();
-    }
-
-    // 푸시 알림 전송 (테스트 용)
-    // 공유 폴더 초대 시 푸시 알림은 자체적으로 추가돼있음
-    @PostMapping("/send_push_notification")
-    public ResponseEntity<Void> sendPushNotification(@RequestBody PushNotificationRequest request) {
-        fcmService.sendPushNotification(request.getToken(), request.getTitle(), request.getBody());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(folderService.getSpecificPhotoInFolder(folderId, photoId, userId));
     }
 }
