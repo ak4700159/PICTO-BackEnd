@@ -42,7 +42,6 @@ public class FolderService {
     private final UserRepository userRepository;
     private final NoticeRepository noticeRepository;
     private final AmazonS3 s3client;
-    private final FCMService fcmService;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -101,19 +100,64 @@ public class FolderService {
         return FolderResponse.from(folderRepository.save(folder));
     }
 
-    // 폴더 삭제
+//    // 폴더 삭제
+//    @Transactional
+//    public void deleteFolder(Long folderId, Long userId) {
+//        Folder folder = getFolderWithAccessCheck(folderId, userId);
+//        validateFolderOwner(folder, userId);
+//
+//        // S3 폴더 삭제
+//        String folderKey = createS3Key(folder.getGenerator().getId(), folder.getName(), null);
+//        deleteS3Folder(folderKey);
+//
+//        saveRepository.deleteAllByFolder(folder);
+//        shareRepository.deleteAllByFolder(folder);
+//        folderRepository.delete(folder);
+//    }
+
+    // 폴더 삭제 및 나가기
     @Transactional
     public void deleteFolder(Long folderId, Long userId) {
         Folder folder = getFolderWithAccessCheck(folderId, userId);
         validateFolderOwner(folder, userId);
 
-        // S3 폴더 삭제
-        String folderKey = createS3Key(folder.getGenerator().getId(), folder.getName(), null);
-        deleteS3Folder(folderKey);
+        // 요청자가 폴더 소유자인 경우 = 전체 폴더 삭제
+        if (folder.getGenerator().getId().equals(userId)) {
+            // S3 폴더 삭제
+            String folderKey = createS3Key(folder.getGenerator().getId(), folder.getName(), null);
+            deleteS3Folder(folderKey);
 
-        saveRepository.deleteAllByFolder(folder);
-        shareRepository.deleteAllByFolder(folder);
-        folderRepository.delete(folder);
+            saveRepository.deleteAllByFolder(folder);
+            shareRepository.deleteAllByFolder(folder);
+            folderRepository.delete(folder);
+            return;
+        }
+
+        // 요청자가 공유자인 경우 = 폴더 나가기
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다."));
+
+        Share share = shareRepository.findByUserAndFolder(user, folder)
+                .orElseThrow(() -> new CustomException("공유 폴더에 속한 사용자가 아닙니다."));
+
+        // 사용자가 폴더에 저장한 사진 모두 가져오기
+        List<Save> userSaves = saveRepository.findAllByFolder(folder).stream()
+                .filter(save -> save.getPhoto().getUser().getUserId().equals(user.getId()))
+                .collect(Collectors.toList());
+
+        // 사용자가 업로드한 사진 삭제 처리
+        userSaves.forEach(save -> {
+            String fileName = extractFileName(save.getPhoto().getPhotoPath());
+            deleteFileFromSharedUsers(folder, fileName);
+            saveRepository.delete(save);
+        });
+
+        // 사용자 S3 폴더 삭제
+        String userFolderKey = createS3Key(user.getId(), folder.getName(), null);
+        deleteS3Folder(userFolderKey);
+
+        // 공유 정보 삭제
+        shareRepository.delete(share);
     }
 
     // 공유 폴더 초대
@@ -141,16 +185,6 @@ public class FolderService {
                 .build();
 
         noticeRepository.save(notice);
-
-        // FCM 푸시 알림 전송
-        if (invitee.getFcmToken() != null && !invitee.getFcmToken().isEmpty()) {
-            String title = "폴더 초대 알림";
-            String body = String.format("%s(%s)님이 '%s' 폴더에 초대했습니다.", notice.getSender().getName(),
-                    notice.getSender().getAccountName(), folder.getName());
-            fcmService.sendPushNotification(invitee.getFcmToken(), title, body);
-        } else if (invitee.getFcmToken() == null || invitee.getFcmToken().isEmpty()) {
-            log.info("FCM 토큰을 찾을 수 없습니다. 토큰 정보를 업데이트 해주세요.");
-        }
 
         return null;
     }
@@ -248,7 +282,8 @@ public class FolderService {
                 .collect(Collectors.toMap(
                         ShareResponse::getFolderId,
                         response -> response,
-                        (existing, replacement) -> existing))
+                        (existing, replacement) -> existing
+                ))
                 .values()
                 .stream()
                 .collect(Collectors.toList());
@@ -547,7 +582,8 @@ public class FolderService {
         boolean isSharedUser = shareRepository.existsByUserAndFolder(
                 userRepository.findById(userId)
                         .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.")),
-                folder);
+                folder
+        );
 
         if (!isSharedUser) {
             throw new CustomException("해당 폴더에 대한 접근 권한이 없습니다.");
