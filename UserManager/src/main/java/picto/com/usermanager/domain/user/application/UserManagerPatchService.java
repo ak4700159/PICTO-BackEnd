@@ -46,11 +46,43 @@ public class UserManagerPatchService {
         return baseUrl.substring(0, baseUrl.indexOf("/realms/"));
     }
 
+    private boolean verifyPasswordWithKeycloak(String email, String password) {
+        String tokenUrl = baseUrl + "/protocol/openid-connect/token";
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "password");
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+        params.add("username", email);
+        params.add("password", password);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(tokenUrl, request, String.class);
+            // 200 OK면 비밀번호 일치
+            return response.getStatusCode() == HttpStatus.OK;
+        } catch (Exception e) {
+            // 400 Bad Request 등은 비밀번호 불일치
+            return false;
+        }
+    }
+
     @Transactional
     public void patchUser(UserPatchRequest request) throws IllegalAccessException {
         User findUser = userRepository.getUserByEmail(request.getEmail());
         if (findUser != null) {
-            // Keycloak 연결 설정
+            // 1. 비밀번호 검증
+            boolean isValid = verifyPasswordWithKeycloak(request.getEmail(), request.getPassword());
+            if (!isValid) {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+
+            // 2. Keycloak 연결 및 비밀번호 변경
             Keycloak keycloak = KeycloakBuilder.builder()
                     .serverUrl(getKeycloakServerUrl())
                     .realm(realm)
@@ -59,16 +91,15 @@ public class UserManagerPatchService {
                     .grantType("client_credentials")
                     .build();
 
-            List<UserRepresentation> users = keycloak.realm(realm).users().search(request.getAccountName(), null, null,
+            List<UserRepresentation> users = keycloak.realm(realm).users().search(null, null, null,
                     request.getEmail(),
                     0, 1);
-            UserRepresentation user = users.get(0);
 
-            // 비밀번호 검증
-            if (!keycloak.realm(realm).users().get(user.getId()).credentials().stream()
-                    .anyMatch(credential -> credential.getValue().equals(request.getPassword()))) {
-                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            if (users.isEmpty()) {
+                log.info("NOT FOUND USER");
+                throw new IllegalAccessException("NOT FOUND USER");
             }
+            UserRepresentation user = users.get(0);
 
             // 사용자 정보 변경
             findUser.setAccountName(request.getAccountName());
@@ -191,32 +222,6 @@ public class UserManagerPatchService {
             filterRepository.save(filter);
         } catch (Exception e) {
             throw new IllegalAccessException(e.getMessage());
-        }
-    }
-
-    private boolean verifyPasswordWithKeycloak(String email, String password) {
-        String tokenUrl = baseUrl + "/protocol/openid-connect/token";
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "password");
-        params.add("client_id", clientId);
-        params.add("client_secret", clientSecret);
-        params.add("username", email);
-        params.add("password", password);
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-
-        try {
-            ResponseEntity<String> response = restTemplate.postForEntity(tokenUrl, request, String.class);
-            // 200 OK면 비밀번호 일치
-            return response.getStatusCode() == HttpStatus.OK;
-        } catch (Exception e) {
-            // 400 Bad Request 등은 비밀번호 불일치
-            return false;
         }
     }
 }

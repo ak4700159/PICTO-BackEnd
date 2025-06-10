@@ -14,6 +14,11 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.UserRepresentation;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.http.MediaType;
 
 @Service
 @RequiredArgsConstructor
@@ -38,13 +43,45 @@ public class UserManagerDeleteService {
     private String email;
 
     private String getKeycloakServerUrl() {
-        return baseUrl;
+        return baseUrl.substring(0, baseUrl.indexOf("/realms/"));
+    }
+
+    private boolean verifyPasswordWithKeycloak(String email, String password) {
+        String tokenUrl = baseUrl + "/protocol/openid-connect/token";
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "password");
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+        params.add("username", email);
+        params.add("password", password);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(tokenUrl, request, String.class);
+            // 200 OK면 비밀번호 일치
+            return response.getStatusCode() == HttpStatus.OK;
+        } catch (Exception e) {
+            // 400 Bad Request 등은 비밀번호 불일치
+            return false;
+        }
     }
 
     @Transactional
     public void deleteUSer(UserDeleteRequest request) {
         try {
-            // Keycloak에서 사용자 삭제
+            // 1. 비밀번호 검증
+            boolean isValid = verifyPasswordWithKeycloak(request.getEmail(), request.getPassword());
+            if (!isValid) {
+                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            }
+
+            // 2. Keycloak 연결 및 비밀번호 변경
             Keycloak keycloak = KeycloakBuilder.builder()
                     .serverUrl(getKeycloakServerUrl())
                     .realm(realm)
@@ -53,20 +90,15 @@ public class UserManagerDeleteService {
                     .grantType("client_credentials")
                     .build();
 
-            List<UserRepresentation> users = keycloak.realm(realm).users().search(request.getAccountName(), null, null,
+            List<UserRepresentation> users = keycloak.realm(realm).users().search(null, null, null,
                     request.getEmail(),
                     0, 1);
-            if (!users.isEmpty()) {
-                UserRepresentation user = users.get(0);
 
-                // 비밀번호 검증
-                if (!keycloak.realm(realm).users().get(user.getId()).credentials().stream()
-                        .anyMatch(credential -> credential.getValue().equals(request.getPassword()))) {
-                    throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-                }
-
-                keycloak.realm(realm).users().delete(user.getId());
+            if (users.isEmpty()) {
+                throw new IllegalArgumentException("NOT FOUND USER");
             }
+            UserRepresentation user = users.get(0);
+            keycloak.realm(realm).users().delete(user.getId());
 
             // DB에서 사용자 삭제
             userRepository.delete(userRepository.getUserByEmail(request.getEmail()));
