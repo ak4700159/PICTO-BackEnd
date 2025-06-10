@@ -118,8 +118,8 @@ public class FolderService {
     // 폴더 삭제 및 나가기
     @Transactional
     public void deleteFolder(Long folderId, Long userId) {
-        Folder folder = getFolderWithAccessCheck(folderId, userId);
-        validateFolderOwner(folder, userId);
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new FolderNotFoundException("폴더를 찾을 수 없습니다."));
 
         // 요청자가 폴더 소유자인 경우 = 전체 폴더 삭제
         if (folder.getGenerator().getId().equals(userId)) {
