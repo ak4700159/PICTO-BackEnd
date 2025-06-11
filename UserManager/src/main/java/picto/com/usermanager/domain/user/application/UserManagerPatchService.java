@@ -77,10 +77,10 @@ public class UserManagerPatchService {
         User findUser = userRepository.getUserByEmail(request.getEmail());
         if (findUser != null) {
             // 1. 비밀번호 검증
-            boolean isValid = verifyPasswordWithKeycloak(request.getEmail(), request.getPassword());
-            if (!isValid) {
-                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-            }
+//            boolean isValid = verifyPasswordWithKeycloak(request.getEmail(), request.getPassword());
+//            if (!isValid) {
+//                throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+//            }
 
             // 2. Keycloak 연결 및 비밀번호 변경
             Keycloak keycloak = KeycloakBuilder.builder()
