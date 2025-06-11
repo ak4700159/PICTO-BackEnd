@@ -14,6 +14,10 @@ import picto.com.foldermanager.domain.share.ShareResponse;
 import picto.com.foldermanager.domain.share.SharedUserResponse;
 import picto.com.foldermanager.exception.CustomException;
 import picto.com.foldermanager.service.FolderService;
+import picto.com.foldermanager.service.FCMService;
+import picto.com.foldermanager.domain.notice.FcmTokenRequest;
+import picto.com.foldermanager.domain.notice.PushNotificationRequest;
+
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +28,7 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")
 public class FolderController {
     private final FolderService folderService;
+    private final FCMService fcmService;
 
     // 폴더 생성
     @PostMapping
@@ -126,5 +131,21 @@ public class FolderController {
             @PathVariable Long photoId,
             @RequestParam Long userId) {
         return ResponseEntity.ok(folderService.getSpecificPhotoInFolder(folderId, photoId, userId));
+    }
+
+
+    // FCM 토큰 저장
+    @PatchMapping("/fcm_token")
+    public ResponseEntity<Void> FcmToken(@RequestBody FcmTokenRequest request) {
+        fcmService.saveFcmToken(request.getUserId(), request.getFcmToken());
+        return ResponseEntity.ok().build();
+    }
+
+    // 푸시 알림 전송 (테스트 용)
+    // 공유 폴더 초대 시 푸시 알림은 자체적으로 추가돼있음
+    @PostMapping("/send_push_notification")
+    public ResponseEntity<Void> sendPushNotification(@RequestBody PushNotificationRequest request) {
+        fcmService.sendPushNotification(request.getToken(), request.getTitle(), request.getBody());
+        return ResponseEntity.ok().build();
     }
 }

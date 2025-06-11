@@ -42,6 +42,8 @@ public class FolderService {
     private final UserRepository userRepository;
     private final NoticeRepository noticeRepository;
     private final AmazonS3 s3client;
+    private final FCMService fcmService;
+
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -185,7 +187,15 @@ public class FolderService {
                 .build();
 
         noticeRepository.save(notice);
-
+        // FCM 푸시 알림 전송
+        if (invitee.getFcmToken() != null && !invitee.getFcmToken().isEmpty()) {
+            String title = "폴더 초대 알림";
+            String body = String.format("%s(%s)님이 '%s' 폴더에 초대했습니다.", notice.getSender().getName(),
+                    notice.getSender().getAccountName(), folder.getName());
+            fcmService.sendPushNotification(invitee.getFcmToken(), title, body);
+        } else if (invitee.getFcmToken() == null || invitee.getFcmToken().isEmpty()) {
+            log.info("FCM 토큰을 찾을 수 없습니다. 토큰 정보를 업데이트 해주세요.");
+        }
         return null;
     }
 
